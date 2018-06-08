@@ -187,7 +187,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
 
     @Override
     public void onFatalMessageDialogDismissed() {
-        viewModel.onMessageDismissed((ShowMessageState) viewModel.mainActivityViewState.getValue());
+        viewModel.onMessageDismissed((ShowMessageState) viewModel.getMainActivityViewState().getValue());
     }
 
     private void showNonFatalMessage(MessageWithTitle message) {

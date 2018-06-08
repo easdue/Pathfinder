@@ -16,7 +16,7 @@ import timber.log.Timber;
  */
 @Singleton
 public class MainActivityViewModel extends ViewModel {
-    MutableLiveData<MainActivityViewState> mainActivityViewState;
+    private MutableLiveData<MainActivityViewState> mainActivityViewState;
 
     @Inject
     MainActivityViewModel() {
