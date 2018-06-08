@@ -21,16 +21,16 @@ interface MainActivityViewState {
     class CheckGoogleApiUnavailabilityState implements MainActivityViewState {
     }
 
-    class ShowMessageState implements MainActivityViewState {
+    class ShowMessageViewState implements MainActivityViewState {
         @NonNull final MessageWithTitle message;
         final boolean isFatal;
         @Nullable MainActivityViewState prevState;
 
-        ShowMessageState(@NonNull MessageWithTitle message, boolean isFatal) {
+        ShowMessageViewState(@NonNull MessageWithTitle message, boolean isFatal) {
             this(message, isFatal, null);
         }
 
-        ShowMessageState(@NonNull MessageWithTitle message, boolean isFatal, @Nullable MainActivityViewState prevState) {
+        ShowMessageViewState(@NonNull MessageWithTitle message, boolean isFatal, @Nullable MainActivityViewState prevState) {
             this.message = message;
             this.isFatal = isFatal;
             this.prevState = prevState;

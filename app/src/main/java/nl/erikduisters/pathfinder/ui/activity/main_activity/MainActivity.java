@@ -20,7 +20,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageViewState;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
@@ -134,8 +134,8 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
             removeFragment(TAG_INIT_STORAGE_FRAGMENT);
         }
 
-        if (viewState instanceof ShowMessageState) {
-            showMessageDialog(TAG_MESSAGE_DIALOG, (ShowMessageState) viewState);
+        if (viewState instanceof ShowMessageViewState) {
+            showMessageDialog(TAG_MESSAGE_DIALOG, (ShowMessageViewState) viewState);
         } else {
             dismissDialogFragment(TAG_MESSAGE_DIALOG);
         }
@@ -163,7 +163,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
         viewModel.handleMessage(message, isFatal);
     }
 
-    private void showMessageDialog(String Tag, ShowMessageState state) {
+    private void showMessageDialog(String Tag, ShowMessageViewState state) {
         if (state.isFatal) {
             showFatalMessageDialog(state.message);
         } else {
@@ -187,7 +187,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
 
     @Override
     public void onFatalMessageDialogDismissed() {
-        viewModel.onMessageDismissed((ShowMessageState) viewModel.getMainActivityViewState().getValue());
+        viewModel.onMessageDismissed((ShowMessageViewState) viewModel.getMainActivityViewState().getValue());
     }
 
     private void showNonFatalMessage(MessageWithTitle message) {

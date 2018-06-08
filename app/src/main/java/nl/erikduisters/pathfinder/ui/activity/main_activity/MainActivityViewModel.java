@@ -33,10 +33,10 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     void handleMessage(@NonNull MessageWithTitle message, boolean isFatal) {
-        mainActivityViewState.setValue(new MainActivityViewState.ShowMessageState(message, isFatal, mainActivityViewState.getValue()));
+        mainActivityViewState.setValue(new MainActivityViewState.ShowMessageViewState(message, isFatal, mainActivityViewState.getValue()));
     }
 
-    void onMessageDismissed(MainActivityViewState.ShowMessageState state) {
+    void onMessageDismissed(MainActivityViewState.ShowMessageViewState state) {
         if (state.isFatal) {
             mainActivityViewState.setValue(new MainActivityViewState.FinishState());
         } else {
