@@ -3,8 +3,10 @@ package nl.erikduisters.pathfinder.ui;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
@@ -77,5 +79,51 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
         }
 
         super.onDestroy();
+    }
+
+    protected <T extends Fragment> T findFragment(String tag) {
+        //noinspection unchecked
+        return (T) getSupportFragmentManager().findFragmentByTag(tag);
+    }
+
+    protected void addFragment(Fragment fragment, String tag) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(fragment, tag)
+                .commit();
+    }
+
+    protected void addFragment(@IdRes int containerViewId, Fragment fragment, String tag) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(containerViewId, fragment, tag)
+                .commit();
+    }
+
+    protected void removeFragment(String tag) {
+        Fragment fragment = getSupportFragmentManager()
+                .findFragmentByTag(tag);
+
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(fragment)
+                    .commit();
+        }
+    }
+
+    protected void show(DialogFragment dialog, String tag) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(dialog, tag)
+                .commit();
+    }
+
+    public void dismissDialogFragment(String tag) {
+        DialogFragment fragment = (DialogFragment) getSupportFragmentManager().findFragmentByTag(tag);
+
+        if (fragment != null) {
+            fragment.dismiss();
+        }
     }
 }

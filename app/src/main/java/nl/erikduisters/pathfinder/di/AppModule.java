@@ -14,7 +14,7 @@ import nl.erikduisters.pathfinder.MyApplication;
  * Created by Erik Duisters on 01-06-2018.
  */
 
-@Module(subcomponents = {/*MainActivitySubcomponent.class*/})
+@Module
 abstract class AppModule {
     @Binds
     @Singleton

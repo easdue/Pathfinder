@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="42dp"
+    android:minWidth="250dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent">
+
+    <RadioButton
+        android:id="@+id/ssr_device"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:lines="1"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/freePlaceholder"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="INTERNAL"/>
+
+    <TextView
+        android:id="@+id/freePlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="@string/placeholder_128_5GB"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/ssr_device"
+        app:layout_constraintEnd_toStartOf="@+id/totalPlaceholder"
+        app:layout_constraintStart_toEndOf="@+id/ssr_device"
+        app:layout_constraintTop_toTopOf="@+id/ssr_device"/>
+
+    <TextView
+        android:id="@+id/ssr_freeSpace"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        app:layout_constraintEnd_toEndOf="@+id/freePlaceholder"
+        app:layout_constraintStart_toStartOf="@+id/freePlaceholder"
+        app:layout_constraintTop_toTopOf="@+id/freePlaceholder"
+        tools:text="4.1GB"/>
+
+    <TextView
+        android:id="@+id/totalPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:gravity="end"
+        android:text="@string/placeholder_128_5GB"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/freePlaceholder"
+        app:layout_constraintTop_toTopOf="@+id/freePlaceholder"/>
+
+    <TextView
+        android:id="@+id/ssr_totalSize"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        app:layout_constraintEnd_toEndOf="@+id/totalPlaceholder"
+        app:layout_constraintStart_toStartOf="@+id/totalPlaceholder"
+        app:layout_constraintTop_toTopOf="@+id/totalPlaceholder"
+        tools:text="16GB"/>
+</android.support.constraint.ConstraintLayout>

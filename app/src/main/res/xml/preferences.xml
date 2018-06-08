@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="@string/key_storage_directory"
+        android:title="@string/prefs_storage_location"
+        android:enabled="true"
+        android:selectable="false"/>
+    <Preference
+        android:key="@string/key_cache_directory"
+        android:enabled="true"
+        android:defaultValue='""'
+        android:persistent="true" />
+    <EditTextPreference
+        android:key="@string/key_storage_import_directory"
+        android:title="@string/prefs_import_directory"
+        android:selectable="true"
+        android:enabled="true"
+        android:defaultValue='Import'
+        android:persistent="true"/>
+    <EditTextPreference
+        android:key="@string/key_storage_cache_directory"
+        android:persistent="true" android:title="@string/prefs_cache_directory"
+        android:selectable="true"
+        android:enabled="true"
+        android:defaultValue='Cache'/>
+    <EditTextPreference
+        android:key="@string/key_storage_user_directory"
+        android:title="@string/prefs_user_directory"
+        android:selectable="true"
+        android:enabled="true"
+        android:defaultValue="User"
+        android:persistent="true"/>
+    <EditTextPreference
+        android:key="@string/key_storage_map_directory"
+        android:title="@string/prefs_map_directory"
+        android:selectable="true"
+        android:enabled="true"
+        android:defaultValue="Maps"
+        android:persistent="true"/>
+    <EditTextPreference
+        android:key="@string/key_storage_rendertheme_directory"
+        android:title="@string/prefs_rendertheme_directory"
+        android:selectable="true"
+        android:enabled="true"
+        android:defaultValue="RenderThemes"
+        android:persistent="true"/>
+</PreferenceScreen>

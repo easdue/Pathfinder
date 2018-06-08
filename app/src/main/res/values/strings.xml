@@ -10,4 +10,40 @@
     <string name="nav_gps_status">GPS Status</string>
     <string name="nav_settings">Settings</string>
     <string name="action_settings">Settings</string>
+    <!-- SelectStorage -->
+    <string name="select_storage">Select Storage</string>
+    <string name="device">Device</string>
+    <string name="free">Free</string>
+    <string name="total">Total</string>
+    <string name="placeholder_128_5GB">128.5GB</string>
+    <string name="storage_error">Storage error</string>
+    <string name="storage_not_mounted">The configured storage device is not mounted\n\nPlease remount the device or configure a new storage device</string>
+    <string name="storage_create_dir_layout_failed">Could not create the required directory layout on the configured storage device\n\nPlease verify that the device has free space available.</string>
+    <string name="storage_device_changed">The configured storage device has been replaced. Please re-insert it or copy the apps storage directory over to the new device.</string>
+    <string name="storage_adopted_storage_unsupported">Adopted internal storage is not supported because there are severe issues with that type of storage\n\nPlease move %1$s back to internal storage</string>
+    <string name="storage_internal">Internal</string>
+    <string name="storage_external">External</string>
+    <string name="storage_space_warning">Storage space warning</string>
+    <string name="storage_space_requirements">You don\'t have a sdcard installed or you chose internal storage as storage device.\n\nIt\'s not uncommon for this app to require more than 1Gb of space depending on the downloaded maps and the number of stored tracks</string>
+
+    <!-- Preferences -->
+    <string name="key_storage_directory" translatable="false">storage_directory</string>
+    <string name="key_cache_directory" translatable="false">cache_directory</string>
+    <string name="key_storage_import_directory" translatable="false">storage_import_directory</string>
+    <string name="key_storage_uuid" translatable="false">storage_uuid</string>
+    <string name="key_storage_cache_directory" translatable="false">storage_cache_directory</string>
+    <string name="key_storage_map_directory" translatable="false">storage_map_directory</string>
+    <string name="key_storage_user_directory" translatable="false">storage_user_directory</string>
+    <string name="key_storage_rendertheme_directory" translatable="false">storage_rendertheme_directory</string>
+
+    <string name="prefs_storage_location">Storage Location</string>
+    <string name="prefs_import_directory">Import Directory</string>
+    <string name="prefs_cache_directory">Cache Directory</string>
+    <string name="prefs_map_directory">Map Directory</string>
+    <string name="prefs_user_directory">User Directory</string>
+    <string name="prefs_rendertheme_directory">Rendertheme Directory</string>
+
+    <!-- Dialogs -->
+    <string name="ok">OK</string>
+    <string name="edit">EDIT</string>
 </resources>
