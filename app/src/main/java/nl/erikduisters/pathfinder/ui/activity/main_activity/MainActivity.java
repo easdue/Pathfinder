@@ -1,6 +1,7 @@
 package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.NavigationView;
@@ -21,15 +22,22 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageViewState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
+import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
+import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
+import timber.log.Timber;
 
-public class MainActivity extends BaseActivity<MainActivityViewModel>
-        implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener, FatalMessageDialog.FatalMessageDialogListener {
+//TODO: Remove fragment listeners
+public class MainActivity extends BaseActivity<MainActivityViewModel> implements
+        NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
+        FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener {
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
+    private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
     private static final String TAG_MESSAGE_DIALOG = "MessageDialog";
 
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -135,8 +143,14 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
             removeFragment(TAG_INIT_STORAGE_FRAGMENT);
         }
 
-        if (viewState instanceof ShowMessageViewState) {
-            showMessageDialog(TAG_MESSAGE_DIALOG, (ShowMessageViewState) viewState);
+        if (viewState instanceof RequestRuntimePermissionState) {
+            startRuntimePermissionFragment(TAG_RUNTIME_PERMISSION_FRAGMENT, (RequestRuntimePermissionState)viewState);
+        } else {
+            removeFragment(TAG_RUNTIME_PERMISSION_FRAGMENT);
+        }
+
+        if (viewState instanceof ShowMessageState) {
+            showMessageDialog(TAG_MESSAGE_DIALOG, (ShowMessageState) viewState);
         } else {
             dismissDialogFragment(TAG_MESSAGE_DIALOG);
         }
@@ -158,6 +172,25 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
         fragment.setListener(this);
     }
 
+    private void startRuntimePermissionFragment(String tag, RequestRuntimePermissionState viewState) {
+        Timber.d("startRuntimePermissionFragment()");
+
+        RuntimePermissionFragment fragment = findFragment(tag);
+
+        if (fragment == null) {
+            Timber.d("Creating new RuntimePermissionFragment");
+            fragment = RuntimePermissionFragment.newInstance(viewState.request);
+
+            addFragment(fragment, tag);
+        } else {
+            RuntimePermissionFragmentViewModel viewModel = fragment.getViewModel();
+
+            if (viewModel != null) viewModel.requestPermission(viewState.request);
+        }
+
+        fragment.setListener(this);
+    }
+
     @Override
     public void onStorageInitialized() {
         viewModel.onStorageInitialized();
@@ -168,7 +201,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
         viewModel.handleMessage(message, isFatal);
     }
 
-    private void showMessageDialog(String Tag, ShowMessageViewState state) {
+    private void showMessageDialog(String Tag, ShowMessageState state) {
         if (state.isFatal) {
             showFatalMessageDialog(state.message);
         } else {
@@ -192,7 +225,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
 
     @Override
     public void onFatalMessageDialogDismissed() {
-        viewModel.onMessageDismissed((ShowMessageViewState) viewModel.getMainActivityViewState().getValue());
+        viewModel.onMessageDismissed((ShowMessageState) viewModel.getMainActivityViewState().getValue());
     }
 
     private void showNonFatalMessage(MessageWithTitle message) {
@@ -209,5 +242,17 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
         }
 
         Snackbar.make(constraintLayout, sb.toString(), Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onPermissionGranted(@NonNull String permission) {
+        Timber.e("onPermissionGranted: %s", permission);
+        viewModel.onPermissionGranted(permission);
+    }
+
+    @Override
+    public void onPermissionDenied(@NonNull String permission) {
+        Timber.e("onPermissionDenied: %s", permission);
+        viewModel.onPermissionDenied(permission);
     }
 }

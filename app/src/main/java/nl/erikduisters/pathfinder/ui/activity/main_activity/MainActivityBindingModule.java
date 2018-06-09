@@ -8,6 +8,7 @@ import dagger.android.ContributesAndroidInjector;
 import nl.erikduisters.pathfinder.di.ActivityContext;
 import nl.erikduisters.pathfinder.di.FragmentScope;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
+import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 
 /**
  * Created by Erik Duisters on 05-06-2018.
@@ -17,6 +18,10 @@ public abstract class MainActivityBindingModule {
     @FragmentScope
     @ContributesAndroidInjector
     abstract InitStorageFragment contributeInitStorageFragment();
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract RuntimePermissionFragment contributeRuntimePermissionFragment();
 
     @Provides
     @ActivityContext

@@ -10,6 +10,7 @@
     <string name="nav_gps_status">GPS Status</string>
     <string name="nav_settings">Settings</string>
     <string name="action_settings">Settings</string>
+
     <!-- SelectStorage -->
     <string name="select_storage">Select Storage</string>
     <string name="device">Device</string>
@@ -46,4 +47,12 @@
     <!-- Dialogs -->
     <string name="ok">OK</string>
     <string name="edit">EDIT</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+
+    <!-- Runtime permissions -->
+    <string name="permission_needed">Permission Needed</string>
+    <string name="location_permission_rational">I need your GPS location information in order to be able to determine where you are and lead you to any waypoint or record/follow any tracks.\n\nDo want to set this permission up now?</string>
+    <string name="fatal_error">Fatal Error</string>
+    <string name="location_permission_is_required">Without access to your GPS location, this app is useless</string>
 </resources>

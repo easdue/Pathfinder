@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
 
 /**
  * Created by Erik Duisters on 03-06-2018.
@@ -12,25 +13,30 @@ interface MainActivityViewState {
     class InitStorageViewState implements MainActivityViewState {
     }
 
-    class InitDatabaseState implements MainActivityViewState {
+    class RequestRuntimePermissionState implements MainActivityViewState {
+        final RuntimePermissionRequest request;
+
+        RequestRuntimePermissionState(RuntimePermissionRequest request) {
+            this.request = request;
+        }
     }
 
-    class RequestRuntimePermissionState implements MainActivityViewState {
+    class InitDatabaseState implements MainActivityViewState {
     }
 
     class CheckGoogleApiUnavailabilityState implements MainActivityViewState {
     }
 
-    class ShowMessageViewState implements MainActivityViewState {
+    class ShowMessageState implements MainActivityViewState {
         @NonNull final MessageWithTitle message;
         final boolean isFatal;
         @Nullable MainActivityViewState prevState;
 
-        ShowMessageViewState(@NonNull MessageWithTitle message, boolean isFatal) {
+        ShowMessageState(@NonNull MessageWithTitle message, boolean isFatal) {
             this(message, isFatal, null);
         }
 
-        ShowMessageViewState(@NonNull MessageWithTitle message, boolean isFatal, @Nullable MainActivityViewState prevState) {
+        ShowMessageState(@NonNull MessageWithTitle message, boolean isFatal, @Nullable MainActivityViewState prevState) {
             this.message = message;
             this.isFatal = isFatal;
             this.prevState = prevState;

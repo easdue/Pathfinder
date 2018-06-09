@@ -3,7 +3,6 @@ package nl.erikduisters.pathfinder.ui;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
@@ -40,10 +39,8 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
     public void onAttach(Context context) {
         Timber.e("onAttach(Context)");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            AndroidSupportInjection.inject(this);
-            viewModel = ViewModelProviders.of(this, viewModelFactory).get(getViewModelClass());
-        }
+        AndroidSupportInjection.inject(this);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(getViewModelClass());
 
         super.onAttach(context);
     }

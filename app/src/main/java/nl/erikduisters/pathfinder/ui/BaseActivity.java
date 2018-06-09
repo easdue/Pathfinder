@@ -28,7 +28,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
 
 
     @Inject
-    ViewModelFactory viewModelFactory;
+    protected ViewModelFactory viewModelFactory;
 
     protected VM viewModel;
 
