@@ -172,7 +172,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
 
         preferenceManager.setStorageUUID(null);
 
-        boolean success = FileUtil.createFile(storage + "." + uuid.toString());
+        boolean success = FileUtil.createFile(new File(storage, "." + uuid.toString()));
 
         if (success) {
             preferenceManager.setStorageUUID(uuid);

@@ -13,18 +13,6 @@ import java.util.regex.Pattern;
 public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
 
-    /**
-     * Create the specified file if it does not yet exist
-     *
-     * @param file The file to be created
-     * @return true on success, false on failure
-     */
-    public static boolean createFile(String file) {
-        File f = new File(file);
-
-        return createFile(f);
-    }
-
     public static boolean createFile(File f) {
         if (f.exists()) {
             return true;
