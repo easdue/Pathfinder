@@ -19,6 +19,7 @@ import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageViewState;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
@@ -138,6 +139,10 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
             showMessageDialog(TAG_MESSAGE_DIALOG, (ShowMessageViewState) viewState);
         } else {
             dismissDialogFragment(TAG_MESSAGE_DIALOG);
+        }
+
+        if (viewState instanceof FinishState) {
+            finish();
         }
     }
 
