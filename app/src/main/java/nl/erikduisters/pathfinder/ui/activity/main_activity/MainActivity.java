@@ -147,7 +147,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel>
         if (fragment == null) {
             fragment = new InitStorageFragment();
 
-            addFragment(fragment, TAG_INIT_STORAGE_FRAGMENT);
+            addFragment(fragment, tag);
         }
 
         fragment.setListener(this);
