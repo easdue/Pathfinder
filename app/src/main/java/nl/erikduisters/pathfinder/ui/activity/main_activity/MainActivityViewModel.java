@@ -21,17 +21,17 @@ import timber.log.Timber;
  */
 @Singleton
 public class MainActivityViewModel extends ViewModel {
-    private MutableLiveData<MainActivityViewState> mainActivityViewState;
+    private MutableLiveData<MainActivityViewState> ViewStateObservable;
 
     @Inject
     MainActivityViewModel() {
         Timber.d("New MainActivityViewModel created");
 
-        mainActivityViewState = new MutableLiveData<>();
-        mainActivityViewState.setValue(new InitStorageViewState());
+        ViewStateObservable = new MutableLiveData<>();
+        ViewStateObservable.setValue(new InitStorageViewState());
     }
 
-    LiveData<MainActivityViewState> getMainActivityViewState() { return mainActivityViewState; }
+    LiveData<MainActivityViewState> getViewStateObservable() { return ViewStateObservable; }
 
     void onStorageInitialized() {
         MessageWithTitle rationale =
@@ -40,18 +40,18 @@ public class MainActivityViewModel extends ViewModel {
         RuntimePermissionRequest request =
                 new RuntimePermissionRequest(Manifest.permission.ACCESS_FINE_LOCATION, rationale);
 
-        mainActivityViewState.setValue(new RequestRuntimePermissionState(request));
+        ViewStateObservable.setValue(new RequestRuntimePermissionState(request));
     }
 
     void handleMessage(@NonNull MessageWithTitle message, boolean isFatal) {
-        mainActivityViewState.setValue(new MainActivityViewState.ShowMessageState(message, isFatal, mainActivityViewState.getValue()));
+        ViewStateObservable.setValue(new MainActivityViewState.ShowMessageState(message, isFatal, ViewStateObservable.getValue()));
     }
 
     void onMessageDismissed(MainActivityViewState.ShowMessageState state) {
         if (state.isFatal) {
-            mainActivityViewState.setValue(new MainActivityViewState.FinishState());
+            ViewStateObservable.setValue(new MainActivityViewState.FinishState());
         } else {
-            mainActivityViewState.setValue(state.prevState);
+            ViewStateObservable.setValue(state.prevState);
         }
     }
 
@@ -65,7 +65,7 @@ public class MainActivityViewModel extends ViewModel {
             MessageWithTitle message = new MessageWithTitle(R.string.fatal_error,
                     R.string.location_permission_is_required);
 
-            mainActivityViewState.setValue(new MainActivityViewState.ShowMessageState(message, true));
+            ViewStateObservable.setValue(new MainActivityViewState.ShowMessageState(message, true));
         }
     }
 }

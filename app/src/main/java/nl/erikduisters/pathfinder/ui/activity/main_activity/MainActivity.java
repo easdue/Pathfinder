@@ -69,7 +69,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
         avatar.setImageDrawable(avatarVectorDrawable);
         username.setText("Please login");
 
-        viewModel.getMainActivityViewState().observe(this, this::render);
+        viewModel.getViewStateObservable().observe(this, this::render);
     }
 
     @Override
@@ -225,7 +225,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
 
     @Override
     public void onFatalMessageDialogDismissed() {
-        viewModel.onMessageDismissed((ShowMessageState) viewModel.getMainActivityViewState().getValue());
+        viewModel.onMessageDismissed((ShowMessageState) viewModel.getViewStateObservable().getValue());
     }
 
     private void showNonFatalMessage(MessageWithTitle message) {

@@ -43,7 +43,7 @@ public class MainActivityViewModelTest {
     @Test
     public void whenCreated_startsWithInitStorageViewState() {
         MainActivityViewModel viewModel = new MainActivityViewModel();
-        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewState();
+        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
         liveData.observeForever(observer);
 
         verify(observer).onChanged(ArgumentMatchers.isA(MainActivityViewState.InitStorageViewState.class));
@@ -52,7 +52,7 @@ public class MainActivityViewModelTest {
     @Test
     public void whenHandleMessageCalled_resultsInShowMessageViewState() {
         MainActivityViewModel viewModel = new MainActivityViewModel();
-        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewState();
+        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
         liveData.observeForever(observer);
 
         MainActivityViewState prevState = liveData.getValue();
@@ -77,8 +77,8 @@ public class MainActivityViewModelTest {
         MainActivityViewModel viewModel = new MainActivityViewModel();
         viewModel.onStorageInitialized();
 
-        assert(viewModel.getMainActivityViewState().getValue() instanceof RequestRuntimePermissionState);
-        RequestRuntimePermissionState state = (RequestRuntimePermissionState) viewModel.getMainActivityViewState().getValue();
+        assert(viewModel.getViewStateObservable().getValue() instanceof RequestRuntimePermissionState);
+        RequestRuntimePermissionState state = (RequestRuntimePermissionState) viewModel.getViewStateObservable().getValue();
         assertNotNull(state.request);
         assert(state.request.getPermission().equals(android.Manifest.permission.ACCESS_FINE_LOCATION));
         assertNotNull(state.request.getPermissionRationaleMessage());
@@ -89,12 +89,12 @@ public class MainActivityViewModelTest {
         MainActivityViewModel viewModel = new MainActivityViewModel();
         viewModel.onStorageInitialized();
 
-        MainActivityViewState prevState = viewModel.getMainActivityViewState().getValue();
+        MainActivityViewState prevState = viewModel.getViewStateObservable().getValue();
         viewModel.handleMessage(new MessageWithTitle(1,2), false);
-        ShowMessageState showMessageState = (ShowMessageState) viewModel.getMainActivityViewState().getValue();
+        ShowMessageState showMessageState = (ShowMessageState) viewModel.getViewStateObservable().getValue();
         viewModel.onMessageDismissed(showMessageState);
 
-        assert(viewModel.getMainActivityViewState().getValue() == prevState);
+        assert(viewModel.getViewStateObservable().getValue() == prevState);
     }
 
     @Test
@@ -103,10 +103,10 @@ public class MainActivityViewModelTest {
         viewModel.onStorageInitialized();
 
         viewModel.handleMessage(new MessageWithTitle(1, 2), true);
-        ShowMessageState showMessageState = (ShowMessageState) viewModel.getMainActivityViewState().getValue();
+        ShowMessageState showMessageState = (ShowMessageState) viewModel.getViewStateObservable().getValue();
         viewModel.onMessageDismissed(showMessageState);
 
-        assert(viewModel.getMainActivityViewState().getValue() instanceof FinishState);
+        assert(viewModel.getViewStateObservable().getValue() instanceof FinishState);
     }
 
     @Test
@@ -114,8 +114,8 @@ public class MainActivityViewModelTest {
         MainActivityViewModel viewModel = new MainActivityViewModel();
         viewModel.onPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION);
 
-        assert(viewModel.getMainActivityViewState().getValue() instanceof ShowMessageState);
-        ShowMessageState state = (ShowMessageState) viewModel.getMainActivityViewState().getValue();
+        assert(viewModel.getViewStateObservable().getValue() instanceof ShowMessageState);
+        ShowMessageState state = (ShowMessageState) viewModel.getViewStateObservable().getValue();
         assert(state.message.titleResId == R.string.fatal_error);
         assert(state.message.messageResId == R.string.location_permission_is_required);
         assertTrue(state.isFatal);
