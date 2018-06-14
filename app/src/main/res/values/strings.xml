@@ -55,4 +55,37 @@
     <string name="location_permission_rational">I need your GPS location information in order to be able to determine where you are and lead you to any waypoint or record/follow any tracks.\n\nDo want to set this permission up now?</string>
     <string name="fatal_error">Fatal Error</string>
     <string name="location_permission_is_required">Without access to your GPS location, this app is useless</string>
+
+    <!-- WaypointType -->
+    <string name="waypoint_type_generic">Generic</string>
+    <string name="waypoint_type_summit">Summit</string>
+    <string name="waypoint_type_valley">Valley</string>
+    <string name="waypoint_type_mountain_pass">Mountain pass</string>
+    <string name="waypoint_type_water">Water</string>
+    <string name="waypoint_type_food">Food</string>
+    <string name="waypoint_type_danger">Danger</string>
+    <string name="waypoint_type_first_aid">First Aid</string>
+    <string name="waypoint_type_sprint">Sprint</string>
+    <string name="waypoint_type_straight">Straight</string>
+    <string name="waypoint_type_left">Left</string>
+    <string name="waypoint_type_left_slight">Left Slight</string>
+    <string name="waypoint_type_left_sharp">Left Sharp</string>
+    <string name="waypoint_type_right">Right</string>
+    <string name="waypoint_type_right_slight">Right Slight</string>
+    <string name="waypoint_type_right_sharp">Right Sharp</string>
+    <string name="waypoint_type_u_turn">U-turn</string>
+    <string name="waypoint_type_residence">Residence</string>
+    <string name="waypoint_type_lodging">Lodging</string>
+    <string name="waypoint_type_parking">Parking</string>
+    <string name="waypoint_type_station">Station</string>
+    <string name="waypoint_type_attention">Attention</string>
+    <string name="waypoint_type_information">Information</string>
+    <string name="waypoint_type_viewpoint">Viewpoint</string>
+    <string name="waypoint_type_sightseeing">Sightseeing</string>
+    <string name="waypoint_type_barbecue">Barbecue</string>
+    <string name="waypoint_type_camping_ground">Camping ground</string>
+    <string name="waypoint_type_geocache">Geocache</string>
+    <string name="waypoint_type_playground_zoo">Playground/zoo</string>
+    <string name="waypoint_type_swimming_opportunities">Swimming opportunities</string>
+    <string name="waypoint_type_service_station">Service station</string>
 </resources>
