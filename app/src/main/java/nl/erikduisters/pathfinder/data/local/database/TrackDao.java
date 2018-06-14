@@ -11,7 +11,7 @@ import nl.erikduisters.pathfinder.data.model.Track;
  * Created by Erik Duisters on 14-06-2018.
  */
 @Dao
-public interface TrackDAO {
+public interface TrackDao {
     @Insert
     void insert(Track track);
 
