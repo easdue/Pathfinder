@@ -2,6 +2,7 @@ package nl.erikduisters.pathfinder.data.model;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.IntDef;
 
@@ -12,7 +13,8 @@ import java.util.Date;
 /**
  * Created by Erik Duisters on 14-06-2018.
  */
-@Entity(tableName = "track")
+@Entity(tableName = "track",
+        indices = {@Index("name"), @Index("gpsies_id")})
 public class Track {
     @IntDef({Type.ROUND_TRIP, Type.ONE_WAY})
     @Retention(RetentionPolicy.SOURCE)

@@ -43,9 +43,26 @@ public enum WaypointType {
     private final int code;
     @StringRes
     private final int nameResId;
+    private final static WaypointType[] values;
+
+    static {
+        values = WaypointType.values();
+    }
 
     WaypointType(int code, @StringRes int nameResId) {
         this.code = code;
         this.nameResId = nameResId;
+    }
+
+    public int code() { return code; }
+
+    public static WaypointType fromInt(int code) {
+        for (WaypointType waypointType : values) {
+            if (waypointType.code == code) {
+                return waypointType;
+            }
+        }
+
+        throw new RuntimeException("There is no WaypointType with code: " + code);
     }
 }
