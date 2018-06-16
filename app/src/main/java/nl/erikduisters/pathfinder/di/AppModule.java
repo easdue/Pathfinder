@@ -3,7 +3,10 @@ package nl.erikduisters.pathfinder.di;
 import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Binds;
@@ -33,5 +36,12 @@ abstract class AppModule {
     static PathfinderDatabase providePathfinderDatabase(@ApplicationContext Context context) {
         return Room.databaseBuilder(context, PathfinderDatabase.class, "pathfinder.db")
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    @Named("MainLooper")
+    static Handler provideHandler() {
+        return new Handler(Looper.getMainLooper());
     }
 }
