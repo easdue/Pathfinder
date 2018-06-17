@@ -1,6 +1,7 @@
 package nl.erikduisters.pathfinder.data.usecase;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import nl.erikduisters.pathfinder.async.Cancellable;
 import nl.erikduisters.pathfinder.async.ProgressUseCaseJob;
@@ -13,7 +14,7 @@ public abstract class ProgressUseCase<I, P, R> {
     I requestInfo;
     Callback<P, R> callback;
 
-    ProgressUseCase(@NonNull I requestInfo, @NonNull Callback<P, R> callback) {
+    ProgressUseCase(@Nullable I requestInfo, @NonNull Callback<P, R> callback) {
         this.requestInfo = requestInfo;
         this.callback = callback;
     }
@@ -27,7 +28,7 @@ public abstract class ProgressUseCase<I, P, R> {
     }
 
     public interface Callback<P, R> extends UseCase.Callback<R> {
-        void onResult(@NonNull R result);
+        void onResult(@Nullable R result);
         void onProgress(@NonNull P progress);
         void onError(@NonNull Throwable error);
         void onFinished();

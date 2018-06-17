@@ -21,11 +21,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
@@ -38,7 +41,8 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
-    private static final String TAG_MESSAGE_DIALOG = "MessageDialog";
+    private static final String TAG_FATAL_MESSAGE_DIALOG = "FatalMessageDialog";
+    private static final String TAG_INIT_DATABASE_PROGRESS_DIALOG = "InitDatabaseProgressDialog";
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
@@ -137,6 +141,12 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
             return;
         }
 
+        if (viewState instanceof InitDatabaseState) {
+            showInitDatabaseProgressDialog(TAG_INIT_DATABASE_PROGRESS_DIALOG, (InitDatabaseState) viewState);
+        } else {
+            dismissDialogFragment(TAG_INIT_DATABASE_PROGRESS_DIALOG);
+        }
+
         if (viewState instanceof InitStorageViewState) {
             startInitStorageFragment(TAG_INIT_STORAGE_FRAGMENT);
         } else {
@@ -150,9 +160,14 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
         }
 
         if (viewState instanceof ShowMessageState) {
-            showMessageDialog(TAG_MESSAGE_DIALOG, (ShowMessageState) viewState);
+            showSnackbar(((ShowMessageState) viewState).message);
+            viewModel.onMessageDismissed();
+        }
+
+        if (viewState instanceof ShowFatalErrorMessageState) {
+            showFatalMessageDialog(TAG_FATAL_MESSAGE_DIALOG, ((ShowFatalErrorMessageState) viewState).message);
         } else {
-            dismissDialogFragment(TAG_MESSAGE_DIALOG);
+            dismissDialogFragment(TAG_FATAL_MESSAGE_DIALOG);
         }
 
         if (viewState instanceof FinishState) {
@@ -191,6 +206,19 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
         fragment.setListener(this);
     }
 
+    private void showInitDatabaseProgressDialog(String tag, InitDatabaseState state) {
+        if (state.progress != null) {
+            ProgressDialog dialog = findFragment(tag);
+
+            if (dialog == null) {
+                dialog = ProgressDialog.newInstance(state.titleResId, state.progress.progress, state.progress.message);
+                show(dialog, tag);
+            } else {
+                dialog.setProgressAndMessage(state.progress.progress, state.progress.message);
+            }
+        }
+    }
+
     @Override
     public void onStorageInitialized() {
         viewModel.onStorageInitialized();
@@ -198,26 +226,19 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
 
     @Override
     public void onStorageInitializationFailed(MessageWithTitle message, boolean isFatal) {
-        viewModel.handleMessage(message, isFatal);
+        if (isFatal)
+            viewModel.handleFatalError(message, null);
+        else
+            viewModel.handleMessage(message);
     }
 
-    private void showMessageDialog(String Tag, ShowMessageState state) {
-        if (state.isFatal) {
-            showFatalMessageDialog(state.message);
-        } else {
-            showNonFatalMessage(state.message);
-
-            viewModel.onMessageDismissed(state);
-        }
-    }
-
-    private void showFatalMessageDialog(MessageWithTitle message) {
-        FatalMessageDialog dialog = findFragment(TAG_MESSAGE_DIALOG);
+    private void showFatalMessageDialog(String tag, MessageWithTitle message) {
+        FatalMessageDialog dialog = findFragment(tag);
 
         if (dialog == null) {
             dialog = FatalMessageDialog.newInstance(message);
 
-            show(dialog, TAG_MESSAGE_DIALOG);
+            show(dialog, tag);
         }
 
         dialog.setListener(this);
@@ -225,10 +246,10 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
 
     @Override
     public void onFatalMessageDialogDismissed() {
-        viewModel.onMessageDismissed((ShowMessageState) viewModel.getViewStateObservable().getValue());
+        viewModel.onFatalErrorMessageDismissed();
     }
 
-    private void showNonFatalMessage(MessageWithTitle message) {
+    private void showSnackbar(MessageWithTitle message) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(getString(message.titleResId));

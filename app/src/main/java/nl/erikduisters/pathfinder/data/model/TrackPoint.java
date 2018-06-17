@@ -18,7 +18,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                                   childColumns = "track_id", onDelete = CASCADE),
         indices = {@Index("track_id")})
 public class TrackPoint {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     public long id;
     @ColumnInfo(name = "track_id")

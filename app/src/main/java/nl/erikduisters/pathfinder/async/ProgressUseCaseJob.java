@@ -1,6 +1,7 @@
 package nl.erikduisters.pathfinder.async;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import nl.erikduisters.pathfinder.data.usecase.ProgressUseCase;
 
@@ -29,7 +30,7 @@ public class ProgressUseCaseJob<P, R, U extends ProgressUseCase<?, P, R>> extend
     }
 
     @Override
-    public void onResult(@NonNull final R result) {
+    public void onResult(@Nullable final R result) {
         backgroundJobHandler.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -39,7 +40,7 @@ public class ProgressUseCaseJob<P, R, U extends ProgressUseCase<?, P, R>> extend
     }
 
     @Override
-    public void onProgress(final P progress) {
+    public void onProgress(@NonNull final P progress) {
         backgroundJobHandler.runOnUiThread(new Runnable() {
             @Override
             public void run() {

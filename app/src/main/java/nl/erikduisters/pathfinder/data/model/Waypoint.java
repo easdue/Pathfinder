@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
 import java.net.URL;
 
@@ -18,11 +19,12 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                                   childColumns = "track_id", onDelete = CASCADE),
         indices = {@Index("track_id")})
 public class Waypoint {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     public long id;
     @ColumnInfo(name = "track_id")
-    public long trackId;
+    @Nullable
+    public Long trackId;
     public double latitude;
     public double longitude;
     public float elevation;

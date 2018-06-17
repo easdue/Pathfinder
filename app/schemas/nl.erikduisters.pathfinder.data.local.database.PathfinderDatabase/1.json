@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a88de0c9161827d2d7d79731e6db4ecc",
+    "identityHash": "0a4ca5ca528ac496a66744ce601e1bda",
     "entities": [
       {
         "tableName": "track",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `author` TEXT, `gpsies_id` TEXT, `data_created` INTEGER, `type` INTEGER NOT NULL, `length` INTEGER NOT NULL, `total_ascent` INTEGER NOT NULL, `total_descent` INTEGER NOT NULL, `min_height` INTEGER NOT NULL, `max_height` INTEGER NOT NULL, PRIMARY KEY(`_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `description` TEXT, `author` TEXT, `gpsies_id` TEXT, `data_created` INTEGER, `type` INTEGER NOT NULL, `length` REAL NOT NULL, `total_ascent` REAL NOT NULL, `total_descent` REAL NOT NULL, `min_height` REAL NOT NULL, `max_height` REAL NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -53,31 +53,31 @@
           {
             "fieldPath": "length",
             "columnName": "length",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "totalAscent",
             "columnName": "total_ascent",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "totalDescent",
             "columnName": "total_descent",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "minHeight",
             "columnName": "min_height",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           },
           {
             "fieldPath": "maxHeight",
             "columnName": "max_height",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": true
           }
         ],
@@ -85,7 +85,7 @@
           "columnNames": [
             "_id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -109,7 +109,7 @@
       },
       {
         "tableName": "track_point",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER NOT NULL, `track_id` INTEGER NOT NULL, `segment` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `elevation` REAL NOT NULL, `time` INTEGER, PRIMARY KEY(`_id`), FOREIGN KEY(`track_id`) REFERENCES `track`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` INTEGER NOT NULL, `segment` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `elevation` REAL NOT NULL, `time` INTEGER, FOREIGN KEY(`track_id`) REFERENCES `track`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -158,7 +158,7 @@
           "columnNames": [
             "_id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -186,7 +186,7 @@
       },
       {
         "tableName": "waypoint",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER NOT NULL, `track_id` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `elevation` REAL NOT NULL, `name` TEXT, `description` TEXT, `link` TEXT, `type` INTEGER, PRIMARY KEY(`_id`), FOREIGN KEY(`track_id`) REFERENCES `track`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` INTEGER, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `elevation` REAL NOT NULL, `name` TEXT, `description` TEXT, `link` TEXT, `type` INTEGER, FOREIGN KEY(`track_id`) REFERENCES `track`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -198,7 +198,7 @@
             "fieldPath": "trackId",
             "columnName": "track_id",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "latitude",
@@ -247,7 +247,7 @@
           "columnNames": [
             "_id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -276,7 +276,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"a88de0c9161827d2d7d79731e6db4ecc\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"0a4ca5ca528ac496a66744ce601e1bda\")"
     ]
   }
 }

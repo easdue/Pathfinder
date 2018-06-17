@@ -23,7 +23,7 @@ public class Track {
         int ONE_WAY = 1;
     }
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     public long id;
     public String name;
@@ -34,13 +34,13 @@ public class Track {
     @ColumnInfo(name ="data_created")
     public Date dateCreated;
     public @Type int type;
-    public int length;
+    public float length;
     @ColumnInfo(name = "total_ascent")
-    public int totalAscent;
+    public float totalAscent;
     @ColumnInfo(name = "total_descent")
-    public int totalDescent;
+    public float totalDescent;
     @ColumnInfo(name = "min_height")
-    public int minHeight;
+    public float minHeight;
     @ColumnInfo(name = "max_height")
-    public int maxHeight;
+    public float maxHeight;
 }

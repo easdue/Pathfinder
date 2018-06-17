@@ -40,14 +40,11 @@ public class FatalMessageDialog extends DialogFragment {
 
         builder.setTitle(msg.titleResId);
 
-        StringBuilder sb = new StringBuilder();
         if (msg.messageResId > 0) {
-            sb.append(getString(msg.messageResId));
+            builder.setMessage(msg.messageResId);
         } else {
-            sb.append(msg.message);
+            builder.setMessage(msg.message);
         }
-
-        builder.setMessage(sb.toString());
 
         builder.setPositiveButton(R.string.ok, (dialog, id) -> {
             if (listener != null) {

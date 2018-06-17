@@ -88,4 +88,10 @@
     <string name="waypoint_type_playground_zoo">Playground/zoo</string>
     <string name="waypoint_type_swimming_opportunities">Swimming opportunities</string>
     <string name="waypoint_type_service_station">Service station</string>
+
+    <!-- Init database -->
+    <string name="initializing_database">Initializing database</string>
+    <string name="init_database_failed">Database initialization failed.</string>
+    <string name="migration_1_to_2">Migrating database from version 1 to version 2</string>
+    <string name="migration_2_to_3">Migrating database from version 2 to version 3</string>
 </resources>

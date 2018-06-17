@@ -1,9 +1,10 @@
 package nl.erikduisters.pathfinder.data.local.database;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
-
-import java.util.List;
+import android.arch.persistence.room.Query;
+import android.support.annotation.Nullable;
 
 import nl.erikduisters.pathfinder.data.model.TrackPoint;
 
@@ -13,8 +14,12 @@ import nl.erikduisters.pathfinder.data.model.TrackPoint;
 @Dao
 public interface TrackPointDao {
     @Insert
-    void insert(TrackPoint trackPoint);
+    long insert(TrackPoint trackPoint);
 
-    @Insert
-    void insert(List<TrackPoint> trackPoints);
+    @Query("SELECT * from track_point WHERE _id = :id")
+    @Nullable
+    TrackPoint getTrackPointByid(long id);
+
+    @Delete
+    void delete(TrackPoint trackPoint);
 }
