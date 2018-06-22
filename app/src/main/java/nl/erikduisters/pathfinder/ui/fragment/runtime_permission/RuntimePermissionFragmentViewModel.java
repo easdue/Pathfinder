@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayDeque;
 
@@ -18,7 +19,7 @@ import timber.log.Timber;
 
 @Singleton
 public class RuntimePermissionFragmentViewModel extends ViewModel {
-    private RuntimePermissionHelper runtimePermissionHelper;
+    private @Nullable RuntimePermissionHelper runtimePermissionHelper;
     private MutableLiveData<RuntimePermissionFragmentViewState> viewStateObservable;
     private ArrayDeque<RuntimePermissionRequest> runtimePermissionsToRequest;
     private RuntimePermissionRequest currentRuntimePermissionRequest;
@@ -32,7 +33,7 @@ public class RuntimePermissionFragmentViewModel extends ViewModel {
 
     LiveData<RuntimePermissionFragmentViewState> getViewStateObservable() { return viewStateObservable; }
 
-    void setRuntimePermissionHelper(@NonNull RuntimePermissionHelper runtimePermissionHelper) {
+    void setRuntimePermissionHelper(@Nullable RuntimePermissionHelper runtimePermissionHelper) {
         this.runtimePermissionHelper = runtimePermissionHelper;
     }
 
@@ -62,7 +63,7 @@ public class RuntimePermissionFragmentViewModel extends ViewModel {
     }
 
     private void processNextPermissionRequest() {
-        if (runtimePermissionsToRequest.isEmpty()) {
+        if (runtimePermissionHelper == null || runtimePermissionsToRequest.isEmpty()) {
             return;
         }
 

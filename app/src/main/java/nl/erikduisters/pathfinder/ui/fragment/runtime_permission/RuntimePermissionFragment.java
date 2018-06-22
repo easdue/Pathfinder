@@ -64,13 +64,13 @@ public class RuntimePermissionFragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        viewModel.setRuntimePermissionHelper(this);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        viewModel.setRuntimePermissionHelper(this);
 
         Bundle args = getArguments();
 
@@ -81,6 +81,12 @@ public class RuntimePermissionFragment
         }
 
         viewModel.getViewStateObservable().observe(this, this::render);
+    }
+
+    @Override
+    public void onDestroy() {
+        viewModel.setRuntimePermissionHelper(null);
+        super.onDestroy();
     }
 
     @Nullable
