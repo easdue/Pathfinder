@@ -141,6 +141,8 @@ public class PlayServicesAvailabilityFragmentViewModel extends ViewModel {
                 viewStateObservable.setValue(null);
 
                 checkPlayServicesAvailability();
+
+                return;
             }
         }
 
