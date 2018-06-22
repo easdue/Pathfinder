@@ -54,6 +54,7 @@ public class InitStorageFragment extends BaseFragment<InitStorageFragmentViewMod
 
     private void render(@Nullable InitStorageFragmentViewState viewState) {
         Timber.e("render(viewState == %s)", viewState == null ? "null" : viewState.getClass().getSimpleName());
+
         if (viewState == null) {
             return;
         }
