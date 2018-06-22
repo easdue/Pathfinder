@@ -37,7 +37,7 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
 
     @Override
     public void onAttach(Context context) {
-        Timber.e("onAttach(Context)");
+        Timber.d("%s.onAttach()", getClass().getSimpleName());
 
         AndroidSupportInjection.inject(this);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(getViewModelClass());
@@ -49,7 +49,7 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
     @Override
     @CallSuper
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Timber.e("onCreateView()");
+        Timber.d("%s.onCreateView()", getClass().getSimpleName());
         int layoutResId = getLayoutResId();
 
         if (layoutResId > 0) {
@@ -68,12 +68,18 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Timber.e("onDestroyView()");
+        Timber.d("%s.onDestroyView()", getClass().getSimpleName());
         if (unbinder != null) {
             unbinder.unbind();
         }
 
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Timber.d("%s.onDestroy()", getClass().getSimpleName());
+        super.onDestroy();
     }
 
     protected void invalidateOptionsMenu() {
@@ -84,12 +90,55 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
         }
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Timber.d("%s.onCreate(savedInstanceState = %s", getClass().getSimpleName(), savedInstanceState == null ? "null" : "not null");
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        Timber.d("%s.onStart()", getClass().getSimpleName());
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        Timber.d("%s.onResume()", getClass().getSimpleName());
+        super.onResume();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        Timber.d("%s.onSaveInstanceState()", getClass().getSimpleName());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onPause() {
+        Timber.d("%s.onPause()", getClass().getSimpleName());
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        Timber.d("%s.onStop()", getClass().getSimpleName());
+        super.onStop();
+    }
+
+    @Override
+    public void onDetach() {
+        Timber.d("%s.onDetach()", getClass().getSimpleName());
+        super.onDetach();
+    }
+
     protected <T extends Fragment> T findFragment(String tag) {
         //noinspection unchecked
         return (T) getChildFragmentManager().findFragmentByTag(tag);
     }
 
     protected void show(DialogFragment fragment, String tag) {
+        Timber.d("Showing dialog: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
         getChildFragmentManager()
                 .beginTransaction()
                 .add(fragment, tag)
@@ -100,6 +149,7 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
         DialogFragment fragment = (DialogFragment) getChildFragmentManager().findFragmentByTag(tag);
 
         if (fragment != null) {
+            Timber.d("Dismissing dialog: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
             fragment.dismiss();
         }
     }

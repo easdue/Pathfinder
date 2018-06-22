@@ -18,6 +18,7 @@ import dagger.android.AndroidInjection;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import nl.erikduisters.pathfinder.viewmodel.ViewModelFactory;
+import timber.log.Timber;
 
 /**
  * Created by Erik Duisters on 02-06-2018.
@@ -59,7 +60,38 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
     }
 
     @Override
+    protected void onPostResume() {
+        Timber.d("%s.onPostResume()", getClass().getSimpleName());
+        super.onPostResume();
+    }
+
+    @Override
+    protected void onStart() {
+        Timber.d("%s.onStart()", getClass().getSimpleName());
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        Timber.d("%s.onStop()", getClass().getSimpleName());
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        Timber.d("%s.onPause()", getClass().getSimpleName());
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        Timber.d("%s.onResume()", getClass().getSimpleName());
+        super.onResume();
+    }
+
+    @Override
     protected void onResumeFragments() {
+        Timber.d("%s.onResumeFragments()", getClass().getSimpleName());
         super.onResumeFragments();
 
         isFragmentStateLocked = false;
@@ -67,6 +99,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Timber.d("%s.onSaveInstanceState()", getClass().getSimpleName());
         super.onSaveInstanceState(outState);
 
         isFragmentStateLocked = true;
@@ -74,6 +107,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
 
     @Override
     protected void onDestroy() {
+        Timber.d("%s.onDestroy()", getClass().getSimpleName());
         if (unbinder != null) {
             unbinder.unbind();
         }
@@ -87,6 +121,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
     }
 
     protected void addFragment(Fragment fragment, String tag) {
+        Timber.d("Adding fragment: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(fragment, tag)
@@ -94,6 +129,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
     }
 
     protected void addFragment(@IdRes int containerViewId, Fragment fragment, String tag) {
+        Timber.d("Adding fragment: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(containerViewId, fragment, tag)
@@ -105,6 +141,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
                 .findFragmentByTag(tag);
 
         if (fragment != null) {
+            Timber.d("Removing fragment: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(fragment)
@@ -113,6 +150,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
     }
 
     protected void show(DialogFragment dialog, String tag) {
+        Timber.d("Showing dialog: %s, tag: %s", dialog.getClass().getSimpleName(), tag);
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(dialog, tag)
@@ -123,6 +161,7 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
         DialogFragment fragment = (DialogFragment) getSupportFragmentManager().findFragmentByTag(tag);
 
         if (fragment != null) {
+            Timber.d("Dismissing dialog: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
             fragment.dismiss();
         }
     }
