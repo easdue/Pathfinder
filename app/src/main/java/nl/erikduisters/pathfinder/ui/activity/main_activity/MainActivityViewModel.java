@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
@@ -20,6 +21,7 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
 import timber.log.Timber;
 
@@ -36,7 +38,11 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
         viewStateObservable = new MutableLiveData<>();
 
-        viewStateObservable.setValue(new InitDatabaseState(R.string.initializing_database, null));
+        ProgressDialog.Properties properties =
+                new ProgressDialog.Properties(R.string.initializing_database, true,
+                        false, 0, false);
+
+        viewStateObservable.setValue(new InitDatabaseState(properties, null));
         initDatabaseHelper.initDatabase(this);
     }
 
@@ -44,7 +50,15 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
     @Override
     public void onDatabaseInitializationProgress(@NonNull InitDatabase.Progress progress) {
-        viewStateObservable.setValue(new InitDatabaseState(R.string.initializing_database, progress));
+        MainActivityViewState state = viewStateObservable.getValue();
+
+        if (state == null || !(state instanceof InitDatabaseState)) {
+            throw new IllegalStateException("onDatabaseInitializationProgress() was called but the current state is not InitDatabaseState");
+        }
+
+        InitDatabaseState prevInitDatabaseState = (InitDatabaseState) state;
+
+        viewStateObservable.setValue(prevInitDatabaseState.updateProgress(progress));
     }
 
     @Override
@@ -94,7 +108,7 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
     void onPermissionGranted(String permission) {
         if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            //TODO: Next state
+            viewStateObservable.setValue(new CheckPlayServicesAvailabilityState());
         }
     }
 
@@ -105,5 +119,15 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
             handleFatalError(message, null);
         }
+    }
+
+    void onPlayServicesAvailable() {
+        //TODO: Implement
+        viewStateObservable.setValue(new MainActivityViewState.InitializedState());
+    }
+
+    void onPlayServicesUnavailable() {
+        //TODO: Implement
+        viewStateObservable.setValue(new MainActivityViewState.InitializedState());
     }
 }

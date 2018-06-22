@@ -20,6 +20,7 @@ import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
@@ -30,6 +31,7 @@ import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
+import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
 import timber.log.Timber;
@@ -37,10 +39,11 @@ import timber.log.Timber;
 //TODO: Remove fragment listeners
 public class MainActivity extends BaseActivity<MainActivityViewModel> implements
         NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
-        FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener {
+        FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener, PlayServicesAvailabilityFragment.PlayServicesAvailabilityFragmentListener {
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
+    private static final String TAG_PLAY_SERVICES_AVAILABIITY_FRAGMENT = "PlayServicesAvailablilityFragment";
     private static final String TAG_FATAL_MESSAGE_DIALOG = "FatalMessageDialog";
     private static final String TAG_INIT_DATABASE_PROGRESS_DIALOG = "InitDatabaseProgressDialog";
 
@@ -58,7 +61,7 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
         setSupportActionBar(toolbar);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -137,6 +140,8 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
     }
 
     void render(@Nullable MainActivityViewState viewState) {
+        Timber.e("render(viewState == %s)", viewState == null ? "null" : viewState.getClass().getSimpleName());
+
         if (viewState == null) {
             return;
         }
@@ -157,6 +162,12 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
             startRuntimePermissionFragment(TAG_RUNTIME_PERMISSION_FRAGMENT, (RequestRuntimePermissionState)viewState);
         } else {
             removeFragment(TAG_RUNTIME_PERMISSION_FRAGMENT);
+        }
+
+        if (viewState instanceof CheckPlayServicesAvailabilityState) {
+            startPlayServicesAvailabilityFragment(TAG_PLAY_SERVICES_AVAILABIITY_FRAGMENT);
+        } else {
+            removeFragment(TAG_PLAY_SERVICES_AVAILABIITY_FRAGMENT);
         }
 
         if (viewState instanceof ShowMessageState) {
@@ -206,16 +217,29 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
         fragment.setListener(this);
     }
 
-    private void showInitDatabaseProgressDialog(String tag, InitDatabaseState state) {
-        if (state.progress != null) {
-            ProgressDialog dialog = findFragment(tag);
+    private void startPlayServicesAvailabilityFragment(String tag) {
+        PlayServicesAvailabilityFragment fragment = findFragment(tag);
 
-            if (dialog == null) {
-                dialog = ProgressDialog.newInstance(state.titleResId, state.progress.progress, state.progress.message);
-                show(dialog, tag);
-            } else {
-                dialog.setProgressAndMessage(state.progress.progress, state.progress.message);
-            }
+        if (fragment == null) {
+            Timber.d("Creating new PlayServicesAvailabilityFragment");
+            fragment = PlayServicesAvailabilityFragment.newInstance();
+
+            addFragment(fragment, tag);
+        }
+
+        fragment.setListener(this);
+    }
+
+    private void showInitDatabaseProgressDialog(String tag, InitDatabaseState state) {
+        ProgressDialog dialog = findFragment(tag);
+
+        if (dialog == null) {
+            dialog = ProgressDialog.newInstance(state.dialogProperties);
+            show(dialog, tag);
+        }
+
+        if (state.progress != null) {
+            dialog.setProgressAndMessage(state.progress.progress, state.progress.message);
         }
     }
 
@@ -275,5 +299,17 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
     public void onPermissionDenied(@NonNull String permission) {
         Timber.e("onPermissionDenied: %s", permission);
         viewModel.onPermissionDenied(permission);
+    }
+
+    @Override
+    public void onPlayServicesAvailable() {
+        Timber.d("onPlayServicesAvailable()");
+        viewModel.onPlayServicesAvailable();
+    }
+
+    @Override
+    public void onPlayServicesUnavailable() {
+        Timber.d("onPlayServicesUnavailable()");
+        viewModel.onPlayServicesUnavailable();
     }
 }

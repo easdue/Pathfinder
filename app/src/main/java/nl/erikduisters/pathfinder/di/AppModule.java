@@ -14,6 +14,7 @@ import dagger.Module;
 import dagger.Provides;
 import nl.erikduisters.pathfinder.MyApplication;
 import nl.erikduisters.pathfinder.data.local.database.PathfinderDatabase;
+import nl.erikduisters.pathfinder.util.MainThreadExecutor;
 
 /**
  * Created by Erik Duisters on 01-06-2018.
@@ -35,6 +36,7 @@ abstract class AppModule {
     @Singleton
     static PathfinderDatabase providePathfinderDatabase(@ApplicationContext Context context) {
         return Room.databaseBuilder(context, PathfinderDatabase.class, "pathfinder.db")
+                .addMigrations(PathfinderDatabase.getMigrations())
                 .build();
     }
 
@@ -43,5 +45,11 @@ abstract class AppModule {
     @Named("MainLooper")
     static Handler provideHandler() {
         return new Handler(Looper.getMainLooper());
+    }
+
+    @Provides
+    @Singleton
+    static MainThreadExecutor provideMainThreadExecutor() {
+        return new MainThreadExecutor();
     }
 }

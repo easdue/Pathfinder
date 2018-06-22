@@ -1,5 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE resources [
+    <!ENTITY appname "Pathfinder">
+]>
 <resources>
-    <string name="app_name">Pathfinder</string>
+    <string name="app_name">&appname;</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -45,7 +49,7 @@
     <string name="prefs_rendertheme_directory">Rendertheme Directory</string>
 
     <!-- Dialogs -->
-    <string name="ok">OK</string>
+    <string name="ok">@android:string/ok</string>
     <string name="edit">EDIT</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
@@ -94,4 +98,23 @@
     <string name="init_database_failed">Database initialization failed.</string>
     <string name="migration_1_to_2">Migrating database from version 1 to version 2</string>
     <string name="migration_2_to_3">Migrating database from version 2 to version 3</string>
+
+    <!-- Play Services -->
+    <string name="play_services_missing_title">Install Google Play Services?</string>
+    <string name="play_services_missing_message">Google recommends using Google Play Services to determine your location but they are not installed on your device.\n\n&appname; will work without them but we recommend that you install Google Play Services.</string>
+    <string name="play_services_missing_positive_button_text">INSTALL</string>
+    <string name="play_services_missing_negative_button_text">@android:string/cancel</string>
+    <string name="play_services_update_required_title">Update Google Play Services?</string>
+    <string name="play_services_update_required_message">Google recommends using Google Play Services to determine your location but they are outdated on your device.\n\n&appname; will work without them but we recommend that you update Google Play Services.</string>
+    <string name="play_services_update_required_positive_button_text">UPDATE</string>
+    <string name="play_services_update_required_negative_button_text">@android:string/cancel</string>
+    <string name="play_services_disabled_title">Enable Google Play Services?</string>
+    <string name="play_services_disabled_message">Google recommends using Google Play Services to determine your location which are disabled on your device.\n\n&appname; will work without them but we recommend that you enable Google Play Services.</string>
+    <string name="play_services_disabled_positive_button_text">ENABLE</string>
+    <string name="play_services_disabled_negative_button_text">@android:string/cancel</string>
+    <string name="play_services_updating_title">Wait for Google Play Services Update?</string>
+    <string name="play_services_updating_message">Google recommends using Google Play Services to determine your location but they are currently being updated.\n\n&appname; will work without them but we recommend that you wait for the update to finish.</string>
+    <string name="play_services_updating_positive_button_text">WAIT</string>
+    <string name="play_services_updating_negative_button_text">@android:string/cancel</string>
+    <string name="play_services_waiting_for_play_services_update">Waiting for Play Services Updated to finish</string>
 </resources>

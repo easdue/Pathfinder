@@ -10,7 +10,7 @@ import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissi
  * Created by Erik Duisters on 09-06-2018.
  */
 
-public class PermissionRationaleDialog extends YesNoMessageDialog {
+public class PermissionRationaleDialog extends PositiveNegativeButtonMessageDialog {
     private static final String KEY_PERMISSION_REQUEST = "PermissionRequest";
     public interface Listener {
         void onPermissionRationaleAccepted(@NonNull RuntimePermissionRequest request);
@@ -23,11 +23,13 @@ public class PermissionRationaleDialog extends YesNoMessageDialog {
     public PermissionRationaleDialog() {}
 
     public static PermissionRationaleDialog newInstance(@NonNull RuntimePermissionRequest request) {
-        PermissionRationaleDialog dialog = new PermissionRationaleDialog();
-
-        dialog.setMessage(request.getPermissionRationaleMessage());
+        PermissionRationaleDialog dialog = (PermissionRationaleDialog) new PositiveNegativeButtonMessageDialog();
 
         Bundle args = dialog.getArguments();
+        if (args == null) {
+            args = new Bundle();
+        }
+
         args.putParcelable(KEY_PERMISSION_REQUEST, request);
 
         return dialog;
@@ -47,14 +49,14 @@ public class PermissionRationaleDialog extends YesNoMessageDialog {
     }
 
     @Override
-    void onYesClicked() {
+    void onPositiveButtonClicked() {
         if (listener != null) {
             listener.onPermissionRationaleAccepted(request);
         }
     }
 
     @Override
-    void onNoClicked() {
+    void onNegativeButtonClicked() {
         if (listener != null) {
             listener.onPermissionRationaleDenied(request);
         }

@@ -13,4 +13,5 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.SOURCE)
 public @interface RequestCode {
     int REQUEST_PERMISSION = 0;
+    int GOOGLEPLAY_ERROR_RESOLUTION_REQUEST = 1;
 }

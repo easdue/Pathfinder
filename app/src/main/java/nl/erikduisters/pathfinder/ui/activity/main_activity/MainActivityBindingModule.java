@@ -8,6 +8,7 @@ import dagger.android.ContributesAndroidInjector;
 import nl.erikduisters.pathfinder.di.ActivityContext;
 import nl.erikduisters.pathfinder.di.FragmentScope;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
+import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 
 /**
@@ -22,6 +23,10 @@ public abstract class MainActivityBindingModule {
     @FragmentScope
     @ContributesAndroidInjector
     abstract RuntimePermissionFragment contributeRuntimePermissionFragment();
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract PlayServicesAvailabilityFragment contributePlayServicesAvailabilityFragment();
 
     @Provides
     @ActivityContext
