@@ -147,7 +147,7 @@ public class ProgressDialog extends DialogFragment {
         }
     }
 
-    public static class Properties implements Parcelable {
+    public static final class Properties implements Parcelable {
         private final @StringRes int titleResId;
         private final boolean showHorizontalProgressBar;
         private final boolean progressBarIsIndeterminate;
@@ -196,5 +196,25 @@ public class ProgressDialog extends DialogFragment {
                 return new Properties[size];
             }
         };
+
+        public int getTitleResId() {
+            return titleResId;
+        }
+
+        public boolean showHorizontalProgressBar() {
+            return showHorizontalProgressBar;
+        }
+
+        public boolean isProgressBarIndeterminate() {
+            return progressBarIsIndeterminate;
+        }
+
+        public int getPositiveButtonTextResId() {
+            return positiveButtonTextResId;
+        }
+
+        public boolean isCancelable() {
+            return isCancelable;
+        }
     }
 }
