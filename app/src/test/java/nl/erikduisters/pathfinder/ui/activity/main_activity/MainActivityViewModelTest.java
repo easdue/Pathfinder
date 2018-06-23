@@ -195,4 +195,12 @@ public class MainActivityViewModelTest {
         assert(state.message.titleResId == R.string.fatal_error);
         assert(state.message.messageResId == R.string.location_permission_is_required);
     }
+
+    @Test
+    public void whenOnPermissionGrantedIsCalled_resultsInCheckPlayServicesAvailabilityState() {
+        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
+        viewModel.onPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION);
+
+        assert(viewModel.getViewStateObservable().getValue() instanceof MainActivityViewState.CheckPlayServicesAvailabilityState);
+    }
 }
