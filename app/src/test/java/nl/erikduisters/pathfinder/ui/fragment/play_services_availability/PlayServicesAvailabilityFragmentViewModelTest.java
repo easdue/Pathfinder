@@ -340,6 +340,25 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
     }
 
     @Test
+    public void whenViewstateIsWaitForPlayServicesUpdateState_viewModelKeepsCheckingState() {
+        when(playServicesHelper.getGooglePlayServicesState()).thenReturn(ServiceState.SERVICE_UPDATING);
+        when(playServicesHelper.isStateUserResolvable(ServiceState.SERVICE_UPDATING)).thenReturn(true);
+
+        viewModel.setPlayServicesHelper(playServicesHelper);
+        viewModel.checkPlayServicesAvailability();
+
+        viewModel.onUserWantsToResolveUnavailabilityState();
+
+        ArgumentCaptor<Runnable> runnable = ArgumentCaptor.forClass(Runnable.class);
+        ArgumentCaptor<Integer> dummy = ArgumentCaptor.forClass(Integer.class);
+        verify(mainThreadExecutor).executeDelayed(runnable.capture(), dummy.capture());
+
+        runnable.getValue().run();
+
+        verify(mainThreadExecutor, times(2)).executeDelayed(runnable.capture(), dummy.capture());
+    }
+
+    @Test
     public void whenOnUserDoesNotWantToResolveUnavailabilityState_resultsInReportPlayServicesAvailabilityState() {
         viewModel.onUserDoesNotWantToResolveUnavailabilityState();
 
