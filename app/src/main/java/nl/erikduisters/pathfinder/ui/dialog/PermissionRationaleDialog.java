@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
 
 /**
@@ -23,7 +24,9 @@ public class PermissionRationaleDialog extends PositiveNegativeButtonMessageDial
     public PermissionRationaleDialog() {}
 
     public static PermissionRationaleDialog newInstance(@NonNull RuntimePermissionRequest request) {
-        PermissionRationaleDialog dialog = (PermissionRationaleDialog) new PositiveNegativeButtonMessageDialog();
+        PermissionRationaleDialog dialog = new PermissionRationaleDialog();
+
+        dialog.setArguments(request.getPermissionRationaleMessage(), R.string.yes, R.string.no);
 
         Bundle args = dialog.getArguments();
         if (args == null) {

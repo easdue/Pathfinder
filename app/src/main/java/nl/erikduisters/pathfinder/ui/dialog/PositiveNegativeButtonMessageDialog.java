@@ -26,19 +26,23 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
     public PositiveNegativeButtonMessageDialog() {
     }
 
-    public static PositiveNegativeButtonMessageDialog newInstance(MessageWithTitle msg,
+    public static PositiveNegativeButtonMessageDialog newInstance(@NonNull MessageWithTitle msg,
                                                                   @StringRes int positiveButtonTextResId,
                                                                   @StringRes int negativeButtonTextResId) {
         PositiveNegativeButtonMessageDialog dialog = new PositiveNegativeButtonMessageDialog();
 
+        dialog.setArguments(msg, positiveButtonTextResId, negativeButtonTextResId);
+
+        return dialog;
+    }
+
+    protected void setArguments(@NonNull MessageWithTitle msg, @StringRes int positiveButtonTextResId, @StringRes int negativeButtonTextResId) {
         Bundle args = new Bundle();
         args.putParcelable(KEY_MESSAGE, msg);
         args.putInt(KEY_POSITIVE_BUTTON_TEXT_RES_ID, positiveButtonTextResId);
         args.putInt(KEY_NEGATIVE_BUTTON_TEXT_RES_ID, negativeButtonTextResId);
 
-        dialog.setArguments(args);
-
-        return dialog;
+        setArguments(args);
     }
 
     public void setListener(Listener listener) {
