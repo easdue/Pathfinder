@@ -1,4 +1,4 @@
-package nl.erikduisters.pathfinder.ui.fragment.play_services_availability;
+package nl.erikduisters.pathfinder.ui.fragment.play_services;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -11,17 +11,17 @@ import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.AskUserToResolveUnavailabilityState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.ReportPlayServicesAvailabilityState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.WaitForPlayServicesUpdateState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.WaitingForUserToResolveUnavailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.ReportPlayServicesAvailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitForPlayServicesUpdateState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForUserToResolveUnavailabilityState;
 import timber.log.Timber;
 
 /**
  * Created by Erik Duisters on 18-06-2018.
  */
-public class PlayServicesAvailabilityFragment
-        extends BaseFragment<PlayServicesAvailabilityFragmentViewModel>
+public class PlayServicesFragment
+        extends BaseFragment<PlayServicesFragmentViewModel>
         implements PlayServicesHelper, PositiveNegativeButtonMessageDialog.Listener {
 
     public interface PlayServicesAvailabilityFragmentListener {
@@ -34,10 +34,10 @@ public class PlayServicesAvailabilityFragment
 
     private @Nullable PlayServicesAvailabilityFragmentListener listener;
 
-    public PlayServicesAvailabilityFragment() {}
+    public PlayServicesFragment() {}
 
-    public static PlayServicesAvailabilityFragment newInstance() {
-        return new PlayServicesAvailabilityFragment();
+    public static PlayServicesFragment newInstance() {
+        return new PlayServicesFragment();
     }
 
     public void setListener(@Nullable PlayServicesAvailabilityFragmentListener listener) {
@@ -50,8 +50,8 @@ public class PlayServicesAvailabilityFragment
     }
 
     @Override
-    protected Class<PlayServicesAvailabilityFragmentViewModel> getViewModelClass() {
-        return PlayServicesAvailabilityFragmentViewModel.class;
+    protected Class<PlayServicesFragmentViewModel> getViewModelClass() {
+        return PlayServicesFragmentViewModel.class;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class PlayServicesAvailabilityFragment
         super.onDestroy();
     }
 
-    private void render(@Nullable PlayServicesAvailabilityFragmentViewState viewState) {
+    private void render(@Nullable PlayServicesFragmentViewState viewState) {
         Timber.d("render(viewState == %s)", viewState == null ? "null" : viewState.getClass().getSimpleName());
 
         if (viewState == null) {

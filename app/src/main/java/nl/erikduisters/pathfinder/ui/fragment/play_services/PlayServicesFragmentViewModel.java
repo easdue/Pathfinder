@@ -1,4 +1,4 @@
-package nl.erikduisters.pathfinder.ui.fragment.play_services_availability;
+package nl.erikduisters.pathfinder.ui.fragment.play_services;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -11,10 +11,10 @@ import javax.inject.Singleton;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.ReportPlayServicesAvailabilityState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.WaitForPlayServicesUpdateState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.WaitingForUserToResolveUnavailabilityState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesHelper.ServiceState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.ReportPlayServicesAvailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitForPlayServicesUpdateState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForUserToResolveUnavailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesHelper.ServiceState;
 import nl.erikduisters.pathfinder.util.MainThreadExecutor;
 import timber.log.Timber;
 
@@ -22,15 +22,15 @@ import timber.log.Timber;
  * Created by Erik Duisters on 18-06-2018.
  */
 @Singleton
-public class PlayServicesAvailabilityFragmentViewModel extends ViewModel {
-    private final MutableLiveData<PlayServicesAvailabilityFragmentViewState> viewStateObservable;
+public class PlayServicesFragmentViewModel extends ViewModel {
+    private final MutableLiveData<PlayServicesFragmentViewState> viewStateObservable;
     private @Nullable PlayServicesHelper playServicesHelper;
     private @ServiceState int currentServiceState;
     private final MainThreadExecutor mainThreadExecutor;
     private Runnable checkUpdateStateRunnable;
 
     @Inject
-    PlayServicesAvailabilityFragmentViewModel(MainThreadExecutor mainThreadExecutor) {
+    PlayServicesFragmentViewModel(MainThreadExecutor mainThreadExecutor) {
         Timber.d("New PlayServicesAvailabilityFragmentViewModel created");
         viewStateObservable = new MutableLiveData<>();
         this.mainThreadExecutor = mainThreadExecutor;
@@ -44,7 +44,7 @@ public class PlayServicesAvailabilityFragmentViewModel extends ViewModel {
         playServicesHelper = null;
     }
 
-    LiveData<PlayServicesAvailabilityFragmentViewState> getViewStateObservable() {
+    LiveData<PlayServicesFragmentViewState> getViewStateObservable() {
         return viewStateObservable;
     }
 
@@ -72,8 +72,8 @@ public class PlayServicesAvailabilityFragmentViewModel extends ViewModel {
                 MessageWithTitle message =
                         new MessageWithTitle(playServicesHelper.getDialogTitle(serviceState), playServicesHelper.getDialogMessage(serviceState));
 
-                PlayServicesAvailabilityFragmentViewState.AskUserToResolveUnavailabilityState.Builder builder =
-                        new PlayServicesAvailabilityFragmentViewState.AskUserToResolveUnavailabilityState.Builder()
+                PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState.Builder builder =
+                        new PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState.Builder()
                                 .setMessageWithTitle(message)
                                 .setNegativeButtonTextResId(playServicesHelper.getDialogNegativeButtonText(serviceState))
                                 .setPositiveButtonTextResId(playServicesHelper.getDialogPositiveButtonText(serviceState));
@@ -88,9 +88,9 @@ public class PlayServicesAvailabilityFragmentViewModel extends ViewModel {
     }
 
     private boolean alreadyHandlingUnavailability() {
-        PlayServicesAvailabilityFragmentViewState currentState = viewStateObservable.getValue();
+        PlayServicesFragmentViewState currentState = viewStateObservable.getValue();
 
-        return currentState instanceof PlayServicesAvailabilityFragmentViewState.AskUserToResolveUnavailabilityState ||
+        return currentState instanceof PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState ||
                currentState instanceof WaitingForUserToResolveUnavailabilityState ||
                currentState instanceof WaitForPlayServicesUpdateState;
     }

@@ -7,7 +7,7 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewModel;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewModel;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
 
 /**
@@ -33,6 +33,6 @@ abstract class ViewModelBindingModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(PlayServicesAvailabilityFragmentViewModel.class)
-    abstract ViewModel bindPlayServicesAvailabilityFragmentViewModel(PlayServicesAvailabilityFragmentViewModel viewModel);
+    @ViewModelKey(PlayServicesFragmentViewModel.class)
+    abstract ViewModel bindPlayServicesFragmentViewModel(PlayServicesFragmentViewModel viewModel);
 }

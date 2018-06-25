@@ -1,4 +1,4 @@
-package nl.erikduisters.pathfinder.ui.fragment.play_services_availability;
+package nl.erikduisters.pathfinder.ui.fragment.play_services;
 
 import android.annotation.SuppressLint;
 import android.support.annotation.IntDef;

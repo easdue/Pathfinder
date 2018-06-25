@@ -1,4 +1,4 @@
-package nl.erikduisters.pathfinder.ui.fragment.play_services_availability;
+package nl.erikduisters.pathfinder.ui.fragment.play_services;
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule;
 import android.arch.lifecycle.LiveData;
@@ -14,11 +14,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.AskUserToResolveUnavailabilityState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.ReportPlayServicesAvailabilityState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.WaitForPlayServicesUpdateState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragmentViewState.WaitingForUserToResolveUnavailabilityState;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesHelper.ServiceState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.ReportPlayServicesAvailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitForPlayServicesUpdateState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForUserToResolveUnavailabilityState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesHelper.ServiceState;
 import nl.erikduisters.pathfinder.util.MainThreadExecutor;
 
 import static org.junit.Assert.assertEquals;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
  * Created by Erik Duisters on 22-06-2018.
  */
 @RunWith(JUnit4.class)
-public class PlayServicesAvailabilityFragmentViewModelTest {
+public class PlayServicesFragmentViewModelTest {
     @Rule
     public InstantTaskExecutorRule instantExecutorRule = new InstantTaskExecutorRule();
 
@@ -44,14 +44,14 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
     @Mock
     PlayServicesHelper playServicesHelper;
 
-    private PlayServicesAvailabilityFragmentViewModel viewModel;
-    private LiveData<PlayServicesAvailabilityFragmentViewState> viewStateObservable;
+    private PlayServicesFragmentViewModel viewModel;
+    private LiveData<PlayServicesFragmentViewState> viewStateObservable;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        viewModel = new PlayServicesAvailabilityFragmentViewModel(mainThreadExecutor);
+        viewModel = new PlayServicesFragmentViewModel(mainThreadExecutor);
         viewStateObservable = viewModel.getViewStateObservable();
     }
 
@@ -189,7 +189,7 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
         viewModel.setPlayServicesHelper(playServicesHelper);
         viewModel.checkPlayServicesAvailability();
 
-        PlayServicesAvailabilityFragmentViewState prevState = viewStateObservable.getValue();
+        PlayServicesFragmentViewState prevState = viewStateObservable.getValue();
 
         assertTrue(prevState instanceof AskUserToResolveUnavailabilityState);
         viewModel.checkPlayServicesAvailability();
@@ -206,7 +206,7 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
         viewModel.checkPlayServicesAvailability();
         viewModel.onUserWantsToResolveUnavailabilityState();
 
-        PlayServicesAvailabilityFragmentViewState prevState = viewStateObservable.getValue();
+        PlayServicesFragmentViewState prevState = viewStateObservable.getValue();
 
         assertTrue(prevState instanceof WaitingForUserToResolveUnavailabilityState);
         viewModel.checkPlayServicesAvailability();
@@ -223,7 +223,7 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
         viewModel.checkPlayServicesAvailability();
         viewModel.onUserWantsToResolveUnavailabilityState();
 
-        PlayServicesAvailabilityFragmentViewState prevState = viewStateObservable.getValue();
+        PlayServicesFragmentViewState prevState = viewStateObservable.getValue();
 
         assertTrue(prevState instanceof WaitForPlayServicesUpdateState);
         viewModel.checkPlayServicesAvailability();
@@ -334,7 +334,7 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
         when(playServicesHelper.getGooglePlayServicesState()).thenReturn(ServiceState.SERVICE_OK);
         runnable.getValue().run();
 
-        PlayServicesAvailabilityFragmentViewState state = viewStateObservable.getValue();
+        PlayServicesFragmentViewState state = viewStateObservable.getValue();
         assert(state instanceof ReportPlayServicesAvailabilityState);
         assertTrue(((ReportPlayServicesAvailabilityState)state).googlePlayServicesIsAvailable);
     }
@@ -362,7 +362,7 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
     public void whenOnUserDoesNotWantToResolveUnavailabilityState_resultsInReportPlayServicesAvailabilityState() {
         viewModel.onUserDoesNotWantToResolveUnavailabilityState();
 
-        PlayServicesAvailabilityFragmentViewState state = viewStateObservable.getValue();
+        PlayServicesFragmentViewState state = viewStateObservable.getValue();
         assertTrue(state instanceof ReportPlayServicesAvailabilityState);
         assertFalse(((ReportPlayServicesAvailabilityState)state).googlePlayServicesIsAvailable);
     }
@@ -371,7 +371,7 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
     public void whenOnGooglePlayServicesAvailableIsCalled_resultsInReportPlayServicesAvailabilityState() {
         viewModel.onGooglePlayServicesAvailable();
 
-        PlayServicesAvailabilityFragmentViewState state = viewStateObservable.getValue();
+        PlayServicesFragmentViewState state = viewStateObservable.getValue();
         assertTrue(state instanceof ReportPlayServicesAvailabilityState);
         assertTrue(((ReportPlayServicesAvailabilityState)state).googlePlayServicesIsAvailable);
     }
@@ -380,7 +380,7 @@ public class PlayServicesAvailabilityFragmentViewModelTest {
     public void whenOnGooglePlayServicesUnAvailableIsCalled_resultsInReportPlayServicesAvailabilityState() {
         viewModel.onGooglePlayServicesUnavailable();
 
-        PlayServicesAvailabilityFragmentViewState state = viewStateObservable.getValue();
+        PlayServicesFragmentViewState state = viewStateObservable.getValue();
         assertTrue(state instanceof ReportPlayServicesAvailabilityState);
         assertFalse(((ReportPlayServicesAvailabilityState)state).googlePlayServicesIsAvailable);
     }
