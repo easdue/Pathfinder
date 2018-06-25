@@ -1,11 +1,23 @@
 package nl.erikduisters.pathfinder.ui.fragment.play_services;
 
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.ui.RequestCode;
@@ -17,6 +29,8 @@ import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForUserToResolveUnavailabilityState;
 import timber.log.Timber;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by Erik Duisters on 18-06-2018.
  */
@@ -24,7 +38,7 @@ public class PlayServicesFragment
         extends BaseFragment<PlayServicesFragmentViewModel>
         implements PlayServicesHelper, PositiveNegativeButtonMessageDialog.Listener {
 
-    public interface PlayServicesAvailabilityFragmentListener {
+    public interface PlayServicesFragmentListener {
         void onPlayServicesAvailable();
         void onPlayServicesUnavailable();
     }
@@ -32,7 +46,8 @@ public class PlayServicesFragment
     private static final String KEY_ASK_USER_TO_RESOLVE_UNAVAILABILITY_DIALOG = "AskUserToResolveUnavailabilityDialog";
     private static final String KEY_WAITING_FOR_PLAY_SERVICES_UPDATE_DIALOG = "WaitingForPlayServicesUpdateDialog";
 
-    private @Nullable PlayServicesAvailabilityFragmentListener listener;
+    private @Nullable PlayServicesFragmentListener listener;
+    private static ResolvableApiException currentResolvableApiException;
 
     public PlayServicesFragment() {}
 
@@ -40,7 +55,7 @@ public class PlayServicesFragment
         return new PlayServicesFragment();
     }
 
-    public void setListener(@Nullable PlayServicesAvailabilityFragmentListener listener) {
+    public void setListener(@Nullable PlayServicesFragmentListener listener) {
         this.listener = listener;
     }
 
@@ -111,6 +126,14 @@ public class PlayServicesFragment
 
             viewModel.onPlayServicesAvailabilityStateReported();
         }
+
+        if (viewState instanceof PlayServicesFragmentViewState.WaitingForLocationSettingsCheckState) {
+            //Do nothing
+        }
+
+        if (viewState instanceof PlayServicesFragmentViewState.WaitingForLocationSettingsResolutionState) {
+            //Do nothing
+        }
     }
 
     private void ShowAskUserToResolveUnavailabilityDialog(AskUserToResolveUnavailabilityState viewState, String tag) {
@@ -138,7 +161,7 @@ public class PlayServicesFragment
 
         dialog.setKeyProgressMessage(state.progressMessageResId);
 
-        dialog.setListener(() -> viewModel.onGooglePlayServicesUnavailable());
+        dialog.setListener(() -> viewModel.onUserDoesNotWantToResolveUnavailabilityState());
     }
 
     @Override
@@ -164,7 +187,11 @@ public class PlayServicesFragment
     }
 
     @Override
-    public void tryToResolveUnavailabilityState(@ServiceState int state) {
+    public void tryToResolveUnavailabilityState(@ServiceState int state, GooglePlayServicesAvailabilityCallback callback) {
+        if (!(callback instanceof PlayServicesFragmentViewModel)) {
+            throw new IllegalArgumentException("GooglePlayServicesAvailabilityCallback must be implemented by PlayServicesFragmentViewModel");
+        }
+
         Intent intent = GoogleApiAvailability.getInstance().getErrorResolutionIntent(getContext(), state, null);
 
         if (intent == null) {
@@ -192,6 +219,15 @@ public class PlayServicesFragment
                 } else {
                     viewModel.onGooglePlayServicesUnavailable();
                 }
+                break;
+            case RequestCode.LOCATION_SETTINGS_RESOLUTION_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    viewModel.onLocationSettingsCorrect();
+                }
+                else {
+                    viewModel.onLocationSettingsIncorrect(false);
+                }
+                break;
         }
     }
 
@@ -203,5 +239,73 @@ public class PlayServicesFragment
     @Override
     public void onNegativeButtonClicked() {
         viewModel.onUserDoesNotWantToResolveUnavailabilityState();
+    }
+
+    @Override
+    public void checkLocationSettings(LocationRequest locationRequest, LocationSettingsCallback callback) {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        //noinspection ConstantConditions
+        SettingsClient client = LocationServices.getSettingsClient(getActivity());
+        client.checkLocationSettings(builder.build())
+                .addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        callback.onLocationSettingsCorrect();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        boolean isResolvable = e instanceof ResolvableApiException;
+
+                        if (isResolvable) {
+                            currentResolvableApiException = (ResolvableApiException) e;
+
+                        }
+
+                        callback.onLocationSettingsIncorrect(isResolvable);
+                    }
+                })
+                .addOnCanceledListener(new OnCanceledListener() {
+                    @Override
+                    public void onCanceled() {
+                        callback.onLocationSettingsIncorrect(false);
+                    }
+                });
+    }
+
+    @Override
+    public void tryToCorrectLocationSettings(LocationSettingsCallback callback) {
+        if (currentResolvableApiException == null) {
+            throw new IllegalStateException("currentResolvableApiException == null. Did you call checkLocationSettings()?");
+        }
+
+        if (!(callback instanceof PlayServicesFragmentViewModel)) {
+            throw new IllegalArgumentException("LocationSettingsCallback must be implemented by PlayServicesFragmentViewModel");
+        }
+
+        /* This does not call through to our onActivityResult but only to MainActivity.onActivityResult
+           And unfortunately to dialog that is shown does not use colorAccent for the buttons, wtf google!
+        try {
+            currentResolvableApiException.startResolutionForResult(getActivity(), RequestCode.LOCATION_SETTINGS_RESOLUTION_REQUEST);
+        } catch (IntentSender.SendIntentException e1) {
+            e1.printStackTrace();
+
+            //https://developer.android.com/training/location/change-location-settings says to ignore this exception
+            callback.onLocationSettingsCorrect();
+        }
+        */
+        PendingIntent pi = currentResolvableApiException.getResolution();
+        try {
+            Bundle bundle = new Bundle();
+            bundle.putInt("overrideTheme", 0);
+            bundle.putInt("overrideCustomTheme", 0);
+            getActivity().startIntentSenderFromFragment(this, pi.getIntentSender(), RequestCode.LOCATION_SETTINGS_RESOLUTION_REQUEST, null, 0, 0, 0, bundle);
+        } catch (IntentSender.SendIntentException e) {
+            //https://developer.android.com/training/location/change-location-settings says to ignore this exception
+            callback.onLocationSettingsCorrect();
+        }
     }
 }

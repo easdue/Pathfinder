@@ -9,10 +9,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.ReportPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitForPlayServicesUpdateState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForLocationSettingsCheckState;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForLocationSettingsResolutionState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForUserToResolveUnavailabilityState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesHelper.ServiceState;
 import nl.erikduisters.pathfinder.util.MainThreadExecutor;
@@ -22,18 +25,22 @@ import timber.log.Timber;
  * Created by Erik Duisters on 18-06-2018.
  */
 @Singleton
-public class PlayServicesFragmentViewModel extends ViewModel {
+public class PlayServicesFragmentViewModel
+        extends ViewModel
+        implements PlayServicesHelper.GooglePlayServicesAvailabilityCallback, PlayServicesHelper.LocationSettingsCallback {
     private final MutableLiveData<PlayServicesFragmentViewState> viewStateObservable;
     private @Nullable PlayServicesHelper playServicesHelper;
     private @ServiceState int currentServiceState;
     private final MainThreadExecutor mainThreadExecutor;
+    private final GpsManager gpsManager;
     private Runnable checkUpdateStateRunnable;
 
     @Inject
-    PlayServicesFragmentViewModel(MainThreadExecutor mainThreadExecutor) {
+    PlayServicesFragmentViewModel(MainThreadExecutor mainThreadExecutor, GpsManager gpsManager) {
         Timber.d("New PlayServicesAvailabilityFragmentViewModel created");
         viewStateObservable = new MutableLiveData<>();
         this.mainThreadExecutor = mainThreadExecutor;
+        this.gpsManager = gpsManager;
     }
 
     @Override
@@ -66,7 +73,7 @@ public class PlayServicesFragmentViewModel extends ViewModel {
         @ServiceState int serviceState = playServicesHelper.getGooglePlayServicesState();
 
         if (serviceState == ServiceState.SERVICE_OK) {
-            reportPlayservicesAvailabilityState(true);
+            onGooglePlayServicesAvailable();
         } else if (!alreadyHandlingUnavailability()) {
             if (playServicesHelper.isStateUserResolvable(serviceState)) {
                 MessageWithTitle message =
@@ -109,7 +116,7 @@ public class PlayServicesFragmentViewModel extends ViewModel {
         }
 
         if (currentServiceState != ServiceState.SERVICE_UPDATING) {
-            playServicesHelper.tryToResolveUnavailabilityState(currentServiceState);
+            playServicesHelper.tryToResolveUnavailabilityState(currentServiceState, this);
             viewStateObservable.setValue(new WaitingForUserToResolveUnavailabilityState());
         } else {
             ProgressDialog.Properties properties =
@@ -153,11 +160,18 @@ public class PlayServicesFragmentViewModel extends ViewModel {
         reportPlayservicesAvailabilityState(false);
     }
 
-    void onGooglePlayServicesAvailable() {
-        reportPlayservicesAvailabilityState(true);
+    @Override
+    public void onGooglePlayServicesAvailable() {
+        if (playServicesHelper == null) {
+            throw new RuntimeException("You have to call setPlayServicesHelper() before using any other function of this class");
+        }
+
+        playServicesHelper.checkLocationSettings(gpsManager.getLocationRequest(), this);
+        viewStateObservable.setValue(new WaitingForLocationSettingsCheckState());
     }
 
-    void onGooglePlayServicesUnavailable() {
+    @Override
+    public void onGooglePlayServicesUnavailable() {
         if (checkUpdateStateRunnable != null) {
             mainThreadExecutor.cancelDelayed(checkUpdateStateRunnable);
 
@@ -165,5 +179,24 @@ public class PlayServicesFragmentViewModel extends ViewModel {
         }
 
         reportPlayservicesAvailabilityState(false);
+    }
+
+    @Override
+    public void onLocationSettingsCorrect() {
+        reportPlayservicesAvailabilityState(true);
+    }
+
+    @Override
+    public void onLocationSettingsIncorrect(boolean isResolvable) {
+        if (playServicesHelper == null) {
+            throw new RuntimeException("You have to call setPlayServicesHelper() before using any other function of this class");
+        }
+
+        if (viewStateObservable.getValue() instanceof WaitingForLocationSettingsCheckState) {
+            playServicesHelper.tryToCorrectLocationSettings(this);
+            viewStateObservable.setValue(new WaitingForLocationSettingsResolutionState());
+        } else {
+            reportPlayservicesAvailabilityState(true);
+        }
     }
 }

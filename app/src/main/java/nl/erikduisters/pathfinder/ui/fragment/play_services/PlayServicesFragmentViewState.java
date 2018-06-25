@@ -67,4 +67,10 @@ public interface PlayServicesFragmentViewState {
             this.googlePlayServicesIsAvailable = googlePlayServicesIsAvailable;
         }
     }
+
+    final class WaitingForLocationSettingsCheckState implements PlayServicesFragmentViewState {
+    }
+
+    final class WaitingForLocationSettingsResolutionState implements PlayServicesFragmentViewState {
+    }
 }

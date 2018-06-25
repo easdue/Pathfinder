@@ -2,6 +2,8 @@ package nl.erikduisters.pathfinder.data.local;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationManager;
 
 import java.io.File;
 import java.util.UUID;
@@ -19,6 +21,9 @@ import timber.log.Timber;
 
 @Singleton
 public class PreferenceManager {
+    private static final String DEFAULT_LATITUDE = "52.3700";
+    private static final String DEFAULT_LONGITUDE = "4.8900";
+
     private final String KEY_STORAGE_DIRECTORY;
     private final String KEY_CACHE_DIRECTORY;
     private final String KEY_STORAGE_IMPORT_DIRECTORY;
@@ -27,6 +32,9 @@ public class PreferenceManager {
     private final String KEY_STORAGE_MAP_DIRECTORY;
     private final String KEY_STORAGE_USER_DIRECTORY;
     private final String KEY_STORAGE_RENDERTHEME_DIRECTORY;
+    private final String KEY_LAST_KNOWN_LOCATION_LATITUDE;
+    private final String KEY_LAST_KNOWN_LOCATION_LONGITUDE;
+    private final String KEY_LAST_KNOWN_LOCATION_TIME;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -45,6 +53,9 @@ public class PreferenceManager {
         KEY_STORAGE_MAP_DIRECTORY = context.getString(R.string.key_storage_map_directory);
         KEY_STORAGE_USER_DIRECTORY = context.getString(R.string.key_storage_user_directory);
         KEY_STORAGE_RENDERTHEME_DIRECTORY = context.getString(R.string.key_storage_rendertheme_directory);
+        KEY_LAST_KNOWN_LOCATION_LATITUDE = context.getString(R.string.key_last_known_location_latitude);
+        KEY_LAST_KNOWN_LOCATION_LONGITUDE = context.getString(R.string.key_last_known_location_longitude);
+        KEY_LAST_KNOWN_LOCATION_TIME = context.getString(R.string.key_last_known_location_time);
 
         preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         storageDir = getStorageDir();
@@ -112,6 +123,25 @@ public class PreferenceManager {
     public synchronized void setStorageUUID(UUID uuid) {
         SharedPreferences.Editor e = preferences.edit();
         e.putString(KEY_STORAGE_UUID, uuid == null ? "" : uuid.toString());
+        e.apply();
+    }
+
+    public synchronized Location getLastKnownLocation() {
+        Location loc = new Location(LocationManager.GPS_PROVIDER);
+        loc.setLatitude(Double.parseDouble(preferences.getString(KEY_LAST_KNOWN_LOCATION_LATITUDE, DEFAULT_LATITUDE)));
+        loc.setLongitude(Double.parseDouble(preferences.getString(KEY_LAST_KNOWN_LOCATION_LONGITUDE, DEFAULT_LONGITUDE)));
+        loc.setTime(preferences.getLong(KEY_LAST_KNOWN_LOCATION_TIME, 0));
+
+        return loc;
+    }
+
+    public synchronized void setLastKnownLocation(Location loc) {
+        SharedPreferences.Editor e = preferences.edit();
+
+        e.putString(KEY_LAST_KNOWN_LOCATION_LATITUDE, String.valueOf(loc.getLatitude()));
+        e.putString(KEY_LAST_KNOWN_LOCATION_LONGITUDE, String.valueOf(loc.getLongitude()));
+        e.putLong(KEY_LAST_KNOWN_LOCATION_TIME, loc.getTime());
+
         e.apply();
     }
 }

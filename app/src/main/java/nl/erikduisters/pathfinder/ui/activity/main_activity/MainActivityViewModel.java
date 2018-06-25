@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
+import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
@@ -25,18 +26,21 @@ import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
 import timber.log.Timber;
 
+//TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
 /**
  * Created by Erik Duisters on 03-06-2018.
  */
 @Singleton
 public class MainActivityViewModel extends ViewModel implements InitDatabaseHelper.InitDatabaseListener {
     private MutableLiveData<MainActivityViewState> viewStateObservable;
+    private final GpsManager gpsManager;
 
     @Inject
-    MainActivityViewModel(InitDatabaseHelper initDatabaseHelper) {
+    MainActivityViewModel(InitDatabaseHelper initDatabaseHelper, GpsManager gpsManager) {
         Timber.d("New MainActivityViewModel created");
 
         viewStateObservable = new MutableLiveData<>();
+        this.gpsManager = gpsManager;
 
         ProgressDialog.Properties properties =
                 new ProgressDialog.Properties(R.string.initializing_database, true,
@@ -108,6 +112,7 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
     void onPermissionGranted(String permission) {
         if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            gpsManager.onAccessFineLocationPermitted();
             viewStateObservable.setValue(new CheckPlayServicesAvailabilityState());
         }
     }
@@ -123,11 +128,14 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
     void onPlayServicesAvailable() {
         //TODO: Implement
+        gpsManager.onGooglePlayServicesAvailable();
+
         viewStateObservable.setValue(new MainActivityViewState.InitializedState());
     }
 
     void onPlayServicesUnavailable() {
         //TODO: Implement
+        //TODO: Need to check if gps is enabled
         viewStateObservable.setValue(new MainActivityViewState.InitializedState());
     }
 }

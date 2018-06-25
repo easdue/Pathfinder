@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.support.annotation.IntDef;
 import android.support.annotation.StringRes;
 
+import com.google.android.gms.location.LocationRequest;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -26,11 +28,14 @@ public interface PlayServicesHelper {
     }
 
     @ServiceState int getGooglePlayServicesState();
-    void tryToResolveUnavailabilityState(@ServiceState int state);
+    void tryToResolveUnavailabilityState(@ServiceState int state, GooglePlayServicesAvailabilityCallback callback);
 
     default boolean isStateUserResolvable(@ServiceState int state) {
         return state != ServiceState.SERVICE_OK && state != ServiceState.SERVICE_INVALID;
     }
+
+    void checkLocationSettings(LocationRequest locationRequest, LocationSettingsCallback callback);
+    void tryToCorrectLocationSettings(LocationSettingsCallback callback);
 
     @SuppressLint("SwitchIntDef")
     default @StringRes int getDialogTitle(@ServiceState int state) {
@@ -94,5 +99,16 @@ public interface PlayServicesHelper {
             default:
                 throw new IllegalArgumentException("You cannot call getDialogNegativeButtonText for a state that is not user resolvable");
         }
+    }
+
+    interface GooglePlayServicesAvailabilityCallback {
+        void onGooglePlayServicesAvailable();
+        void onGooglePlayServicesUnavailable();
+
+    }
+
+    interface LocationSettingsCallback {
+        void onLocationSettingsCorrect();
+        void onLocationSettingsIncorrect(boolean isResolvable);
     }
 }

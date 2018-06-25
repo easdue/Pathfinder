@@ -31,15 +31,17 @@ import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
-import nl.erikduisters.pathfinder.ui.fragment.play_services_availability.PlayServicesAvailabilityFragment;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
 import timber.log.Timber;
 
 //TODO: Remove fragment listeners
-public class MainActivity extends BaseActivity<MainActivityViewModel> implements
-        NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
-        FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener, PlayServicesAvailabilityFragment.PlayServicesAvailabilityFragmentListener {
+public class MainActivity
+        extends BaseActivity<MainActivityViewModel>
+        implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
+        FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener,
+        PlayServicesFragment.PlayServicesFragmentListener {
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
@@ -218,11 +220,11 @@ public class MainActivity extends BaseActivity<MainActivityViewModel> implements
     }
 
     private void startPlayServicesAvailabilityFragment(String tag) {
-        PlayServicesAvailabilityFragment fragment = findFragment(tag);
+        PlayServicesFragment fragment = findFragment(tag);
 
         if (fragment == null) {
             Timber.d("Creating new PlayServicesAvailabilityFragment");
-            fragment = PlayServicesAvailabilityFragment.newInstance();
+            fragment = PlayServicesFragment.newInstance();
 
             addFragment(fragment, tag);
         }

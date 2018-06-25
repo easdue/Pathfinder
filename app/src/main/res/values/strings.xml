@@ -40,6 +40,9 @@
     <string name="key_storage_map_directory" translatable="false">storage_map_directory</string>
     <string name="key_storage_user_directory" translatable="false">storage_user_directory</string>
     <string name="key_storage_rendertheme_directory" translatable="false">storage_rendertheme_directory</string>
+    <string name="key_last_known_location_latitude" translatable="false">last_known_location_latitude</string>
+    <string name="key_last_known_location_longitude" translatable="false">last_known_location_longitude</string>
+    <string name="key_last_known_location_time" translatable="false">last_known_location_time</string>
 
     <string name="prefs_storage_location">Storage Location</string>
     <string name="prefs_import_directory">Import Directory</string>

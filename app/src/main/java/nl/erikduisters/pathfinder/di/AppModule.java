@@ -3,8 +3,12 @@ package nl.erikduisters.pathfinder.di;
 import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -51,5 +55,17 @@ abstract class AppModule {
     @Singleton
     static MainThreadExecutor provideMainThreadExecutor() {
         return new MainThreadExecutor();
+    }
+
+    @Provides
+    @Singleton
+    static LocationManager provideLocationManager(@ApplicationContext Context context) {
+        return (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    @Provides
+    @Singleton
+    static FusedLocationProviderClient providedFusedLocationProviderClient(@ApplicationContext Context context) {
+        return LocationServices.getFusedLocationProviderClient(context);
     }
 }
