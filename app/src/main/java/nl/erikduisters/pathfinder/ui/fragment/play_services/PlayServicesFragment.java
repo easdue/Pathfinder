@@ -208,7 +208,6 @@ public class PlayServicesFragment
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Timber.d("onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
 
         switch(requestCode) {

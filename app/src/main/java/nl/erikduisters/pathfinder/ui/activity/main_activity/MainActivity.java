@@ -1,6 +1,8 @@
 package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -20,13 +22,18 @@ import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
+import nl.erikduisters.pathfinder.ui.RequestCode;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
+import nl.erikduisters.pathfinder.ui.dialog.AskUserToEnableGpsDialog;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
@@ -41,13 +48,14 @@ public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
         FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener,
-        PlayServicesFragment.PlayServicesFragmentListener {
+        PlayServicesFragment.PlayServicesFragmentListener, AskUserToEnableGpsDialog.Listener {
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
     private static final String TAG_PLAY_SERVICES_AVAILABIITY_FRAGMENT = "PlayServicesAvailablilityFragment";
     private static final String TAG_FATAL_MESSAGE_DIALOG = "FatalMessageDialog";
     private static final String TAG_INIT_DATABASE_PROGRESS_DIALOG = "InitDatabaseProgressDialog";
+    private static final String TAG_ASK_USER_TO_ENABLE_GPS_DIALOG = "AskUserToEnableGpsDialog";
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
@@ -186,6 +194,22 @@ public class MainActivity
         if (viewState instanceof FinishState) {
             finish();
         }
+
+        if (viewState instanceof AskUserToEnableGpsState) {
+            showAskUserToEnableGpsDialog((AskUserToEnableGpsState) viewState, TAG_ASK_USER_TO_ENABLE_GPS_DIALOG);
+        } else {
+            dismissDialogFragment(TAG_ASK_USER_TO_ENABLE_GPS_DIALOG);
+        }
+
+        if (viewState instanceof ShowEnableGpsSettingState) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivityForResult(intent, RequestCode.ENABLE_GPS);
+            viewModel.onWaitingForGpsToBeEnabled();
+        }
+
+        if (viewState instanceof WaitingForGpsToBeEnabledState) {
+            //Do nothing
+        }
     }
 
     private void startInitStorageFragment(String tag) {
@@ -201,12 +225,9 @@ public class MainActivity
     }
 
     private void startRuntimePermissionFragment(String tag, RequestRuntimePermissionState viewState) {
-        Timber.d("startRuntimePermissionFragment()");
-
         RuntimePermissionFragment fragment = findFragment(tag);
 
         if (fragment == null) {
-            Timber.d("Creating new RuntimePermissionFragment");
             fragment = RuntimePermissionFragment.newInstance(viewState.request);
 
             addFragment(fragment, tag);
@@ -223,7 +244,6 @@ public class MainActivity
         PlayServicesFragment fragment = findFragment(tag);
 
         if (fragment == null) {
-            Timber.d("Creating new PlayServicesAvailabilityFragment");
             fragment = PlayServicesFragment.newInstance();
 
             addFragment(fragment, tag);
@@ -270,6 +290,18 @@ public class MainActivity
         dialog.setListener(this);
     }
 
+    private void showAskUserToEnableGpsDialog(AskUserToEnableGpsState state, String tag) {
+        AskUserToEnableGpsDialog dialog = findFragment(tag);
+
+        if (dialog == null) {
+            dialog = AskUserToEnableGpsDialog.newInstance(state.message, state.positiveButtonTextResId, state.negativeButtonTextResId);
+
+            show(dialog, tag);
+        }
+
+        dialog.setListener(this);
+    }
+
     @Override
     public void onFatalMessageDialogDismissed() {
         viewModel.onFatalErrorMessageDismissed();
@@ -293,25 +325,42 @@ public class MainActivity
 
     @Override
     public void onPermissionGranted(@NonNull String permission) {
-        Timber.e("onPermissionGranted: %s", permission);
         viewModel.onPermissionGranted(permission);
     }
 
     @Override
     public void onPermissionDenied(@NonNull String permission) {
-        Timber.e("onPermissionDenied: %s", permission);
         viewModel.onPermissionDenied(permission);
     }
 
     @Override
     public void onPlayServicesAvailable() {
-        Timber.d("onPlayServicesAvailable()");
         viewModel.onPlayServicesAvailable();
     }
 
     @Override
     public void onPlayServicesUnavailable() {
-        Timber.d("onPlayServicesUnavailable()");
         viewModel.onPlayServicesUnavailable();
+    }
+
+    @Override
+    public void onUserWantsToEnableGps() {
+        viewModel.onUserWantsToEnableGps();
+    }
+
+    @Override
+    public void onUserDoesNotWantToEnableGps() {
+        viewModel.onUserDoesNotWantToEnableGps();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case RequestCode.ENABLE_GPS:
+                viewModel.onFinishedWaitingForGpsToBeEnabled();
+                break;
+        }
     }
 }

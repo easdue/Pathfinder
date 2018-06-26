@@ -59,8 +59,6 @@ public class PlayServicesFragmentViewModel
     }
 
     void setPlayServicesHelper(@Nullable PlayServicesHelper helper) {
-        Timber.d("setPlayServicesHelper(%s)", helper == null ? "null" : "not null");
-
         this.playServicesHelper = helper;
     }
 

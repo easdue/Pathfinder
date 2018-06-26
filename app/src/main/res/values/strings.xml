@@ -120,4 +120,7 @@
     <string name="play_services_updating_positive_button_text">WAIT</string>
     <string name="play_services_updating_negative_button_text">@android:string/cancel</string>
     <string name="play_services_waiting_for_play_services_update">Waiting for Play Services Updated to finish</string>
+
+    <string name="enable_gps">Enable GPS?</string>
+    <string name="enable_gps_message">GPS is disabled.\n\nDo you want to enabled it now?</string>
 </resources>
