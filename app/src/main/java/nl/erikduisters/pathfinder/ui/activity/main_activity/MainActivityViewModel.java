@@ -14,13 +14,17 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
@@ -130,12 +134,32 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
         //TODO: Implement
         gpsManager.onGooglePlayServicesAvailable();
 
-        viewStateObservable.setValue(new MainActivityViewState.InitializedState());
+        viewStateObservable.setValue(new InitializedState());
     }
 
     void onPlayServicesUnavailable() {
+        if (gpsManager.hasGps() && !gpsManager.isGpsEnabled()) {
+            MessageWithTitle message = new MessageWithTitle(R.string.enable_gps, R.string.enable_gps_message);
+            viewStateObservable.setValue(new AskUserToEnableGpsState(message, R.string.yes, R.string.no));
+        } else {
+            viewStateObservable.setValue(new InitializedState());
+        }
+    }
+
+    void onUserWantsToEnableGps() {
+        viewStateObservable.setValue(new ShowEnableGpsSettingState());
+    }
+
+    void onUserDoesNotWantToEnableGps() {
         //TODO: Implement
-        //TODO: Need to check if gps is enabled
-        viewStateObservable.setValue(new MainActivityViewState.InitializedState());
+        viewStateObservable.setValue(new InitializedState());
+    }
+
+    void onWaitingForGpsToBeEnabled() {
+        viewStateObservable.setValue(new WaitingForGpsToBeEnabledState());
+    }
+
+    void onFinishedWaitingForGpsToBeEnabled() {
+        viewStateObservable.setValue(new InitializedState());
     }
 }

@@ -15,4 +15,5 @@ public @interface RequestCode {
     int REQUEST_PERMISSION = 0;
     int GOOGLEPLAY_ERROR_RESOLUTION_REQUEST = 1;
     int LOCATION_SETTINGS_RESOLUTION_REQUEST = 2;
+    int ENABLE_GPS = 3;
 }

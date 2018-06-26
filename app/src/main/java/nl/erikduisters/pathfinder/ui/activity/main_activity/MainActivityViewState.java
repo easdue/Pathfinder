@@ -2,6 +2,7 @@ package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
@@ -41,6 +42,7 @@ interface MainActivityViewState {
     class CheckPlayServicesAvailabilityState implements MainActivityViewState {
     }
 
+    //TODO: Think of a better way to handle these type of "snackbar" messages. Maybe move to MainActivityViewState
     class ShowMessageState implements MainActivityViewState {
         @NonNull final MessageWithTitle message;
         @Nullable MainActivityViewState prevState;
@@ -63,4 +65,20 @@ interface MainActivityViewState {
 
     class FinishState implements MainActivityViewState {
     }
+
+    class AskUserToEnableGpsState implements MainActivityViewState {
+        final @NonNull MessageWithTitle message;
+        @StringRes int positiveButtonTextResId;
+        @StringRes int negativeButtonTextResId;
+
+        AskUserToEnableGpsState(MessageWithTitle message, @StringRes int positiveButtonTextResId, @StringRes int negativeButtonTextResId) {
+            this.message = message;
+            this.positiveButtonTextResId = positiveButtonTextResId;
+            this.negativeButtonTextResId = negativeButtonTextResId;
+        }
+    }
+
+    class ShowEnableGpsSettingState implements MainActivityViewState {}
+    class WaitingForGpsToBeEnabledState implements MainActivityViewState {}
+
 }
