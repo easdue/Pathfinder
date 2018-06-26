@@ -225,12 +225,9 @@ public class MainActivity
     }
 
     private void startRuntimePermissionFragment(String tag, RequestRuntimePermissionState viewState) {
-        Timber.d("startRuntimePermissionFragment()");
-
         RuntimePermissionFragment fragment = findFragment(tag);
 
         if (fragment == null) {
-            Timber.d("Creating new RuntimePermissionFragment");
             fragment = RuntimePermissionFragment.newInstance(viewState.request);
 
             addFragment(fragment, tag);
@@ -247,7 +244,6 @@ public class MainActivity
         PlayServicesFragment fragment = findFragment(tag);
 
         if (fragment == null) {
-            Timber.d("Creating new PlayServicesAvailabilityFragment");
             fragment = PlayServicesFragment.newInstance();
 
             addFragment(fragment, tag);
@@ -329,37 +325,31 @@ public class MainActivity
 
     @Override
     public void onPermissionGranted(@NonNull String permission) {
-        Timber.e("onPermissionGranted: %s", permission);
         viewModel.onPermissionGranted(permission);
     }
 
     @Override
     public void onPermissionDenied(@NonNull String permission) {
-        Timber.e("onPermissionDenied: %s", permission);
         viewModel.onPermissionDenied(permission);
     }
 
     @Override
     public void onPlayServicesAvailable() {
-        Timber.d("onPlayServicesAvailable()");
         viewModel.onPlayServicesAvailable();
     }
 
     @Override
     public void onPlayServicesUnavailable() {
-        Timber.d("onPlayServicesUnavailable()");
         viewModel.onPlayServicesUnavailable();
     }
 
     @Override
     public void onUserWantsToEnableGps() {
-        Timber.d("onUserWantsToEnableGps()");
         viewModel.onUserWantsToEnableGps();
     }
 
     @Override
     public void onUserDoesNotWantToEnableGps() {
-        Timber.d("onUserDoesNotWantToEnableGps()");
         viewModel.onUserDoesNotWantToEnableGps();
     }
 
