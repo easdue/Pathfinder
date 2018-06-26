@@ -26,7 +26,7 @@ public class PermissionRationaleDialog extends PositiveNegativeButtonMessageDial
     public static PermissionRationaleDialog newInstance(@NonNull RuntimePermissionRequest request) {
         PermissionRationaleDialog dialog = new PermissionRationaleDialog();
 
-        dialog.setArguments(request.getPermissionRationaleMessage(), R.string.yes, R.string.no, "");
+        dialog.setArguments(request.getPermissionRationaleMessage(), false, R.string.yes, R.string.no, "");
 
         Bundle args = dialog.getArguments();
         if (args == null) {

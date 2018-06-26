@@ -43,6 +43,8 @@
     <string name="key_last_known_location_latitude" translatable="false">last_known_location_latitude</string>
     <string name="key_last_known_location_longitude" translatable="false">last_known_location_longitude</string>
     <string name="key_last_known_location_time" translatable="false">last_known_location_time</string>
+    <string name="key_ask_to_enable_gps" translatable="false">ask_to_enable_gps</string>
+    <string name="key_ask_to_resolve_play_services_unavailability" translatable="false">ask_to_resolve_play_services_unavailability</string>
 
     <string name="prefs_storage_location">Storage Location</string>
     <string name="prefs_import_directory">Import Directory</string>
@@ -50,12 +52,15 @@
     <string name="prefs_map_directory">Map Directory</string>
     <string name="prefs_user_directory">User Directory</string>
     <string name="prefs_rendertheme_directory">Rendertheme Directory</string>
+    <string name="prefs_ask_to_enable_gps">Ask To Enable GPS</string>
+    <string name="prefs_ask_to_resolve_play_services_unavailability">Ask to resolve Google Play Services unavailability</string>
 
     <!-- Dialogs -->
     <string name="ok">@android:string/ok</string>
     <string name="edit">EDIT</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="never_ask_again">Never ask again</string>
 
     <!-- Runtime permissions -->
     <string name="permission_needed">Permission Needed</string>

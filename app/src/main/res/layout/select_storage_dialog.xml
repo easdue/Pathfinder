@@ -27,12 +27,13 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/ssd_device"
+        android:id="@+id/message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:layout_marginStart="24dp"
         android:text="@string/device"
+        tools:text="Device"
         app:layout_constraintEnd_toStartOf="@+id/freePlaceholder"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,8 +47,8 @@
         android:text="@string/placeholder_128_5GB"
         android:visibility="invisible"
         app:layout_constraintEnd_toStartOf="@+id/totalPlaceholder"
-        app:layout_constraintStart_toEndOf="@+id/ssd_device"
-        app:layout_constraintTop_toTopOf="@+id/ssd_device"/>
+        app:layout_constraintStart_toEndOf="@+id/message"
+        app:layout_constraintTop_toTopOf="@+id/message"/>
 
     <TextView
         android:id="@+id/ssd_free"
@@ -95,7 +96,7 @@
         android:background="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ssd_device"/>
+        app:layout_constraintTop_toBottomOf="@+id/message"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/ssd_recyclerView"

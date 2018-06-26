@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
         android:key="@string/key_storage_directory"
         android:title="@string/prefs_storage_location"
@@ -44,4 +45,14 @@
         android:enabled="true"
         android:defaultValue="RenderThemes"
         android:persistent="true"/>
+    <SwitchPreference
+        android:defaultValue="true"
+        android:enabled="true"
+        android:key="@string/key_ask_to_enable_gps"
+        android:title="@string/prefs_ask_to_enable_gps"/>
+    <SwitchPreference
+        android:defaultValue="true"
+        android:enabled="true"
+        android:key="@string/key_ask_to_resolve_play_services_unavailability"
+        android:title="@string/prefs_ask_to_resolve_play_services_unavailability"/>
 </PreferenceScreen>

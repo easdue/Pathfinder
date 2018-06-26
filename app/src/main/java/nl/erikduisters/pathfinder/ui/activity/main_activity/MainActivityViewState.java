@@ -68,11 +68,13 @@ interface MainActivityViewState {
 
     class AskUserToEnableGpsState implements MainActivityViewState {
         final @NonNull MessageWithTitle message;
-        @StringRes int positiveButtonTextResId;
-        @StringRes int negativeButtonTextResId;
+        final boolean showNeverAskAgain;
+        final @StringRes int positiveButtonTextResId;
+        final @StringRes int negativeButtonTextResId;
 
-        AskUserToEnableGpsState(MessageWithTitle message, @StringRes int positiveButtonTextResId, @StringRes int negativeButtonTextResId) {
+        AskUserToEnableGpsState(MessageWithTitle message, boolean showNeverAskAgain, @StringRes int positiveButtonTextResId, @StringRes int negativeButtonTextResId) {
             this.message = message;
+            this.showNeverAskAgain = showNeverAskAgain;
             this.positiveButtonTextResId = positiveButtonTextResId;
             this.negativeButtonTextResId = negativeButtonTextResId;
         }

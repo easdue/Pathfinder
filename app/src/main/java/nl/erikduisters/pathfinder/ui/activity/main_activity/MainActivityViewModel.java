@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
+import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
@@ -38,13 +39,15 @@ import timber.log.Timber;
 public class MainActivityViewModel extends ViewModel implements InitDatabaseHelper.InitDatabaseListener {
     private MutableLiveData<MainActivityViewState> viewStateObservable;
     private final GpsManager gpsManager;
+    private final PreferenceManager preferenceManager;
 
     @Inject
-    MainActivityViewModel(InitDatabaseHelper initDatabaseHelper, GpsManager gpsManager) {
+    MainActivityViewModel(InitDatabaseHelper initDatabaseHelper, GpsManager gpsManager, PreferenceManager preferenceManager) {
         Timber.d("New MainActivityViewModel created");
 
         viewStateObservable = new MutableLiveData<>();
         this.gpsManager = gpsManager;
+        this.preferenceManager = preferenceManager;
 
         ProgressDialog.Properties properties =
                 new ProgressDialog.Properties(R.string.initializing_database, true,
@@ -138,21 +141,32 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
     }
 
     void onPlayServicesUnavailable() {
-        if (gpsManager.hasGps() && !gpsManager.isGpsEnabled()) {
+        boolean askToEnableGps = preferenceManager.askToEnableGps();
+
+        if (askToEnableGps && gpsManager.hasGps() && !gpsManager.isGpsEnabled()) {
             MessageWithTitle message = new MessageWithTitle(R.string.enable_gps, R.string.enable_gps_message);
-            viewStateObservable.setValue(new AskUserToEnableGpsState(message, R.string.yes, R.string.no));
+            viewStateObservable.setValue(new AskUserToEnableGpsState(message, true, R.string.yes, R.string.no));
         } else {
+            //TODO: Show a snackbar informing the user that the gps is not enabled
             viewStateObservable.setValue(new InitializedState());
         }
     }
 
-    void onUserWantsToEnableGps() {
+    void onUserWantsToEnableGps(boolean neverAskAgain) {
+        handleNeverAskAgain(neverAskAgain);
         viewStateObservable.setValue(new ShowEnableGpsSettingState());
     }
 
-    void onUserDoesNotWantToEnableGps() {
+    void onUserDoesNotWantToEnableGps(boolean neverAskAgain) {
         //TODO: Implement
+        handleNeverAskAgain(neverAskAgain);
         viewStateObservable.setValue(new InitializedState());
+    }
+
+    private void handleNeverAskAgain(boolean neverAskAgain) {
+        if (neverAskAgain) {
+            preferenceManager.setAskToEnableGps(false);
+        }
     }
 
     void onWaitingForGpsToBeEnabled() {

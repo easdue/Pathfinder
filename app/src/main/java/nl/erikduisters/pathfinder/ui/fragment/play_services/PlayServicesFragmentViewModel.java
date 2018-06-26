@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
+import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState;
@@ -26,8 +27,6 @@ import timber.log.Timber;
  * Created by Erik Duisters on 18-06-2018.
  */
 
-//TODO: Put a "Do not ask again" checkbox on relevant alert-dialogs and store in shared preferences
-
 @Singleton
 public class PlayServicesFragmentViewModel
         extends ViewModel
@@ -37,14 +36,16 @@ public class PlayServicesFragmentViewModel
     private @ServiceState int currentServiceState;
     private final MainThreadExecutor mainThreadExecutor;
     private final GpsManager gpsManager;
+    private final PreferenceManager preferenceManager;
     private Runnable checkUpdateStateRunnable;
 
     @Inject
-    PlayServicesFragmentViewModel(MainThreadExecutor mainThreadExecutor, GpsManager gpsManager) {
+    PlayServicesFragmentViewModel(MainThreadExecutor mainThreadExecutor, GpsManager gpsManager, PreferenceManager preferenceManager) {
         Timber.d("New PlayServicesAvailabilityFragmentViewModel created");
         viewStateObservable = new MutableLiveData<>();
         this.mainThreadExecutor = mainThreadExecutor;
         this.gpsManager = gpsManager;
+        this.preferenceManager = preferenceManager;
     }
 
     @Override
@@ -63,32 +64,31 @@ public class PlayServicesFragmentViewModel
         this.playServicesHelper = helper;
     }
 
-    /**
-     * Initiates a Google Play Services availability check<br>
-     * <b>Note:</b> Must be called from onResume()
-     */
     public void checkPlayServicesAvailability() {
         if (playServicesHelper == null) {
             throw new RuntimeException("You have to call setPlayServicesHelper() before using any other function of this class");
         }
 
         @ServiceState int serviceState = playServicesHelper.getGooglePlayServicesState();
+        boolean askToResolve = preferenceManager.askToResolvePlayServicesUnavailability();
 
         if (serviceState == ServiceState.SERVICE_OK) {
             onGooglePlayServicesAvailable();
         } else if (!alreadyHandlingUnavailability()) {
-            if (playServicesHelper.isStateUserResolvable(serviceState)) {
+            if (askToResolve && playServicesHelper.isStateUserResolvable(serviceState)) {
                 MessageWithTitle message =
                         new MessageWithTitle(playServicesHelper.getDialogTitle(serviceState), playServicesHelper.getDialogMessage(serviceState));
 
                 PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState.Builder builder =
                         new PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState.Builder()
                                 .setMessageWithTitle(message)
+                                .setShowNeverAskAgain(true)
                                 .setNegativeButtonTextResId(playServicesHelper.getDialogNegativeButtonText(serviceState))
                                 .setPositiveButtonTextResId(playServicesHelper.getDialogPositiveButtonText(serviceState));
 
                 viewStateObservable.setValue(builder.build());
             } else {
+                //TODO: Show a snackbar informing the user that GooglePlayservices are not available
                 reportPlayservicesAvailabilityState(false);
             }
         }
@@ -112,7 +112,9 @@ public class PlayServicesFragmentViewModel
         viewStateObservable.setValue(null);
     }
 
-    void onUserWantsToResolveUnavailabilityState() {
+    void onUserWantsToResolveUnavailabilityState(boolean neverAskAgain) {
+        handleNeverAskAgain(neverAskAgain);
+
         if (playServicesHelper == null) {
             throw new RuntimeException("You have to call setPlayServicesHelper() before using any other function of this class");
         }
@@ -158,8 +160,15 @@ public class PlayServicesFragmentViewModel
         scheduleCheckUpdateStateRunnable();
     }
 
-    void onUserDoesNotWantToResolveUnavailabilityState() {
+    void onUserDoesNotWantToResolveUnavailabilityState(boolean neverAskAgain) {
+        handleNeverAskAgain(neverAskAgain);
         reportPlayservicesAvailabilityState(false);
+    }
+
+    private void handleNeverAskAgain(boolean neverAskAgain) {
+        if (neverAskAgain) {
+            preferenceManager.setAskToResolvePlayServicesUnavailability(false);
+        }
     }
 
     @Override
@@ -194,7 +203,7 @@ public class PlayServicesFragmentViewModel
             throw new RuntimeException("You have to call setPlayServicesHelper() before using any other function of this class");
         }
 
-        if (viewStateObservable.getValue() instanceof WaitingForLocationSettingsCheckState) {
+        if (isResolvable && viewStateObservable.getValue() instanceof WaitingForLocationSettingsCheckState) {
             playServicesHelper.tryToCorrectLocationSettings(this);
             viewStateObservable.setValue(new WaitingForLocationSettingsResolutionState());
         } else {

@@ -294,7 +294,7 @@ public class MainActivity
         PositiveNegativeButtonMessageDialog dialog = findFragment(tag);
 
         if (dialog == null) {
-            dialog = PositiveNegativeButtonMessageDialog.newInstance(state.message, state.positiveButtonTextResId, state.negativeButtonTextResId, tag);
+            dialog = PositiveNegativeButtonMessageDialog.newInstance(state.message, state.showNeverAskAgain, state.positiveButtonTextResId, state.negativeButtonTextResId, tag);
 
             show(dialog, tag);
         }
@@ -344,13 +344,13 @@ public class MainActivity
     }
 
     @Override
-    public void onPositiveButtonClicked(String tag) {
-        viewModel.onUserWantsToEnableGps();
+    public void onPositiveButtonClicked(String tag, boolean neverAskAgain) {
+        viewModel.onUserWantsToEnableGps(neverAskAgain);
     }
 
     @Override
-    public void onNegativeButtonClicked(String tag) {
-        viewModel.onUserDoesNotWantToEnableGps();
+    public void onNegativeButtonClicked(String tag, boolean neverAskAgain) {
+        viewModel.onUserDoesNotWantToEnableGps(neverAskAgain);
     }
 
     @Override

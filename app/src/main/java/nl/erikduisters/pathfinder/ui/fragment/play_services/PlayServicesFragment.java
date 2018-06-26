@@ -29,8 +29,6 @@ import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForUserToResolveUnavailabilityState;
 import timber.log.Timber;
 
-import static android.app.Activity.RESULT_OK;
-
 /**
  * Created by Erik Duisters on 18-06-2018.
  */
@@ -74,14 +72,8 @@ public class PlayServicesFragment
         super.onCreate(savedInstanceState);
 
         viewModel.setPlayServicesHelper(this);
-        viewModel.getViewStateObservable().observe(this, this::render);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         viewModel.checkPlayServicesAvailability();
+        viewModel.getViewStateObservable().observe(this, this::render);
     }
 
     @Override
@@ -140,7 +132,7 @@ public class PlayServicesFragment
         PositiveNegativeButtonMessageDialog dialog = findFragment(tag);
 
         if (dialog == null) {
-            dialog = PositiveNegativeButtonMessageDialog.newInstance(viewState.messageWithTitle,
+            dialog = PositiveNegativeButtonMessageDialog.newInstance(viewState.messageWithTitle, viewState.showNeverAskAgain,
                     viewState.positiveButtonTextResId, viewState.negativeButtonTextResId, tag);
             dialog.setCancelable(false);
 
@@ -161,7 +153,7 @@ public class PlayServicesFragment
 
         dialog.setKeyProgressMessage(state.progressMessageResId);
 
-        dialog.setListener(() -> viewModel.onUserDoesNotWantToResolveUnavailabilityState());
+        dialog.setListener(() -> viewModel.onUserDoesNotWantToResolveUnavailabilityState(false));
     }
 
     @Override
@@ -212,7 +204,7 @@ public class PlayServicesFragment
 
         switch(requestCode) {
             case RequestCode.GOOGLEPLAY_ERROR_RESOLUTION_REQUEST:
-                //resultCode is always RESULT_CANCELED.
+                //resultCode is always RESULT_CANCELED
                 if (getGooglePlayServicesState() == ServiceState.SERVICE_OK) {
                     viewModel.onGooglePlayServicesAvailable();
                 } else {
@@ -220,24 +212,19 @@ public class PlayServicesFragment
                 }
                 break;
             case RequestCode.LOCATION_SETTINGS_RESOLUTION_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    viewModel.onLocationSettingsCorrect();
-                }
-                else {
-                    viewModel.onLocationSettingsIncorrect(false);
-                }
-                break;
+                //resultCode is always RESULT_CANCELED
+                viewModel.onLocationSettingsCorrect();
         }
     }
 
     @Override
-    public void onPositiveButtonClicked(@NonNull String tag) {
-        viewModel.onUserWantsToResolveUnavailabilityState();
+    public void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+        viewModel.onUserWantsToResolveUnavailabilityState(neverAskAgain);
     }
 
     @Override
-    public void onNegativeButtonClicked(@NonNull String tag) {
-        viewModel.onUserDoesNotWantToResolveUnavailabilityState();
+    public void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+        viewModel.onUserDoesNotWantToResolveUnavailabilityState(neverAskAgain);
     }
 
     @Override

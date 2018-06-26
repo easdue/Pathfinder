@@ -35,6 +35,8 @@ public class PreferenceManager {
     private final String KEY_LAST_KNOWN_LOCATION_LATITUDE;
     private final String KEY_LAST_KNOWN_LOCATION_LONGITUDE;
     private final String KEY_LAST_KNOWN_LOCATION_TIME;
+    private final String KEY_ASK_TO_ENABLE_GPS;
+    private final String KEY_ASK_TO_RESOLVE_PLAY_SERVICES_UNAVAILABILITY;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -56,6 +58,8 @@ public class PreferenceManager {
         KEY_LAST_KNOWN_LOCATION_LATITUDE = context.getString(R.string.key_last_known_location_latitude);
         KEY_LAST_KNOWN_LOCATION_LONGITUDE = context.getString(R.string.key_last_known_location_longitude);
         KEY_LAST_KNOWN_LOCATION_TIME = context.getString(R.string.key_last_known_location_time);
+        KEY_ASK_TO_ENABLE_GPS = context.getString(R.string.key_ask_to_enable_gps);
+        KEY_ASK_TO_RESOLVE_PLAY_SERVICES_UNAVAILABILITY = context.getString(R.string.key_ask_to_resolve_play_services_unavailability);
 
         preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         storageDir = getStorageDir();
@@ -142,6 +146,28 @@ public class PreferenceManager {
         e.putString(KEY_LAST_KNOWN_LOCATION_LONGITUDE, String.valueOf(loc.getLongitude()));
         e.putLong(KEY_LAST_KNOWN_LOCATION_TIME, loc.getTime());
 
+        e.apply();
+    }
+
+    public synchronized boolean askToEnableGps() {
+        return preferences.getBoolean(KEY_ASK_TO_ENABLE_GPS, true);
+    }
+
+    public synchronized void setAskToEnableGps(boolean ask) {
+        SharedPreferences.Editor e = preferences.edit();
+
+        e.putBoolean(KEY_ASK_TO_ENABLE_GPS, ask);
+        e.apply();
+    }
+
+    public synchronized boolean askToResolvePlayServicesUnavailability() {
+        return preferences.getBoolean(KEY_ASK_TO_RESOLVE_PLAY_SERVICES_UNAVAILABILITY, true);
+    }
+
+    public synchronized void setAskToResolvePlayServicesUnavailability(boolean ask) {
+        SharedPreferences.Editor e = preferences.edit();
+
+        e.putBoolean(KEY_ASK_TO_RESOLVE_PLAY_SERVICES_UNAVAILABILITY, ask);
         e.apply();
     }
 }

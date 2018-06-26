@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.ButtonBarLayout
+    style="?attr/buttonBarStyle"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:layoutDirection="locale"
     android:gravity="bottom"
-    style="?attr/buttonBarStyle">
+    android:layoutDirection="locale"
+    android:orientation="horizontal">
 
     <Button
         android:id="@+id/adbb_neutralButton"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="64dp"
-        android:padding="8dp"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+        android:padding="8dp"/>
 
     <android.support.v4.widget.Space
         android:id="@+id/adbb_spacer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:visibility="invisible" />
+        android:visibility="invisible"/>
 
     <Button
         android:id="@+id/adbb_negativeButton"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="64dp"
-        android:padding="8dp"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+        android:padding="8dp"/>
 
     <Button
         android:id="@+id/adbb_positiveButton"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="64dp"
-        android:padding="8dp"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+        android:padding="8dp"/>
 
 </android.support.v7.widget.ButtonBarLayout>
