@@ -24,6 +24,9 @@ import timber.log.Timber;
 /**
  * Created by Erik Duisters on 18-06-2018.
  */
+
+//TODO: Put a "Do not ask again" checkbox on relevant alert-dialogs and store in shared preferences
+
 @Singleton
 public class PlayServicesFragmentViewModel
         extends ViewModel
