@@ -141,7 +141,7 @@ public class PlayServicesFragment
 
         if (dialog == null) {
             dialog = PositiveNegativeButtonMessageDialog.newInstance(viewState.messageWithTitle,
-                    viewState.positiveButtonTextResId, viewState.negativeButtonTextResId);
+                    viewState.positiveButtonTextResId, viewState.negativeButtonTextResId, tag);
             dialog.setCancelable(false);
 
             show(dialog, tag);
@@ -231,12 +231,12 @@ public class PlayServicesFragment
     }
 
     @Override
-    public void onPositiveButtonClicked() {
+    public void onPositiveButtonClicked(@NonNull String tag) {
         viewModel.onUserWantsToResolveUnavailabilityState();
     }
 
     @Override
-    public void onNegativeButtonClicked() {
+    public void onNegativeButtonClicked(@NonNull String tag) {
         viewModel.onUserDoesNotWantToResolveUnavailabilityState();
     }
 

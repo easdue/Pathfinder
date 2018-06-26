@@ -12,6 +12,7 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
+import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.ReportPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitForPlayServicesUpdateState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitingForLocationSettingsCheckState;
@@ -98,7 +99,7 @@ public class PlayServicesFragmentViewModel
     private boolean alreadyHandlingUnavailability() {
         PlayServicesFragmentViewState currentState = viewStateObservable.getValue();
 
-        return currentState instanceof PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState ||
+        return currentState instanceof AskUserToResolveUnavailabilityState ||
                currentState instanceof WaitingForUserToResolveUnavailabilityState ||
                currentState instanceof WaitForPlayServicesUpdateState;
     }

@@ -33,9 +33,9 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
-import nl.erikduisters.pathfinder.ui.dialog.AskUserToEnableGpsDialog;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment;
@@ -48,7 +48,7 @@ public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
         FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener,
-        PlayServicesFragment.PlayServicesFragmentListener, AskUserToEnableGpsDialog.Listener {
+        PlayServicesFragment.PlayServicesFragmentListener, PositiveNegativeButtonMessageDialog.Listener {
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
@@ -291,10 +291,10 @@ public class MainActivity
     }
 
     private void showAskUserToEnableGpsDialog(AskUserToEnableGpsState state, String tag) {
-        AskUserToEnableGpsDialog dialog = findFragment(tag);
+        PositiveNegativeButtonMessageDialog dialog = findFragment(tag);
 
         if (dialog == null) {
-            dialog = AskUserToEnableGpsDialog.newInstance(state.message, state.positiveButtonTextResId, state.negativeButtonTextResId);
+            dialog = PositiveNegativeButtonMessageDialog.newInstance(state.message, state.positiveButtonTextResId, state.negativeButtonTextResId, tag);
 
             show(dialog, tag);
         }
@@ -344,12 +344,12 @@ public class MainActivity
     }
 
     @Override
-    public void onUserWantsToEnableGps() {
+    public void onPositiveButtonClicked(String tag) {
         viewModel.onUserWantsToEnableGps();
     }
 
     @Override
-    public void onUserDoesNotWantToEnableGps() {
+    public void onNegativeButtonClicked(String tag) {
         viewModel.onUserDoesNotWantToEnableGps();
     }
 

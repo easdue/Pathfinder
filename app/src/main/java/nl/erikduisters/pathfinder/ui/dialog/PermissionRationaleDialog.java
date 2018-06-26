@@ -26,7 +26,7 @@ public class PermissionRationaleDialog extends PositiveNegativeButtonMessageDial
     public static PermissionRationaleDialog newInstance(@NonNull RuntimePermissionRequest request) {
         PermissionRationaleDialog dialog = new PermissionRationaleDialog();
 
-        dialog.setArguments(request.getPermissionRationaleMessage(), R.string.yes, R.string.no);
+        dialog.setArguments(request.getPermissionRationaleMessage(), R.string.yes, R.string.no, "");
 
         Bundle args = dialog.getArguments();
         if (args == null) {
@@ -52,14 +52,14 @@ public class PermissionRationaleDialog extends PositiveNegativeButtonMessageDial
     }
 
     @Override
-    void onPositiveButtonClicked() {
+    void onPositiveButtonClicked(String tag) {
         if (listener != null) {
             listener.onPermissionRationaleAccepted(request);
         }
     }
 
     @Override
-    void onNegativeButtonClicked() {
+    void onNegativeButtonClicked(String tag) {
         if (listener != null) {
             listener.onPermissionRationaleDenied(request);
         }

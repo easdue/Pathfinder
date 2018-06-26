@@ -22,7 +22,7 @@ public interface PlayServicesFragmentViewState {
         }
 
         static class Builder {
-            private @NonNull MessageWithTitle messageWithTitle;
+            private MessageWithTitle messageWithTitle;
             private @StringRes int positiveButtonTextResId;
             private @StringRes int negativeButtonTextResId;
 
