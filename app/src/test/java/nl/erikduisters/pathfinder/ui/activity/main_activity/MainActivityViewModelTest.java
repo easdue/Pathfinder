@@ -17,6 +17,8 @@ import org.mockito.MockitoAnnotations;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
+import nl.erikduisters.pathfinder.data.local.GpsManager;
+import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
@@ -37,6 +39,12 @@ public class MainActivityViewModelTest {
     private Observer<MainActivityViewState> observer;
     @Mock
     private InitDatabaseHelper initDatabaseHelper;
+    @Mock
+    private GpsManager gpsManager;
+    @Mock
+    private PreferenceManager preferenceManager;
+
+    private MainActivityViewModel viewModel;
 
     @Rule
     public InstantTaskExecutorRule instantExecutorRule = new InstantTaskExecutorRule();
@@ -47,12 +55,13 @@ public class MainActivityViewModelTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        viewModel = new MainActivityViewModel(initDatabaseHelper, gpsManager, preferenceManager);
     }
 
     @Test
     public void whenCreated_startsWithInitDatabaseState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
         liveData.observeForever(observer);
 
         verify(observer).onChanged(ArgumentMatchers.isA(MainActivityViewState.InitDatabaseState.class));
@@ -60,8 +69,7 @@ public class MainActivityViewModelTest {
 
     @Test
     public void whenOnDatabaseInitializationProgressCalled_resultsInInitDatabaseState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
 
         InitDatabase.Progress progress = new InitDatabase.Progress(25, R.string.migration_1_to_2);
         viewModel.onDatabaseInitializationProgress(progress);
@@ -73,8 +81,7 @@ public class MainActivityViewModelTest {
 
     @Test
     public void whenOnDatabaseInitializationCompleteCalled_resultsInInitStorageViewState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
 
         viewModel.onDatabaseInitializationComplete();
 
@@ -83,8 +90,7 @@ public class MainActivityViewModelTest {
 
     @Test
     public void whenOnDatabaseInitializationErrorCalled_resultsInShowFatalErrorMessageState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
 
         Throwable throwable = new IllegalStateException("This cannot be");
         viewModel.onDatabaseInitializationError(throwable);
@@ -96,8 +102,7 @@ public class MainActivityViewModelTest {
 
     @Test
     public void whenOnFatalErrorMessageDismissedCalledWithoutThrowable_resultsInFinishedState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
 
         MessageWithTitle message = new MessageWithTitle(R.string.fatal_error, R.string.init_database_failed);
         viewModel.handleFatalError(message, null);
@@ -110,8 +115,7 @@ public class MainActivityViewModelTest {
     public void whenOnFatalErrorMessageDismissedCalledWithThrowable_throwsException() {
         thrown.expect(RuntimeException.class);
 
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
 
         MessageWithTitle message = new MessageWithTitle(R.string.fatal_error, R.string.init_database_failed);
         IllegalStateException exception = new IllegalStateException("Illegal State Exception");
@@ -122,16 +126,15 @@ public class MainActivityViewModelTest {
     @Test
     public void whenOnFatalErrorMessageDismissedCalledWhenCurrentViewStateIsNotShowFatalErrorMessageState_throwsException() {
         thrown.expect(ClassCastException.class);
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
 
         viewModel.onFatalErrorMessageDismissed();
     }
 
     @Test
     public void whenHandleMessageCalled_resultsInShowMessageViewState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
-        LiveData<MainActivityViewState> liveData = viewModel.getViewStateObservable();
+        LiveData<MainActivityViewState> liveData = viewModel.getMainActivityViewStateObservable();
 
         MainActivityViewState prevState = liveData.getValue();
 
@@ -151,23 +154,21 @@ public class MainActivityViewModelTest {
 
     @Test
     public void whenOnMessageDismissedIsCalled_resultsInPreviousViewState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
         viewModel.onStorageInitialized();
 
-        MainActivityViewState prevState = viewModel.getViewStateObservable().getValue();
+        MainActivityViewState prevState = viewModel.getMainActivityViewStateObservable().getValue();
 
         viewModel.handleMessage(new MessageWithTitle(1,2));
 
         viewModel.onMessageDismissed();
 
-        assert(viewModel.getViewStateObservable().getValue() == prevState);
+        assert(viewModel.getMainActivityViewStateObservable().getValue() == prevState);
     }
 
     @Test
     public void whenOnMessageDismissedIsCalledWhenCurrentViewStateIsNotShowMessageViewState_throwsException() {
         thrown.expect(ClassCastException.class);
 
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
         viewModel.onStorageInitialized();
 
         viewModel.onMessageDismissed();
@@ -175,11 +176,10 @@ public class MainActivityViewModelTest {
 
     @Test
     public void whenOnStorageInitializedIsCalled_resultsInRequestRuntimePermissionState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
         viewModel.onStorageInitialized();
 
-        assert(viewModel.getViewStateObservable().getValue() instanceof RequestRuntimePermissionState);
-        RequestRuntimePermissionState state = (RequestRuntimePermissionState) viewModel.getViewStateObservable().getValue();
+        assert(viewModel.getMainActivityViewStateObservable().getValue() instanceof RequestRuntimePermissionState);
+        RequestRuntimePermissionState state = (RequestRuntimePermissionState) viewModel.getMainActivityViewStateObservable().getValue();
         assertNotNull(state.request);
         assert(state.request.getPermission().equals(android.Manifest.permission.ACCESS_FINE_LOCATION));
         assertNotNull(state.request.getPermissionRationaleMessage());
@@ -187,20 +187,18 @@ public class MainActivityViewModelTest {
 
     @Test
     public void whenOnPermissionDeniedIsCalled_resultsInShowFatalErrorMessageState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
         viewModel.onPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION);
 
-        assert(viewModel.getViewStateObservable().getValue() instanceof ShowFatalErrorMessageState);
-        ShowFatalErrorMessageState state = (ShowFatalErrorMessageState) viewModel.getViewStateObservable().getValue();
+        assert(viewModel.getMainActivityViewStateObservable().getValue() instanceof ShowFatalErrorMessageState);
+        ShowFatalErrorMessageState state = (ShowFatalErrorMessageState) viewModel.getMainActivityViewStateObservable().getValue();
         assert(state.message.titleResId == R.string.fatal_error);
         assert(state.message.messageResId == R.string.location_permission_is_required);
     }
 
     @Test
     public void whenOnPermissionGrantedIsCalled_resultsInCheckPlayServicesAvailabilityState() {
-        MainActivityViewModel viewModel = new MainActivityViewModel(initDatabaseHelper);
         viewModel.onPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION);
 
-        assert(viewModel.getViewStateObservable().getValue() instanceof MainActivityViewState.CheckPlayServicesAvailabilityState);
+        assert(viewModel.getMainActivityViewStateObservable().getValue() instanceof MainActivityViewState.CheckPlayServicesAvailabilityState);
     }
 }
