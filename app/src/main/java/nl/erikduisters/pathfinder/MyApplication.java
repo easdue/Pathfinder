@@ -5,6 +5,7 @@ import android.app.Application;
 import android.support.annotation.NonNull;
 
 import com.crashlytics.android.Crashlytics;
+import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
 
 import javax.inject.Inject;
@@ -36,11 +37,12 @@ public class MyApplication extends Application implements HasActivityInjector {
 
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
+            Stetho.initializeWithDefaults(this);
         } else {
             Timber.plant(new ReleaseTree());
         }
 
-        //TODO: Maybe make this optional through a preference
+        //TODO: Maybe make this optional through a preference see: https://docs.fabric.io/android/crashlytics/build-tools.html
         Fabric.with(this, new Crashlytics());
 
         DaggerAppComponent.builder()
