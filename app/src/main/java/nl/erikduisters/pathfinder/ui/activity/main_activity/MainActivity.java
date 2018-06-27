@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,6 +21,7 @@ import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
+import nl.erikduisters.pathfinder.ui.MyMenuItem;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
@@ -63,6 +63,7 @@ public class MainActivity
     @BindView(R.id.constraintLayout) ConstraintLayout constraintLayout;
     CircleImageView avatar;
     TextView username;
+    Menu navigationMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,12 +82,10 @@ public class MainActivity
         avatar = headerView.findViewById(R.id.gpsies_avatar);
         username = headerView.findViewById(R.id.gpsies_username);
 
-        //TODO: Move this to render
-        VectorDrawableCompat avatarVectorDrawable = VectorDrawableCompat.create(getResources(), R.drawable.vector_drawable_ic_missing_avatar, null);
-        avatar.setImageDrawable(avatarVectorDrawable);
-        username.setText("Please login");
+        viewModel.getMainActivityViewStateObservable().observe(this, this::render);
+        viewModel.getNavigationViewStateObservable().observe(this, this::render);
 
-        viewModel.getViewStateObservable().observe(this, this::render);
+        navigationMenu = navigationView.getMenu();
     }
 
     @Override
@@ -147,6 +146,30 @@ public class MainActivity
         drawerLayout.closeDrawer(GravityCompat.START);
 
         return false;
+    }
+
+    void render(@Nullable NavigationViewState viewState) {
+        Timber.d("render(NavigationViewState == %s", viewState == null ? "null" : viewState.getClass().getSimpleName());
+
+        if (viewState == null) {
+            return;
+        }
+
+        avatar.setImageDrawable(viewState.avatar.getDrawable(this));
+        username.setText(viewState.userName.getString(this));
+
+        for (MyMenuItem item : viewState.navigationMenu) {
+            updateMenu(navigationMenu, item);
+        }
+    }
+
+    private void updateMenu(Menu menu, MyMenuItem myItem) {
+        MenuItem item = menu.findItem(myItem.id);
+
+        if (item != null) {
+            item.setEnabled(myItem.enabled);
+            item.setVisible(myItem.visible);
+        }
     }
 
     void render(@Nullable MainActivityViewState viewState) {

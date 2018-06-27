@@ -7,6 +7,9 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -15,6 +18,7 @@ import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.ui.MyMenuItem;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
@@ -29,6 +33,8 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
+import nl.erikduisters.pathfinder.util.DrawableType;
+import nl.erikduisters.pathfinder.util.StringType;
 import timber.log.Timber;
 
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
@@ -37,7 +43,8 @@ import timber.log.Timber;
  */
 @Singleton
 public class MainActivityViewModel extends ViewModel implements InitDatabaseHelper.InitDatabaseListener {
-    private MutableLiveData<MainActivityViewState> viewStateObservable;
+    private MutableLiveData<MainActivityViewState> mainActivityViewStateObservable;
+    private MutableLiveData<NavigationViewState> navigationViewStateObservable;
     private final GpsManager gpsManager;
     private final PreferenceManager preferenceManager;
 
@@ -45,7 +52,9 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
     MainActivityViewModel(InitDatabaseHelper initDatabaseHelper, GpsManager gpsManager, PreferenceManager preferenceManager) {
         Timber.d("New MainActivityViewModel created");
 
-        viewStateObservable = new MutableLiveData<>();
+        mainActivityViewStateObservable = new MutableLiveData<>();
+        navigationViewStateObservable = new MutableLiveData<>();
+
         this.gpsManager = gpsManager;
         this.preferenceManager = preferenceManager;
 
@@ -53,15 +62,16 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
                 new ProgressDialog.Properties(R.string.initializing_database, true,
                         false, 0, false);
 
-        viewStateObservable.setValue(new InitDatabaseState(properties, null));
+        mainActivityViewStateObservable.setValue(new InitDatabaseState(properties, null));
         initDatabaseHelper.initDatabase(this);
     }
 
-    LiveData<MainActivityViewState> getViewStateObservable() { return viewStateObservable; }
+    LiveData<MainActivityViewState> getMainActivityViewStateObservable() { return mainActivityViewStateObservable; }
+    LiveData<NavigationViewState> getNavigationViewStateObservable() { return navigationViewStateObservable; }
 
     @Override
     public void onDatabaseInitializationProgress(@NonNull InitDatabase.Progress progress) {
-        MainActivityViewState state = viewStateObservable.getValue();
+        MainActivityViewState state = mainActivityViewStateObservable.getValue();
 
         if (state == null || !(state instanceof InitDatabaseState)) {
             throw new IllegalStateException("onDatabaseInitializationProgress() was called but the current state is not InitDatabaseState");
@@ -69,12 +79,12 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
         InitDatabaseState prevInitDatabaseState = (InitDatabaseState) state;
 
-        viewStateObservable.setValue(prevInitDatabaseState.updateProgress(progress));
+        mainActivityViewStateObservable.setValue(prevInitDatabaseState.updateProgress(progress));
     }
 
     @Override
     public void onDatabaseInitializationComplete() {
-        viewStateObservable.setValue(new InitStorageViewState());
+        mainActivityViewStateObservable.setValue(new InitStorageViewState());
     }
 
     @Override
@@ -90,37 +100,37 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
         RuntimePermissionRequest request =
                 new RuntimePermissionRequest(Manifest.permission.ACCESS_FINE_LOCATION, rationale);
 
-        viewStateObservable.setValue(new RequestRuntimePermissionState(request));
+        mainActivityViewStateObservable.setValue(new RequestRuntimePermissionState(request));
     }
 
     void handleMessage(@NonNull MessageWithTitle message) {
-        viewStateObservable.setValue(new ShowMessageState(message, viewStateObservable.getValue()));
+        mainActivityViewStateObservable.setValue(new ShowMessageState(message, mainActivityViewStateObservable.getValue()));
     }
 
     void onMessageDismissed() {
-        ShowMessageState state = (ShowMessageState) viewStateObservable.getValue();
+        ShowMessageState state = (ShowMessageState) mainActivityViewStateObservable.getValue();
 
-        viewStateObservable.setValue(state.prevState);
+        mainActivityViewStateObservable.setValue(state.prevState);
     }
 
     void handleFatalError(@NonNull MessageWithTitle message, @Nullable Throwable throwable) {
-        viewStateObservable.setValue(new ShowFatalErrorMessageState(message, throwable));
+        mainActivityViewStateObservable.setValue(new ShowFatalErrorMessageState(message, throwable));
     }
 
     void onFatalErrorMessageDismissed() {
-        ShowFatalErrorMessageState state = (ShowFatalErrorMessageState) viewStateObservable.getValue();
+        ShowFatalErrorMessageState state = (ShowFatalErrorMessageState) mainActivityViewStateObservable.getValue();
 
         if (state.throwable != null) {
             throw new RuntimeException(state.throwable);
         } else {
-            viewStateObservable.setValue(new FinishState());
+            mainActivityViewStateObservable.setValue(new FinishState());
         }
     }
 
     void onPermissionGranted(String permission) {
         if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
             gpsManager.onAccessFineLocationPermitted();
-            viewStateObservable.setValue(new CheckPlayServicesAvailabilityState());
+            mainActivityViewStateObservable.setValue(new CheckPlayServicesAvailabilityState());
         }
     }
 
@@ -134,10 +144,9 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
     }
 
     void onPlayServicesAvailable() {
-        //TODO: Implement
         gpsManager.onGooglePlayServicesAvailable();
 
-        viewStateObservable.setValue(new InitializedState());
+        setInitializedState();
     }
 
     void onPlayServicesUnavailable() {
@@ -145,22 +154,21 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
         if (askToEnableGps && gpsManager.hasGps() && !gpsManager.isGpsEnabled()) {
             MessageWithTitle message = new MessageWithTitle(R.string.enable_gps, R.string.enable_gps_message);
-            viewStateObservable.setValue(new AskUserToEnableGpsState(message, true, R.string.yes, R.string.no));
+            mainActivityViewStateObservable.setValue(new AskUserToEnableGpsState(message, true, R.string.yes, R.string.no));
         } else {
             //TODO: Show a snackbar informing the user that the gps is not enabled
-            viewStateObservable.setValue(new InitializedState());
+            setInitializedState();
         }
     }
 
     void onUserWantsToEnableGps(boolean neverAskAgain) {
         handleNeverAskAgain(neverAskAgain);
-        viewStateObservable.setValue(new ShowEnableGpsSettingState());
+        mainActivityViewStateObservable.setValue(new ShowEnableGpsSettingState());
     }
 
     void onUserDoesNotWantToEnableGps(boolean neverAskAgain) {
-        //TODO: Implement
         handleNeverAskAgain(neverAskAgain);
-        viewStateObservable.setValue(new InitializedState());
+        setInitializedState();
     }
 
     private void handleNeverAskAgain(boolean neverAskAgain) {
@@ -170,10 +178,34 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
     }
 
     void onWaitingForGpsToBeEnabled() {
-        viewStateObservable.setValue(new WaitingForGpsToBeEnabledState());
+        mainActivityViewStateObservable.setValue(new WaitingForGpsToBeEnabledState());
     }
 
     void onFinishedWaitingForGpsToBeEnabled() {
-        viewStateObservable.setValue(new InitializedState());
+        setInitializedState();
+    }
+
+    private void setInitializedState() {
+        mainActivityViewStateObservable.setValue(new InitializedState());
+        navigationViewStateObservable.setValue(createInitialNavigationViewState());
+    }
+
+    private NavigationViewState createInitialNavigationViewState() {
+        //TODO: Implement UserProfile and load it so the users avatar and username can be shown
+        DrawableType avatar = new DrawableType(R.drawable.vector_drawable_ic_missing_avatar);
+        StringType user = new StringType("");
+        List<MyMenuItem> navigationMenu = createInitialNavigationMenu();
+
+        return new NavigationViewState(avatar, user, navigationMenu);
+    }
+
+    private List<MyMenuItem> createInitialNavigationMenu() {
+        List<MyMenuItem> menu = new ArrayList<>();
+        menu.add(new MyMenuItem(R.id.nav_import, true, true));
+        menu.add(new MyMenuItem(R.id.nav_login_register, true, true));
+        menu.add(new MyMenuItem(R.id.nav_gps_status, true, true));
+        menu.add(new MyMenuItem(R.id.nav_settings, true, true));
+
+        return menu;
     }
 }

@@ -29,8 +29,6 @@ interface MainActivityViewState {
 
     class InitStorageViewState implements MainActivityViewState {}
 
-    class InitializedState implements MainActivityViewState {}
-
     class RequestRuntimePermissionState implements MainActivityViewState {
         final RuntimePermissionRequest request;
 
@@ -72,7 +70,7 @@ interface MainActivityViewState {
         final @StringRes int positiveButtonTextResId;
         final @StringRes int negativeButtonTextResId;
 
-        AskUserToEnableGpsState(MessageWithTitle message, boolean showNeverAskAgain, @StringRes int positiveButtonTextResId, @StringRes int negativeButtonTextResId) {
+        AskUserToEnableGpsState(@NonNull MessageWithTitle message, boolean showNeverAskAgain, @StringRes int positiveButtonTextResId, @StringRes int negativeButtonTextResId) {
             this.message = message;
             this.showNeverAskAgain = showNeverAskAgain;
             this.positiveButtonTextResId = positiveButtonTextResId;
@@ -83,4 +81,5 @@ interface MainActivityViewState {
     class ShowEnableGpsSettingState implements MainActivityViewState {}
     class WaitingForGpsToBeEnabledState implements MainActivityViewState {}
 
+    class InitializedState implements MainActivityViewState {}
 }
