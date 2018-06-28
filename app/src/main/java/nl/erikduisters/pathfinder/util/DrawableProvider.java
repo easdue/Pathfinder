@@ -13,19 +13,19 @@ import java.io.File;
 /**
  * Created by Erik Duisters on 27-06-2018.
  */
-public class DrawableType {
+public class DrawableProvider {
     private @DrawableRes int drawableResId;
     private @Nullable File file;
 
-    public DrawableType(@DrawableRes int drawableResId) {
+    public DrawableProvider(@DrawableRes int drawableResId) {
         this(drawableResId, null);
     }
 
-    public DrawableType(@NonNull File file) {
+    public DrawableProvider(@NonNull File file) {
         this(0, file);
     }
 
-    private DrawableType(@DrawableRes int drawableResId, @Nullable File file) {
+    private DrawableProvider(@DrawableRes int drawableResId, @Nullable File file) {
         this.drawableResId = drawableResId;
         this.file = file;
     }
