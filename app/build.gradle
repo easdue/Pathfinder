@@ -74,6 +74,8 @@ dependencies {
 
     implementation 'com.facebook.stetho:stetho:1.5.0'
 
+    implementation files('libs/sjxp-2.2.jar')
+
     testImplementation 'junit:junit:4.12'
     testImplementation "org.mockito:mockito-core:$mockito_version"
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
