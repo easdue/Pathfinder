@@ -128,4 +128,9 @@
 
     <string name="enable_gps">Enable GPS?</string>
     <string name="enable_gps_message">GPS is disabled.\n\nDo you want to enabled it now?</string>
+
+    <!-- MainActivity Fragment names displayed in ViewPager -->
+    <string name="track_list">Track List</string>
+    <string name="map">Map</string>
+    <string name="compass">Compass</string>
 </resources>

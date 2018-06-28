@@ -33,8 +33,8 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
-import nl.erikduisters.pathfinder.util.DrawableType;
-import nl.erikduisters.pathfinder.util.StringType;
+import nl.erikduisters.pathfinder.util.DrawableProvider;
+import nl.erikduisters.pathfinder.util.StringProvider;
 import timber.log.Timber;
 
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
@@ -186,25 +186,31 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
     }
 
     private void setInitializedState() {
-        mainActivityViewStateObservable.setValue(new InitializedState());
+        mainActivityViewStateObservable.setValue(new InitializedState(createInitialOptionsMenu()));
         navigationViewStateObservable.setValue(createInitialNavigationViewState());
     }
 
     private NavigationViewState createInitialNavigationViewState() {
         //TODO: Implement UserProfile and load it so the users avatar and username can be shown
-        DrawableType avatar = new DrawableType(R.drawable.vector_drawable_ic_missing_avatar);
-        StringType user = new StringType("");
+        DrawableProvider avatar = new DrawableProvider(R.drawable.vector_drawable_ic_missing_avatar);
+        StringProvider user = new StringProvider("");
         List<MyMenuItem> navigationMenu = createInitialNavigationMenu();
 
         return new NavigationViewState(avatar, user, navigationMenu);
     }
 
     private List<MyMenuItem> createInitialNavigationMenu() {
-        List<MyMenuItem> menu = new ArrayList<>();
+        List<MyMenuItem> menu = new ArrayList<>(4);
         menu.add(new MyMenuItem(R.id.nav_import, true, true));
         menu.add(new MyMenuItem(R.id.nav_login_register, true, true));
         menu.add(new MyMenuItem(R.id.nav_gps_status, true, true));
         menu.add(new MyMenuItem(R.id.nav_settings, true, true));
+
+        return menu;
+    }
+
+    private List<MyMenuItem> createInitialOptionsMenu() {
+        List<MyMenuItem> menu = new ArrayList<>();
 
         return menu;
     }

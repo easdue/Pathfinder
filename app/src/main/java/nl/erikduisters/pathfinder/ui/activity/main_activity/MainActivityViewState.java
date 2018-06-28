@@ -4,7 +4,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
+import java.util.List;
+
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.ui.MyMenuItem;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
@@ -81,5 +84,11 @@ interface MainActivityViewState {
     class ShowEnableGpsSettingState implements MainActivityViewState {}
     class WaitingForGpsToBeEnabledState implements MainActivityViewState {}
 
-    class InitializedState implements MainActivityViewState {}
+    class InitializedState implements MainActivityViewState {
+        @NonNull List<MyMenuItem> optionsMenu;
+
+        InitializedState(@NonNull List<MyMenuItem> optionsMenu) {
+            this.optionsMenu = optionsMenu;
+        }
+    }
 }

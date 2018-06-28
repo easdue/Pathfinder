@@ -5,10 +5,11 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -17,17 +18,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.MyMenuItem;
 import nl.erikduisters.pathfinder.ui.RequestCode;
+import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
@@ -60,10 +66,18 @@ public class MainActivity
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
     @BindView(R.id.nav_view) NavigationView navigationView;
-    @BindView(R.id.constraintLayout) ConstraintLayout constraintLayout;
-    CircleImageView avatar;
-    TextView username;
-    Menu navigationMenu;
+    @BindView(R.id.tabLayout) TabLayout tabLayout;
+    @BindView(R.id.viewPager) ViewPager viewPager;
+
+    private CircleImageView avatar;
+    private TextView username;
+    private Menu navigationMenu;
+    private @NonNull List<MyMenuItem> optionsMenu;
+    private FragmentAdapter fragmentAdapter;
+
+    public MainActivity() {
+        optionsMenu = new ArrayList<>();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +96,14 @@ public class MainActivity
         avatar = headerView.findViewById(R.id.gpsies_avatar);
         username = headerView.findViewById(R.id.gpsies_username);
 
+        navigationMenu = navigationView.getMenu();
+
         viewModel.getMainActivityViewStateObservable().observe(this, this::render);
         viewModel.getNavigationViewStateObservable().observe(this, this::render);
 
-        navigationMenu = navigationView.getMenu();
+        fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
+        viewPager.setAdapter(fragmentAdapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
@@ -115,16 +133,22 @@ public class MainActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        for (MyMenuItem item : optionsMenu) {
+            updateMenu(menu, item);
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -233,6 +257,23 @@ public class MainActivity
         if (viewState instanceof WaitingForGpsToBeEnabledState) {
             //Do nothing
         }
+
+        if (viewState instanceof InitializedState) {
+            render((InitializedState) viewState);
+        }
+    }
+
+    private void render(InitializedState state) {
+        optionsMenu = state.optionsMenu;
+        invalidateOptionsMenu();
+
+        initViewPager();
+    }
+
+    private void initViewPager() {
+        fragmentAdapter.addTab(new FragmentAdapter.TabItem(R.string.track_list, true, MainActivityFragmentProvider.TRACK_LIST_FRAGMENT));
+        fragmentAdapter.addTab(new FragmentAdapter.TabItem(R.string.map, true, MainActivityFragmentProvider.MAP_FRAGMENT));
+        fragmentAdapter.addTab(new FragmentAdapter.TabItem(R.string.compass, true, MainActivityFragmentProvider.COMPASS_FRAGMENT));
     }
 
     private void startInitStorageFragment(String tag) {
@@ -343,7 +384,7 @@ public class MainActivity
             sb.append(message.message);
         }
 
-        Snackbar.make(constraintLayout, sb.toString(), Snackbar.LENGTH_LONG).show();
+        Snackbar.make(viewPager, sb.toString(), Snackbar.LENGTH_LONG).show();
     }
 
     @Override

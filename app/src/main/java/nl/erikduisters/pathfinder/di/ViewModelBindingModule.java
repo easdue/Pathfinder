@@ -6,9 +6,12 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewModel;
+import nl.erikduisters.pathfinder.ui.fragment.compass.CompassFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewModel;
+import nl.erikduisters.pathfinder.ui.fragment.map.MapFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
+import nl.erikduisters.pathfinder.ui.fragment.track_list.TrackListFragmentViewModel;
 
 /**
  * Created by Erik Duisters on 01-06-2018.
@@ -35,4 +38,19 @@ abstract class ViewModelBindingModule {
     @IntoMap
     @ViewModelKey(PlayServicesFragmentViewModel.class)
     abstract ViewModel bindPlayServicesFragmentViewModel(PlayServicesFragmentViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TrackListFragmentViewModel.class)
+    abstract ViewModel bindTrackListFragmentViewModel(TrackListFragmentViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MapFragmentViewModel.class)
+    abstract ViewModel bindMapFragmentViewModel(MapFragmentViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CompassFragmentViewModel.class)
+    abstract ViewModel bindCompassFragmentViewModel(CompassFragmentViewModel viewModel);
 }
