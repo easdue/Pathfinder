@@ -1,1 +1,1 @@
-include ':app', ':gpx'
+include ':app', ':gpx', ':androidSVG'
