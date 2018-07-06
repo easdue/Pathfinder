@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 
-import java.io.File;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -13,6 +12,7 @@ import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.di.ApplicationContext;
+import nl.erikduisters.pathfinder.util.FileUtil;
 import timber.log.Timber;
 
 /**
@@ -75,7 +75,7 @@ public class PreferenceManager {
     }
 
     public synchronized void setStorageDir(String dir) {
-        storageDir = dir.endsWith(File.separator) ? dir : dir + File.separator;
+        storageDir = FileUtil.ensureEndsWithSeparator(dir);
 
         SharedPreferences.Editor e = preferences.edit();
         e.putString(KEY_STORAGE_DIRECTORY, storageDir);
@@ -91,7 +91,7 @@ public class PreferenceManager {
     }
 
     public synchronized  void setCacheDir(String dir) {
-        cacheDir = dir.endsWith(File.separator) ? dir : dir + File.separator;
+        cacheDir = FileUtil.ensureEndsWithSeparator(dir);
 
         SharedPreferences.Editor e = preferences.edit();
         e.putString(KEY_CACHE_DIRECTORY, cacheDir);
@@ -99,23 +99,24 @@ public class PreferenceManager {
     }
 
     public synchronized String getStorageImportSubDir() {
-        return preferences.getString(KEY_STORAGE_IMPORT_DIRECTORY, "Import");
+        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_IMPORT_DIRECTORY, "Import"));
+
     }
 
     public synchronized String getStorageCacheSubDir() {
-        return preferences.getString(KEY_STORAGE_CACHE_DIRECTORY, "Cache");
+        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_CACHE_DIRECTORY, "Cache"));
     }
 
     public synchronized String getStorageMapSubDir() {
-        return preferences.getString(KEY_STORAGE_MAP_DIRECTORY, "Maps");
+        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_MAP_DIRECTORY, "Maps"));
     }
 
     public synchronized String getStorageUserSubDir() {
-        return preferences.getString(KEY_STORAGE_USER_DIRECTORY, "User");
+        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_USER_DIRECTORY, "User"));
     }
 
     public synchronized String getStorageRenderThemeSubDir() {
-        return preferences.getString(KEY_STORAGE_RENDERTHEME_DIRECTORY, "RenderThemes");
+        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_RENDERTHEME_DIRECTORY, "RenderThemes"));
     }
 
     public synchronized UUID getStorageUUID() {

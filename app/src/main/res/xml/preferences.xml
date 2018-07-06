@@ -9,7 +9,6 @@
     <Preference
         android:key="@string/key_cache_directory"
         android:enabled="true"
-        android:defaultValue='""'
         android:persistent="true" />
     <EditTextPreference
         android:key="@string/key_storage_import_directory"

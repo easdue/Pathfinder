@@ -74,4 +74,12 @@ public class FileUtil {
 
         return files;
     }
+
+    public static String ensureEndsWithSeparator(String path) {
+        if (!path.endsWith(File.separator)) {
+            return path + File.separator;
+        }
+
+        return path;
+    }
 }
