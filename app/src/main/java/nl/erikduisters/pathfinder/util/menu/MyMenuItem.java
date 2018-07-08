@@ -1,4 +1,4 @@
-package nl.erikduisters.pathfinder.ui;
+package nl.erikduisters.pathfinder.util.menu;
 
 import android.support.annotation.IdRes;
 

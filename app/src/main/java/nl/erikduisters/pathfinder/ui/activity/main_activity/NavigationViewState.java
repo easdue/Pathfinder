@@ -2,11 +2,9 @@ package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
 import android.support.annotation.NonNull;
 
-import java.util.List;
-
-import nl.erikduisters.pathfinder.ui.MyMenuItem;
 import nl.erikduisters.pathfinder.util.DrawableProvider;
 import nl.erikduisters.pathfinder.util.StringProvider;
+import nl.erikduisters.pathfinder.util.menu.MyMenu;
 
 /**
  * Created by Erik Duisters on 27-06-2018.
@@ -14,11 +12,11 @@ import nl.erikduisters.pathfinder.util.StringProvider;
 class NavigationViewState {
     @NonNull final DrawableProvider avatar;
     @NonNull final StringProvider userName;
-    @NonNull final List<MyMenuItem> navigationMenu;
+    @NonNull final MyMenu navigationMenu;
 
     NavigationViewState(@NonNull DrawableProvider avatar,
                         @NonNull StringProvider userName,
-                        @NonNull List<MyMenuItem> navigationMenu) {
+                        @NonNull MyMenu navigationMenu) {
         this.avatar = avatar;
         this.userName = userName;
         this.navigationMenu = navigationMenu;

@@ -7,9 +7,6 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -18,7 +15,6 @@ import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
-import nl.erikduisters.pathfinder.ui.MyMenuItem;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
@@ -35,9 +31,12 @@ import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
 import nl.erikduisters.pathfinder.util.DrawableProvider;
 import nl.erikduisters.pathfinder.util.StringProvider;
+import nl.erikduisters.pathfinder.util.menu.MyMenu;
+import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 import timber.log.Timber;
 
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
+//TODO: Create an OptionsMenuObservable and remove the optionsMenu from InitializedState
 /**
  * Created by Erik Duisters on 03-06-2018.
  */
@@ -194,13 +193,14 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
         //TODO: Implement UserProfile and load it so the users avatar and username can be shown
         DrawableProvider avatar = new DrawableProvider(R.drawable.vector_drawable_ic_missing_avatar);
         StringProvider user = new StringProvider("");
-        List<MyMenuItem> navigationMenu = createInitialNavigationMenu();
+        MyMenu navigationMenu = createInitialNavigationMenu();
 
         return new NavigationViewState(avatar, user, navigationMenu);
     }
 
-    private List<MyMenuItem> createInitialNavigationMenu() {
-        List<MyMenuItem> menu = new ArrayList<>(4);
+    private MyMenu createInitialNavigationMenu() {
+        MyMenu menu = new MyMenu();
+
         menu.add(new MyMenuItem(R.id.nav_import, true, true));
         menu.add(new MyMenuItem(R.id.nav_login_register, true, true));
         menu.add(new MyMenuItem(R.id.nav_gps_status, true, true));
@@ -209,8 +209,8 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
         return menu;
     }
 
-    private List<MyMenuItem> createInitialOptionsMenu() {
-        List<MyMenuItem> menu = new ArrayList<>();
+    private MyMenu createInitialOptionsMenu() {
+        MyMenu menu = new MyMenu();
 
         return menu;
     }

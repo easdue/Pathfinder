@@ -14,18 +14,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
-import nl.erikduisters.pathfinder.ui.MyMenuItem;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
@@ -47,6 +42,7 @@ import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
+import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import timber.log.Timber;
 
 //TODO: Remove fragment listeners
@@ -72,11 +68,11 @@ public class MainActivity
     private CircleImageView avatar;
     private TextView username;
     private Menu navigationMenu;
-    private @NonNull List<MyMenuItem> optionsMenu;
+    private @NonNull MyMenu optionsMenu;
     private FragmentAdapter fragmentAdapter;
 
     public MainActivity() {
-        optionsMenu = new ArrayList<>();
+        optionsMenu = new MyMenu();
     }
 
     @Override
@@ -136,15 +132,13 @@ public class MainActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        for (MyMenuItem item : optionsMenu) {
-            updateMenu(menu, item);
-        }
+        optionsMenu.updateAndroidMenu(menu);
 
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -154,7 +148,7 @@ public class MainActivity
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(android.view.MenuItem item) {
         // Handle navigation view item clicks here.
         switch (item.getItemId()) {
             case R.id.nav_import:
@@ -182,18 +176,7 @@ public class MainActivity
         avatar.setImageDrawable(viewState.avatar.getDrawable(this));
         username.setText(viewState.userName.getString(this));
 
-        for (MyMenuItem item : viewState.navigationMenu) {
-            updateMenu(navigationMenu, item);
-        }
-    }
-
-    private void updateMenu(Menu menu, MyMenuItem myItem) {
-        MenuItem item = menu.findItem(myItem.id);
-
-        if (item != null) {
-            item.setEnabled(myItem.enabled);
-            item.setVisible(myItem.visible);
-        }
+        viewState.navigationMenu.updateAndroidMenu(navigationMenu);
     }
 
     void render(@Nullable MainActivityViewState viewState) {
