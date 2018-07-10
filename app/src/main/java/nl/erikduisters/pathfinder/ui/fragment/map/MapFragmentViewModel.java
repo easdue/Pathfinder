@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
+import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.util.StringProvider;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
@@ -127,7 +128,8 @@ public class MapFragmentViewModel extends ViewModel {
                 .withTileSource(tileSource)
                 .withTheme(themeFile)
                 .withBuildingLayer()
-                .withLabelLayer();
+                .withLabelLayer()
+                .withScaleBarType(ScaleBarType.METRIC_AND_IMPERIAL);    //TODO: Add to settings
 
         MapInitializationState state = builder.build();
 

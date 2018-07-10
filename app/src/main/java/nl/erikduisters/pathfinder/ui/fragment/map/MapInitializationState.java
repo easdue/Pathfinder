@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import org.oscim.theme.ThemeFile;
 import org.oscim.tiling.TileSource;
 
+import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
+
 /**
  * Created by Erik Duisters on 06-07-2018.
  */
@@ -13,12 +15,14 @@ public final class MapInitializationState {
     @NonNull final ThemeFile themeFile;
     final boolean addBuildingLayer;
     final boolean addLabelLayer;
+    final @ScaleBarType int scaleBarType;
 
     private MapInitializationState(Builder builder) {
         tileSource = builder.tileSource;
         themeFile = builder.themeFile;
         addBuildingLayer = builder.addBuildingLayer;
         addLabelLayer = builder.addLabelLayer;
+        scaleBarType = builder.scaleBarType;
     }
 
     public static final class Builder {
@@ -26,6 +30,7 @@ public final class MapInitializationState {
         private ThemeFile themeFile;
         private boolean addBuildingLayer;
         private boolean addLabelLayer;
+        private @ScaleBarType int scaleBarType;
 
         public Builder withTileSource(@NonNull TileSource tileSource) {
             this.tileSource = tileSource;
@@ -47,6 +52,12 @@ public final class MapInitializationState {
 
         public Builder withLabelLayer() {
             addLabelLayer = true;
+
+            return this;
+        }
+
+        public Builder withScaleBarType(@ScaleBarType int scaleBarType) {
+            this.scaleBarType = scaleBarType;
 
             return this;
         }

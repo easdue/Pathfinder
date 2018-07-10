@@ -18,9 +18,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
 import nl.erikduisters.pathfinder.di.ApplicationContext;
 import nl.erikduisters.pathfinder.util.FileUtil;
-import nl.erikduisters.pathfinder.util.map.OnlineMap;
 import timber.log.Timber;
 
 /**

@@ -11,15 +11,24 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.oscim.android.MapView;
+import org.oscim.backend.CanvasAdapter;
 import org.oscim.core.MapPosition;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
 import org.oscim.map.Layers;
 import org.oscim.map.Map;
+import org.oscim.renderer.BitmapRenderer;
+import org.oscim.renderer.GLViewport;
+import org.oscim.scalebar.DefaultMapScaleBar;
+import org.oscim.scalebar.ImperialUnitAdapter;
+import org.oscim.scalebar.MapScaleBarLayer;
+import org.oscim.scalebar.MetricUnitAdapter;
+import org.oscim.scalebar.NauticalUnitAdapter;
 
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
@@ -122,6 +131,8 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
 
             if (viewState.addBuildingLayer) { layers.add(new BuildingLayer(map, tileLayer)); }
             if (viewState.addLabelLayer) { layers.add(new LabelLayer(map, tileLayer)); }
+
+            addScaleBarLayer(viewState.scaleBarType);
         }
 
         if (currentMapInitializationState == null || currentMapInitializationState.themeFile != viewState.themeFile) {
@@ -129,6 +140,41 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
         }
 
         currentMapInitializationState = viewState;
+    }
+
+    private void addScaleBarLayer(@ScaleBarType int scaleBarType) {
+        if (scaleBarType == ScaleBarType.NONE) {
+            return;
+        }
+
+        DefaultMapScaleBar scaleBar = new DefaultMapScaleBar(map);
+
+        switch (scaleBarType) {
+            case ScaleBarType.METRIC:
+                scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.SINGLE);
+                scaleBar.setDistanceUnitAdapter(MetricUnitAdapter.INSTANCE);
+                break;
+            case ScaleBarType.IMPERIAL:
+                scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.SINGLE);
+                scaleBar.setDistanceUnitAdapter(ImperialUnitAdapter.INSTANCE);
+                break;
+            case ScaleBarType.NAUTICAL:
+                scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.SINGLE);
+                scaleBar.setDistanceUnitAdapter(NauticalUnitAdapter.INSTANCE);
+                break;
+            case ScaleBarType.METRIC_AND_IMPERIAL:
+                scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.BOTH);
+                scaleBar.setDistanceUnitAdapter(MetricUnitAdapter.INSTANCE);
+                scaleBar.setSecondaryDistanceUnitAdapter(ImperialUnitAdapter.INSTANCE);
+                break;
+        }
+
+        MapScaleBarLayer mapScaleBarLayer = new MapScaleBarLayer(map, scaleBar);
+        BitmapRenderer renderer = mapScaleBarLayer.getRenderer();
+        renderer.setPosition(GLViewport.Position.BOTTOM_LEFT);
+        renderer.setOffset(5 * CanvasAdapter.getScale(), 0);
+
+        map.layers().add(mapScaleBarLayer);
     }
 
     private void handleOptionsMenu(@Nullable MyMenu optionsMenu) {
