@@ -4,9 +4,11 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.v4.os.LocaleListCompat;
 
 import org.oscim.core.MapPosition;
+import org.oscim.core.MercatorProjection;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.XmlRenderThemeStyleLayer;
@@ -48,40 +50,69 @@ import timber.log.Timber;
    //When using OSciMap4TileSource with s3db tile source I can then use S3DBTileLayer
 */
 
+//TODO: Map follows gps
+//TODO: handle map events (eg. move/zoom in/out)
+//TODO: Save MapPosition to preferences
+//TODO: MyLocationLayer
+//TODO: ScaleBar
 @Singleton
 public class MapFragmentViewModel extends ViewModel {
     private MutableLiveData<MapInitializationState> mapInitializationStateObservable;
     private MutableLiveData<MapFragmentViewState> viewStateObservable;
     private MutableLiveData<MyMenu> optionsMenuObservable;
+    private MutableLiveData<MapPosition> mapPositionObservable;
 
     private final PreferenceManager preferenceManager;
     private final GpsManager gpsManager;
     private final MyMenu optionsMenu;
+
+    private final MapPosition currentMapPosition;
+    private Location previousLocation;
 
     @Inject
     MapFragmentViewModel(PreferenceManager preferenceManager, GpsManager gpsManager) {
         mapInitializationStateObservable = new MutableLiveData<>();
         viewStateObservable = new MutableLiveData<>();
         optionsMenuObservable = new MutableLiveData<>();
+        mapPositionObservable = new MutableLiveData<>();
 
         optionsMenu = new MyMenu();
 
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
-        this.gpsManager.addLocationListener(this::onLocationChanged);
 
         initOptionsMenu();
         optionsMenuObservable.setValue(optionsMenu);
 
+        currentMapPosition = initCurrentMapPosition();
+
+        previousLocation = new Location(LocationManager.GPS_PROVIDER);
+        previousLocation.setLatitude(currentMapPosition.getLatitude());
+        previousLocation.setLongitude(currentMapPosition.getLongitude());
+
         setMapInitializationState();
+
+        mapPositionObservable.setValue(currentMapPosition);
+
+        this.gpsManager.addLocationListener(this::onLocationChanged);
     }
 
     LiveData<MapInitializationState> getMapInitializationStateObservable() { return mapInitializationStateObservable; }
     LiveData<MapFragmentViewState> getViewStateObservable() { return  viewStateObservable; }
     LiveData<MyMenu> getOptionsMenuObservable() { return optionsMenuObservable; }
+    LiveData<MapPosition> getMapPositionObservable() { return mapPositionObservable; }
 
     private void onLocationChanged(Location location) {
-        //TODO
+        currentMapPosition.setPosition(location.getLatitude(), location.getLongitude());
+
+        float distance = location.distanceTo(previousLocation);
+        double groundResolution = MercatorProjection.groundResolutionWithScale(location.getLatitude(), currentMapPosition.getScale());
+
+        if (distance / groundResolution > 1.0f) {
+            mapPositionObservable.setValue(currentMapPosition);
+        }
+
+        previousLocation = location;
     }
 
     private void initOptionsMenu() {
@@ -90,12 +121,10 @@ public class MapFragmentViewModel extends ViewModel {
 
     private void setMapInitializationState() {
         TileSource tileSource = getTileSource();
-        MapPosition mapPosition = getMapPosition();
         ThemeFile themeFile = getRenderTheme();
 
         MapInitializationState.Builder builder = new MapInitializationState.Builder()
                 .withTileSource(tileSource)
-                .withMapPosition(mapPosition)
                 .withTheme(themeFile)
                 .withBuildingLayer()
                 .withLabelLayer();
@@ -136,7 +165,7 @@ public class MapFragmentViewModel extends ViewModel {
         return preferenceManager.getOnlineMap().provideTileSource();
     }
 
-    private MapPosition getMapPosition() {
+    private MapPosition initCurrentMapPosition() {
         //TODO: Tilt?
         MapPosition mapPosition = preferenceManager.getMapPosition();
 
@@ -274,10 +303,8 @@ public class MapFragmentViewModel extends ViewModel {
         MapInitializationState prevState = mapInitializationStateObservable.getValue();
         ThemeFile themeFile = getRenderTheme();
 
-        //TODO: use last position
         MapInitializationState.Builder builder = new MapInitializationState.Builder()
                 .withTileSource(prevState.tileSource)
-                .withMapPosition(prevState.mapPosition)
                 .withTheme(themeFile)
                 .withBuildingLayer()
                 .withLabelLayer();

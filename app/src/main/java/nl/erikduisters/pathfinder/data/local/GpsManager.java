@@ -51,7 +51,7 @@ public class GpsManager implements
     }
 
     public interface GpsStatusChangedListener {
-        void onSatelliteStatusChanged(ArrayList<SatelliteInfo> satInfoList);
+        void onSatelliteStatusChanged(@NonNull ArrayList<SatelliteInfo> satInfoList);
         void onGpsStarted();
         void onGpsStopped();
     }
@@ -391,7 +391,7 @@ public class GpsManager implements
     }
 
     public interface LocationListener {
-        void onLocationChanged(Location location);
+        void onLocationChanged(@NonNull Location location);
     }
 
     public interface GpsFixListener {

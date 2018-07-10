@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.oscim.android.MapView;
+import org.oscim.core.MapPosition;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
@@ -60,6 +61,7 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
         viewModel.getMapInitializationStateObservable().observe(this, this::render);
         viewModel.getOptionsMenuObservable().observe(this, this::handleOptionsMenu);
         viewModel.getViewStateObservable().observe(this, this::render);
+        viewModel.getMapPositionObservable().observe(this, this::handleMapPosition);
 
         return v;
     }
@@ -126,10 +128,6 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
             map.setTheme(viewState.themeFile);
         }
 
-        if (currentMapInitializationState == null || currentMapInitializationState.mapPosition != viewState.mapPosition) {
-            map.setMapPosition(viewState.mapPosition);
-        }
-
         currentMapInitializationState = viewState;
     }
 
@@ -140,6 +138,10 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
 
         this.optionsMenu = optionsMenu;
         invalidateOptionsMenu();
+    }
+
+    private void handleMapPosition(MapPosition mapPosition) {
+        map.setMapPosition(mapPosition);
     }
 
     @Override
