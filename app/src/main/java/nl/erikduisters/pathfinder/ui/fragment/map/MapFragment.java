@@ -3,6 +3,7 @@ package nl.erikduisters.pathfinder.ui.fragment.map;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RawRes;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,7 +13,9 @@ import android.view.ViewGroup;
 
 import org.oscim.android.MapView;
 import org.oscim.backend.CanvasAdapter;
+import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapPosition;
+import org.oscim.layers.LocationTextureLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
@@ -20,14 +23,22 @@ import org.oscim.map.Layers;
 import org.oscim.map.Map;
 import org.oscim.renderer.BitmapRenderer;
 import org.oscim.renderer.GLViewport;
+import org.oscim.renderer.atlas.TextureAtlas;
+import org.oscim.renderer.atlas.TextureRegion;
+import org.oscim.renderer.bucket.TextureItem;
 import org.oscim.scalebar.DefaultMapScaleBar;
 import org.oscim.scalebar.ImperialUnitAdapter;
 import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.scalebar.MetricUnitAdapter;
 import org.oscim.scalebar.NauticalUnitAdapter;
+import org.oscim.utils.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
@@ -44,6 +55,7 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
     @NonNull
     private MyMenu optionsMenu;
     private MapInitializationState currentMapInitializationState;
+    private LocationTextureLayer locationTextureLayer;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -71,6 +83,7 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
         viewModel.getOptionsMenuObservable().observe(this, this::handleOptionsMenu);
         viewModel.getViewStateObservable().observe(this, this::render);
         viewModel.getMapPositionObservable().observe(this, this::handleMapPosition);
+        viewModel.getLocationMarkerInfoObservable().observe(this, this::handleLocationMarkerInfo);
 
         return v;
     }
@@ -133,6 +146,8 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
             if (viewState.addLabelLayer) { layers.add(new LabelLayer(map, tileLayer)); }
 
             addScaleBarLayer(viewState.scaleBarType);
+
+            if (viewState.addLocationLayer) { addLocationLayer(viewState.locationMarkerSvgResId); }
         }
 
         if (currentMapInitializationState == null || currentMapInitializationState.themeFile != viewState.themeFile) {
@@ -177,6 +192,33 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
         map.layers().add(mapScaleBarLayer);
     }
 
+    private void addLocationLayer(@RawRes int locationMarkerSvgResId) {
+        InputStream inputStream = null;
+        Bitmap bitmap;
+
+        int width = getResources().getDimensionPixelSize(R.dimen.location_marker_width);
+        int height = getResources().getDimensionPixelSize(R.dimen.location_marker_height);
+
+        try {
+            inputStream = getResources().openRawResource(locationMarkerSvgResId);
+            //TODO: Do this on a background thread
+            //TODO: All bitmaps used on the map should be in a TextureAtlas
+            bitmap = CanvasAdapter.decodeSvgBitmap(inputStream, width, height, 100);
+        } catch (IOException e) {
+            IOUtils.closeQuietly(inputStream);
+            throw new RuntimeException(e.getMessage());
+        }
+
+        TextureAtlas.Rect rect = new TextureAtlas.Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        TextureRegion textureRegion = new TextureRegion(new TextureItem(bitmap), rect);
+
+        locationTextureLayer = new LocationTextureLayer(map, textureRegion);
+        locationTextureLayer.locationRenderer.setBillboard(false);
+        locationTextureLayer.setEnabled(false);
+
+        map.layers().add(locationTextureLayer);
+    }
+
     private void handleOptionsMenu(@Nullable MyMenu optionsMenu) {
         if (optionsMenu == null) {
             return;
@@ -188,6 +230,15 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
 
     private void handleMapPosition(MapPosition mapPosition) {
         map.setMapPosition(mapPosition);
+    }
+
+    private void handleLocationMarkerInfo(LocationLayerInfo info) {
+        if (info.hasFix) {
+            locationTextureLayer.setEnabled(false);
+        } else {
+            locationTextureLayer.setEnabled(true);
+            locationTextureLayer.setPosition(info.latitude, info.longitude, info.heading, info.accuracy);
+        }
     }
 
     @Override

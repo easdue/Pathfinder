@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
+import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.util.StringProvider;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
@@ -55,12 +56,15 @@ import timber.log.Timber;
 //TODO: Save MapPosition to preferences
 //TODO: MyLocationLayer
 //TODO: ScaleBar
+//TODO: Handle gpx fix loss
+//TODO: Map orientation (eg. always north/heading)
 @Singleton
 public class MapFragmentViewModel extends ViewModel {
     private MutableLiveData<MapInitializationState> mapInitializationStateObservable;
     private MutableLiveData<MapFragmentViewState> viewStateObservable;
     private MutableLiveData<MyMenu> optionsMenuObservable;
     private MutableLiveData<MapPosition> mapPositionObservable;
+    private MutableLiveData<LocationLayerInfo> locationLayerInfoObservable;
 
     private final PreferenceManager preferenceManager;
     private final GpsManager gpsManager;
@@ -75,6 +79,7 @@ public class MapFragmentViewModel extends ViewModel {
         viewStateObservable = new MutableLiveData<>();
         optionsMenuObservable = new MutableLiveData<>();
         mapPositionObservable = new MutableLiveData<>();
+        locationLayerInfoObservable = new MutableLiveData<>();
 
         optionsMenu = new MyMenu();
 
@@ -93,6 +98,7 @@ public class MapFragmentViewModel extends ViewModel {
         setMapInitializationState();
 
         mapPositionObservable.setValue(currentMapPosition);
+        locationLayerInfoObservable.setValue(new LocationLayerInfo());
 
         this.gpsManager.addLocationListener(this::onLocationChanged);
     }
@@ -101,6 +107,7 @@ public class MapFragmentViewModel extends ViewModel {
     LiveData<MapFragmentViewState> getViewStateObservable() { return  viewStateObservable; }
     LiveData<MyMenu> getOptionsMenuObservable() { return optionsMenuObservable; }
     LiveData<MapPosition> getMapPositionObservable() { return mapPositionObservable; }
+    LiveData<LocationLayerInfo> getLocationMarkerInfoObservable() { return locationLayerInfoObservable; }
 
     private void onLocationChanged(Location location) {
         currentMapPosition.setPosition(location.getLatitude(), location.getLongitude());
@@ -111,6 +118,8 @@ public class MapFragmentViewModel extends ViewModel {
         if (distance / groundResolution > 1.0f) {
             mapPositionObservable.setValue(currentMapPosition);
         }
+
+        locationLayerInfoObservable.setValue(new LocationLayerInfo(location));
 
         previousLocation = location;
     }
@@ -128,7 +137,9 @@ public class MapFragmentViewModel extends ViewModel {
                 .withTheme(themeFile)
                 .withBuildingLayer()
                 .withLabelLayer()
-                .withScaleBarType(preferenceManager.getScaleBarType());
+                .withScaleBarType(preferenceManager.getScaleBarType())
+                .withLocationLayer()
+                .withLocationMarker(R.raw.ic_map_location_marker);
 
         MapInitializationState state = builder.build();
 
