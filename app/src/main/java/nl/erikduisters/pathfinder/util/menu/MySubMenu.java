@@ -8,10 +8,12 @@ import android.support.annotation.NonNull;
 public class MySubMenu extends MyMenuItem {
     @NonNull
     private final MyMenu subMenu;
+    private final boolean isPopulatedAtRuntime;
 
-    public MySubMenu(int id, boolean enabled, boolean visible) {
+    public MySubMenu(int id, boolean enabled, boolean visible, boolean isPopulatedAtRuntime) {
         super(id, enabled, visible);
 
+        this.isPopulatedAtRuntime = isPopulatedAtRuntime;
         subMenu = new MyMenu();
     }
 
@@ -24,4 +26,13 @@ public class MySubMenu extends MyMenuItem {
     }
 
     public MyMenu getSubMenu() { return subMenu; }
+
+    @Override
+    public boolean isSubMenu() {
+        return true;
+    }
+
+    public boolean isPopulatedAtRuntime() {
+        return isPopulatedAtRuntime;
+    }
 }

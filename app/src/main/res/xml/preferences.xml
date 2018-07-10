@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Add summaries -->
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
@@ -38,8 +39,8 @@
         android:defaultValue="Maps"
         android:persistent="true"/>
     <EditTextPreference
-        android:key="@string/key_storage_rendertheme_directory"
-        android:title="@string/prefs_rendertheme_directory"
+        android:key="@string/key_storage_render_theme_directory"
+        android:title="@string/prefs_render_theme_directory"
         android:selectable="true"
         android:enabled="true"
         android:defaultValue="RenderThemes"
@@ -54,4 +55,47 @@
         android:enabled="true"
         android:key="@string/key_ask_to_resolve_play_services_unavailability"
         android:title="@string/prefs_ask_to_resolve_play_services_unavailability"/>
+    <PreferenceScreen
+        android:key="@string/key_map_preferences"
+        android:title="@string/prefs_map_preferences"
+        android:persistent="false">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_map_use_offline_map"
+            android:title="@string/prefs_map_use_offline_map"/>
+
+        <Preference
+            android:key="@string/key_map_offline_map"
+            android:title="@string/prefs_map_offline_map"
+            android:defaultValue="@string/empty"
+            android:persistent="true"/>
+
+        <Preference
+            android:key="@string/key_map_online_map"
+            android:title="@string/prefs_map_online_map"
+            android:defaultValue="0"
+            android:persistent="true"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/key_map_use_external_render_theme"
+            android:title="@string/prefs_map_use_external_render_theme"/>
+
+        <Preference
+            android:key="@string/key_map_internal_render_theme"
+            android:title="@string/prefs_map_internal_render_theme"
+            android:persistent="true"/>
+
+        <Preference
+            android:key="@string/key_map_external_render_theme"
+            android:title="@string/prefs_map_external_render_theme"
+            android:persistent="true"/>
+
+        <Preference
+            android:key="@string/key_map_render_theme_style"
+            android:title="@string/prefs_map_render_theme_style"
+            android:persistent="true"/>
+
+    </PreferenceScreen>
 </PreferenceScreen>

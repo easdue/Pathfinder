@@ -1,6 +1,7 @@
 package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -8,14 +9,19 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -42,6 +48,7 @@ import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
+import nl.erikduisters.pathfinder.ui.view.MyViewPager;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import timber.log.Timber;
 
@@ -49,8 +56,9 @@ import timber.log.Timber;
 public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
-        FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener,
-        PlayServicesFragment.PlayServicesFragmentListener, PositiveNegativeButtonMessageDialog.Listener {
+                   FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener,
+                   PlayServicesFragment.PlayServicesFragmentListener, PositiveNegativeButtonMessageDialog.Listener,
+                   ViewPager.OnPageChangeListener, ViewTreeObserver.OnGlobalLayoutListener{
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
@@ -63,13 +71,14 @@ public class MainActivity
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.tabLayout) TabLayout tabLayout;
-    @BindView(R.id.viewPager) ViewPager viewPager;
+    @BindView(R.id.viewPager) MyViewPager viewPager;
 
     private CircleImageView avatar;
     private TextView username;
     private Menu navigationMenu;
     private @NonNull MyMenu optionsMenu;
     private FragmentAdapter fragmentAdapter;
+    private int currentViewPagerPosition;
 
     public MainActivity() {
         optionsMenu = new MyMenu();
@@ -99,7 +108,10 @@ public class MainActivity
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(fragmentAdapter);
+        viewPager.addOnPageChangeListener(this);
         tabLayout.setupWithViewPager(viewPager);
+
+        currentViewPagerPosition = -1;
     }
 
     @Override
@@ -132,13 +144,13 @@ public class MainActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        optionsMenu.updateAndroidMenu(menu);
+        optionsMenu.updateAndroidMenu(menu, this);
 
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -148,7 +160,7 @@ public class MainActivity
     }
 
     @Override
-    public boolean onNavigationItemSelected(android.view.MenuItem item) {
+    public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         switch (item.getItemId()) {
             case R.id.nav_import:
@@ -176,7 +188,7 @@ public class MainActivity
         avatar.setImageDrawable(viewState.avatar.getDrawable(this));
         username.setText(viewState.userName.getString(this));
 
-        viewState.navigationMenu.updateAndroidMenu(navigationMenu);
+        viewState.navigationMenu.updateAndroidMenu(navigationMenu, this);
     }
 
     void render(@Nullable MainActivityViewState viewState) {
@@ -257,6 +269,9 @@ public class MainActivity
         fragmentAdapter.addTab(new FragmentAdapter.TabItem(R.string.track_list, true, MainActivityFragmentProvider.TRACK_LIST_FRAGMENT));
         fragmentAdapter.addTab(new FragmentAdapter.TabItem(R.string.map, true, MainActivityFragmentProvider.MAP_FRAGMENT));
         fragmentAdapter.addTab(new FragmentAdapter.TabItem(R.string.compass, true, MainActivityFragmentProvider.COMPASS_FRAGMENT));
+
+        viewPager.getViewTreeObserver().addOnGlobalLayoutListener(this);
+        viewPager.requestLayout();
     }
 
     private void startInitStorageFragment(String tag) {
@@ -409,5 +424,50 @@ public class MainActivity
                 viewModel.onFinishedWaitingForGpsToBeEnabled();
                 break;
         }
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        //Don't care
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if (currentViewPagerPosition == position) {
+            return;
+        }
+
+        Fragment frag = fragmentAdapter.getItem(position);
+
+        if (frag != null) {
+            currentViewPagerPosition = position;
+
+            FirebaseAnalytics.getInstance(this)
+                    .setCurrentScreen(this, frag.getClass().getSimpleName(), null);
+        }
+
+        viewPager.setPagingEnabled(position != 1);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onGlobalLayout() {
+
+        if (Build.VERSION.SDK_INT < 16) {
+            viewPager.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+        } else {
+            viewPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        }
+
+        /*
+         * This is a hack. ViewPager does not call onPageSelected() when the initial fragment has been
+         * displayed/selected
+         */
+        onPageSelected(viewPager.getCurrentItem());
     }
 }

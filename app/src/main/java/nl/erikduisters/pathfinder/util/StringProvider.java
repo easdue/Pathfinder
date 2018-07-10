@@ -29,7 +29,7 @@ public class StringProvider {
         if (stringResId != 0) {
             return context.getString(stringResId);
         } else {
-            return string;
+            return string == null ? "" : string;
         }
     }
 }

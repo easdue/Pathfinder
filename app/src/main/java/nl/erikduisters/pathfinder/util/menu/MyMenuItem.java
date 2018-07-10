@@ -1,39 +1,55 @@
 package nl.erikduisters.pathfinder.util.menu;
 
 import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
+import android.view.Menu;
+
+import nl.erikduisters.pathfinder.util.StringProvider;
 
 /**
  * Created by Erik Duisters on 25-04-2017.
  */
 
 public class MyMenuItem {
-    public final @IdRes int id;
-    public boolean enabled;
-    public boolean visible;
+    private final @IdRes int id;
+    private boolean enabled;
+    private boolean visible;
+    private boolean checked;
+    @Nullable final private StringProvider title;
+    @Nullable private Object tag;
 
     public MyMenuItem(@IdRes int id, boolean enabled, boolean visible) {
+        this(id, enabled, visible, false, null);
+    }
+
+    public MyMenuItem(boolean enabled, boolean visible, @Nullable StringProvider title) {
+        this(Menu.NONE, enabled, visible, false, title);
+    }
+
+    public MyMenuItem(@IdRes int id, boolean enabled, boolean visible, boolean isChecked, @Nullable StringProvider title) {
         this.id = id;
         this.enabled = enabled;
         this.visible = visible;
+        this.checked = isChecked;
+        this.title = title;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public @IdRes int getId() { return id; }
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean isEnabled) { enabled = isEnabled; }
+    public boolean isVisible() { return visible; }
+    public void setVisible(boolean isVisible) { visible = isVisible; }
+    public boolean isChecked() { return checked; }
+    public void setChecked(boolean isChecked) { checked = isChecked; }
 
-        MyMenuItem that = (MyMenuItem) o;
+    @Nullable
+    public StringProvider getTitle() { return title; }
 
-        if (id != that.id) return false;
-        if (enabled != that.enabled) return false;
-        return visible == that.visible;
-    }
+    @Nullable
+    public Object getTag() { return tag; }
+    public void setTab(@Nullable Object tag) { this.tag = tag; }
 
-    @Override
-    public int hashCode() {
-        int result = id;
-        result = 31 * result + (enabled ? 1 : 0);
-        result = 31 * result + (visible ? 1 : 0);
-        return result;
+    public boolean isSubMenu() {
+        return false;
     }
 }
