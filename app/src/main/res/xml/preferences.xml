@@ -97,5 +97,10 @@
             android:title="@string/prefs_map_render_theme_style"
             android:persistent="true"/>
 
+        <Preference
+            android:key="@string/key_map_scale_bar_type"
+            android:title="@string/prefs_map_scale_bar_type"
+            android:persistent="true"/>
+
     </PreferenceScreen>
 </PreferenceScreen>

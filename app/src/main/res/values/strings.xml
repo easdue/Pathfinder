@@ -58,6 +58,7 @@
     <string name="key_map_latitude" translatable="false">map_latitude</string>
     <string name="key_map_longitude" translatable="false">map_longitude</string>
     <string name="key_map_zoom_level" translatable="false">map_zoom_level</string>
+    <string name="key_map_scale_bar_type" translatable="false">map_scale_bar_type</string>
 
     <string name="prefs_storage_location">Storage Location</string>
     <string name="prefs_import_directory">Import Directory</string>
@@ -74,7 +75,8 @@
     <string name="prefs_map_use_external_render_theme">Use external render theme</string>
     <string name="prefs_map_internal_render_theme">Internal render theme</string>
     <string name="prefs_map_external_render_theme">External render theme</string>
-    <string name="prefs_map_render_theme_style">Map Style</string>
+    <string name="prefs_map_render_theme_style">Map style</string>
+    <string name="prefs_map_scale_bar_type">Scale bar type</string>
 
     <!-- Dialogs -->
     <string name="ok">@android:string/ok</string>

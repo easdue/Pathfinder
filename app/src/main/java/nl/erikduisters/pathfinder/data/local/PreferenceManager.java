@@ -19,6 +19,7 @@ import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
+import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.di.ApplicationContext;
 import nl.erikduisters.pathfinder.util.FileUtil;
 import timber.log.Timber;
@@ -57,6 +58,7 @@ public class PreferenceManager {
     private final String KEY_MAP_LATITUDE;
     private final String KEY_MAP_LONGITUDE;
     private final String KEY_MAP_ZOOM_LEVEL;
+    private final String KEY_MAP_SCALE_BAR_TYPE;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -91,6 +93,7 @@ public class PreferenceManager {
         KEY_MAP_LATITUDE = context.getString(R.string.key_map_latitude);
         KEY_MAP_LONGITUDE = context.getString(R.string.key_map_longitude);
         KEY_MAP_ZOOM_LEVEL = context.getString(R.string.key_map_zoom_level);
+        KEY_MAP_SCALE_BAR_TYPE = context.getString(R.string.key_map_scale_bar_type);
 
         preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         storageDir = getStorageDir();
@@ -280,5 +283,9 @@ public class PreferenceManager {
                 .putString(KEY_MAP_LONGITUDE, String.valueOf(mapPosition.getLongitude()))
                 .putInt(KEY_MAP_ZOOM_LEVEL, mapPosition.getZoomLevel())
                 .apply();
+    }
+
+    public synchronized @ScaleBarType int getScaleBarType() {
+        return preferences.getInt(KEY_MAP_SCALE_BAR_TYPE, ScaleBarType.METRIC_AND_IMPERIAL);
     }
 }
