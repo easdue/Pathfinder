@@ -15,6 +15,12 @@ import org.oscim.android.MapView;
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
 import org.oscim.core.MapPosition;
+import org.oscim.event.Event;
+import org.oscim.event.Gesture;
+import org.oscim.event.GestureListener;
+import org.oscim.event.MotionEvent;
+import org.oscim.layers.AbstractMapEventLayer;
+import org.oscim.layers.Layer;
 import org.oscim.layers.LocationTextureLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -48,7 +54,7 @@ import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
  * Created by Erik Duisters on 28-06-2018.
  */
 
-public class MapFragment extends BaseFragment<MapFragmentViewModel> {
+public class MapFragment extends BaseFragment<MapFragmentViewModel> implements Map.UpdateListener {
     @BindView(R.id.mapView) MapView mapView;
 
     private Map map;
@@ -78,6 +84,8 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
         map = mapView.map();
+        map.getEventLayer().setFixOnCenter(true);
+        map.events.bind(this);
 
         viewModel.getMapInitializationStateObservable().observe(this, this::render);
         viewModel.getOptionsMenuObservable().observe(this, this::handleOptionsMenu);
@@ -90,6 +98,7 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
 
     @Override
     public void onDestroyView() {
+        map.events.unbind(this);
         mapView.onDestroy();
 
         super.onDestroyView();
@@ -110,6 +119,13 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        viewModel.onSaveState();
+    }
+
+    @Override
     protected int getLayoutResId() {
         return R.layout.fragment_map;
     }
@@ -123,6 +139,12 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
         if (viewState == null) {
             return;
         }
+
+        AbstractMapEventLayer eventLayer = map.getEventLayer();
+        eventLayer.enableMove(viewState.moveEnabled);
+        eventLayer.enableRotation(viewState.rotationEnabled);
+        eventLayer.enableTilt(viewState.tiltEnabled);
+        eventLayer.enableZoom(viewState.zoomEnabled);
     }
 
     private void render(@Nullable MapInitializationState viewState) {
@@ -138,19 +160,33 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
             }
 
             OsmTileLayer tileLayer = new OsmTileLayer(map);
-            tileLayer.setTileSource(viewState.tileSource);
+
+            if (!tileLayer.setTileSource(viewState.tileSource)) {
+                viewModel.tileSourceCannotBeSet(viewState.tileSource);
+                return;
+            }
 
             map.setBaseMap(tileLayer);
 
-            if (viewState.addBuildingLayer) { layers.add(new BuildingLayer(map, tileLayer)); }
-            if (viewState.addLabelLayer) { layers.add(new LabelLayer(map, tileLayer)); }
+            layers.add(new GestureLayer(map));
+
+            if (viewState.addBuildingLayer) {
+                layers.add(new BuildingLayer(map, tileLayer));
+            }
+            if (viewState.addLabelLayer) {
+                layers.add(new LabelLayer(map, tileLayer));
+            }
 
             addScaleBarLayer(viewState.scaleBarType);
 
-            if (viewState.addLocationLayer) { addLocationLayer(viewState.locationMarkerSvgResId); }
+            if (viewState.addLocationLayer) {
+                addLocationLayer(viewState.locationMarkerSvgResId);
+            }
         }
 
         if (currentMapInitializationState == null || currentMapInitializationState.themeFile != viewState.themeFile) {
+            /* TODO: For elevate this takes >= 1.5 seconds so it's maybe worth it to call
+                     ThemeLoader.load(viewState.themeFile) on a background thread */
             map.setTheme(viewState.themeFile);
         }
 
@@ -257,13 +293,40 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        MyMenuItem myMenuItem;
+
+        switch (item.getItemId()) {
             case Menu.NONE:
-                MyMenuItem myMenuItem = optionsMenu.findItem(item, getContext());
+                myMenuItem = optionsMenu.findItem(item, getContext());
                 viewModel.onMenuItemSelected(myMenuItem);
                 return true;
+            default:
+                myMenuItem = optionsMenu.findItem(item.getItemId());
+                viewModel.onMenuItemSelected(myMenuItem);
         }
 
         return false;
+    }
+
+    @Override
+    public void onMapEvent(Event e, MapPosition mapPosition) {
+        if (e == Map.MOVE_EVENT || e == Map.SCALE_EVENT || e == Map.ROTATE_EVENT || e == Map.TILT_EVENT) {
+            viewModel.onMapPositionChangedByUser(mapPosition);
+        }
+    }
+
+    private class GestureLayer extends Layer implements GestureListener {
+        public GestureLayer(Map map) {
+            super(map);
+        }
+
+        @Override
+        public boolean onGesture(Gesture g, MotionEvent e) {
+            if (g == Gesture.LONG_PRESS) {
+                viewModel.onMapLongPress();
+            }
+
+            return false;
+        }
     }
 }

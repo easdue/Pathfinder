@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModel;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.os.LocaleListCompat;
+import android.view.Menu;
 
 import org.oscim.core.MapPosition;
 import org.oscim.core.MercatorProjection;
@@ -37,25 +38,6 @@ import timber.log.Timber;
  * Created by Erik Duisters on 28-06-2018.
  */
 
-/* TODO: Delete
-   MapFileTileSource tileSource = new MapFileTileSource();
-   //tileSource.setMapFile(preferenceManager.getStorageDir() + preferenceManager.getStorageMapSubDir() + "Netherlands.map");
-   //tileSource.setMapFile(preferenceManager.getStorageDir() + preferenceManager.getStorageMapSubDir() + "OpenAndroMaps-Netherlands.map");
-   //tileSource.setPreferredLanguage();
-
-   //ExternalRenderTheme theme = new ExternalRenderTheme(preferenceManager.getStorageDir() + preferenceManager.getStorageRenderThemeSubDir() + "Mapsforge/Mapsforge.xml");
-   //ExternalRenderTheme theme = new ExternalRenderTheme(preferenceManager.getStorageDir() + preferenceManager.getStorageRenderThemeSubDir() + "Elevate4/Elevate.xml");
-   //ExternalRenderTheme theme = new ExternalRenderTheme(preferenceManager.getStorageDir() + preferenceManager.getStorageRenderThemeSubDir() + "Elevate4/Elements.xml");
-
-   //If map is v5 then I can use S3DBLayer
-   //When using OSciMap4TileSource with s3db tile source I can then use S3DBTileLayer
-*/
-
-//TODO: Map follows gps
-//TODO: handle map events (eg. move/zoom in/out)
-//TODO: Save MapPosition to preferences
-//TODO: MyLocationLayer
-//TODO: ScaleBar
 //TODO: Handle gpx fix loss
 //TODO: Map orientation (eg. always north/heading)
 @Singleton
@@ -68,32 +50,29 @@ public class MapFragmentViewModel extends ViewModel {
 
     private final PreferenceManager preferenceManager;
     private final GpsManager gpsManager;
-    private final MyMenu optionsMenu;
+    private MyMenu optionsMenu;
 
-    private final MapPosition currentMapPosition;
+    private MapPosition currentMapPosition;
     private Location previousLocation;
+
+    private final MapInitializationState.Builder mapInitializationStateBuilder;
+    private final MapFragmentViewState.Builder mapFragmentViewStateBuilder;
 
     @Inject
     MapFragmentViewModel(PreferenceManager preferenceManager, GpsManager gpsManager) {
-        mapInitializationStateObservable = new MutableLiveData<>();
-        viewStateObservable = new MutableLiveData<>();
-        optionsMenuObservable = new MutableLiveData<>();
-        mapPositionObservable = new MutableLiveData<>();
-        locationLayerInfoObservable = new MutableLiveData<>();
-
-        optionsMenu = new MyMenu();
-
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
+
+        initLiveData();
+
+        mapInitializationStateBuilder = new MapInitializationState.Builder();
+        mapFragmentViewStateBuilder = new MapFragmentViewState.Builder();
 
         initOptionsMenu();
         optionsMenuObservable.setValue(optionsMenu);
 
-        currentMapPosition = initCurrentMapPosition();
-
-        previousLocation = new Location(LocationManager.GPS_PROVIDER);
-        previousLocation.setLatitude(currentMapPosition.getLatitude());
-        previousLocation.setLongitude(currentMapPosition.getLongitude());
+        initCurrentMapPosition();
+        initpreviousLocation();
 
         setMapInitializationState();
 
@@ -101,6 +80,45 @@ public class MapFragmentViewModel extends ViewModel {
         locationLayerInfoObservable.setValue(new LocationLayerInfo());
 
         this.gpsManager.addLocationListener(this::onLocationChanged);
+
+        updateMapFragmentViewStateForMapFollowsGps(preferenceManager.mapFollowsGps());
+    }
+
+    private void initLiveData() {
+        mapInitializationStateObservable = new MutableLiveData<>();
+        viewStateObservable = new MutableLiveData<>();
+        optionsMenuObservable = new MutableLiveData<>();
+        mapPositionObservable = new MutableLiveData<>();
+        locationLayerInfoObservable = new MutableLiveData<>();
+    }
+
+    private void initOptionsMenu() {
+        optionsMenu = new MyMenu();
+        optionsMenu.add(new MyMenuItem(R.id.menu_mapLockedToGps, true, preferenceManager.mapFollowsGps()));
+        optionsMenu.add(new MyMenuItem(R.id.menu_mapNotLockedToGps, true, !preferenceManager.mapFollowsGps()));
+        optionsMenu.add(new MySubMenu(R.id.menu_mapStyle, true, false, true));
+    }
+
+    private void initCurrentMapPosition() {
+        if (currentMapPosition == null) {
+            currentMapPosition = preferenceManager.getMapPosition();
+        }
+
+        if (preferenceManager.mapFollowsGps()) {
+            Location lastKnowLocation = gpsManager.getLastKnowLocation();
+
+            if (lastKnowLocation != null) {
+                currentMapPosition.setPosition(lastKnowLocation.getLatitude(), lastKnowLocation.getLongitude());
+            }
+
+            currentMapPosition.setBearing(0f);
+        }
+    }
+
+    private void initpreviousLocation() {
+        previousLocation = new Location(LocationManager.GPS_PROVIDER);
+        previousLocation.setLatitude(currentMapPosition.getLatitude());
+        previousLocation.setLongitude(currentMapPosition.getLongitude());
     }
 
     LiveData<MapInitializationState> getMapInitializationStateObservable() { return mapInitializationStateObservable; }
@@ -109,30 +127,11 @@ public class MapFragmentViewModel extends ViewModel {
     LiveData<MapPosition> getMapPositionObservable() { return mapPositionObservable; }
     LiveData<LocationLayerInfo> getLocationMarkerInfoObservable() { return locationLayerInfoObservable; }
 
-    private void onLocationChanged(Location location) {
-        currentMapPosition.setPosition(location.getLatitude(), location.getLongitude());
-
-        float distance = location.distanceTo(previousLocation);
-        double groundResolution = MercatorProjection.groundResolutionWithScale(location.getLatitude(), currentMapPosition.getScale());
-
-        if (distance / groundResolution > 1.0f) {
-            mapPositionObservable.setValue(currentMapPosition);
-        }
-
-        locationLayerInfoObservable.setValue(new LocationLayerInfo(location));
-
-        previousLocation = location;
-    }
-
-    private void initOptionsMenu() {
-        optionsMenu.add(new MySubMenu(R.id.menu_mapStyle, true, false, true));
-    }
-
     private void setMapInitializationState() {
         TileSource tileSource = getTileSource();
         ThemeFile themeFile = getRenderTheme();
 
-        MapInitializationState.Builder builder = new MapInitializationState.Builder()
+        mapInitializationStateBuilder
                 .withTileSource(tileSource)
                 .withTheme(themeFile)
                 .withBuildingLayer()
@@ -141,7 +140,7 @@ public class MapFragmentViewModel extends ViewModel {
                 .withLocationLayer()
                 .withLocationMarker(R.raw.ic_map_location_marker);
 
-        MapInitializationState state = builder.build();
+        MapInitializationState state = mapInitializationStateBuilder.build();
 
         mapInitializationStateObservable.setValue(state);
     }
@@ -160,15 +159,14 @@ public class MapFragmentViewModel extends ViewModel {
 
     private TileSource getOfflineTileSource() {
         MapFileTileSource mapFileTileSource = new MapFileTileSource();
-        //TODO: use preferences to get map file name
-        //TODO: Fall back to online tile source if map is corrupt (Can be detected by return value of OsmTileLayer.setTileSource in MapFragment)
-        if (!mapFileTileSource.setMapFile(preferenceManager.getStorageDir() + preferenceManager.getStorageMapSubDir() + "OpenAndroMaps-Netherlands.map")) {
-            //TODO: Inform the user
+
+        if (!mapFileTileSource.setMapFile(preferenceManager.getStorageDir() + preferenceManager.getStorageMapSubDir() + preferenceManager.getOfflineMap())) {
+            //TODO: Inform the user that the mapfile does not exits
             preferenceManager.setUseOfflineMap(false);
             return getOnlineTileSource();
         }
 
-        //TODO: mapFileTileSource.setPreferredLanguage(ConfigurationCompat.getLocales(getResources().getConfiguration()).get(0).getLanguage());
+        //TODO: mapFileTileSource.setPreferredLanguage();
 
         return mapFileTileSource;
     }
@@ -177,19 +175,18 @@ public class MapFragmentViewModel extends ViewModel {
         return preferenceManager.getOnlineMap().provideTileSource();
     }
 
-    private MapPosition initCurrentMapPosition() {
-        //TODO: Tilt?
-        MapPosition mapPosition = preferenceManager.getMapPosition();
+    void tileSourceCannotBeSet(TileSource tileSource) {
+        if (tileSource instanceof MapFileTileSource) {
+            preferenceManager.setUseOfflineMap(false);
 
-        if (preferenceManager.mapFollowsGps()) {
-            Location lastKnowLocation = gpsManager.getLastKnowLocation();
+            MapInitializationState state = mapInitializationStateBuilder
+                    .withTileSource(getOnlineTileSource())
+                    .build();
 
-            if (lastKnowLocation != null) {
-                mapPosition.setPosition(lastKnowLocation.getLatitude(), lastKnowLocation.getLongitude());
-            }
+            mapInitializationStateObservable.setValue(state);
+
+            //TODO: Inform the user that the mapfile is corrupted or not a mapsforge map
         }
-
-        return mapPosition;
     }
 
     private ThemeFile getRenderTheme() {
@@ -210,7 +207,7 @@ public class MapFragmentViewModel extends ViewModel {
         return themeFile;
     }
 
-    Set<String> getCategories(XmlRenderThemeStyleMenu styleMenu) {
+    private Set<String> getCategories(XmlRenderThemeStyleMenu styleMenu) {
         Map<String, Map<String, String>> renderStyles = new LinkedHashMap<>();
         Set<String> categories = null;
 
@@ -306,21 +303,90 @@ public class MapFragmentViewModel extends ViewModel {
     }
 
     void onMenuItemSelected(MyMenuItem myMenuItem) {
-        if (myMenuItem.isChecked()) {
+        switch (myMenuItem.getId()) {
+            case Menu.NONE:
+                if (!myMenuItem.isChecked()) {
+                    changeRenderThemeStyle((String) myMenuItem.getTag());
+                }
+                break;
+            case R.id.menu_mapLockedToGps:
+                onMapLongPress();
+                break;
+            case R.id.menu_mapNotLockedToGps:
+                onMapLongPress();
+                break;
+        }
+
+    }
+
+    private void changeRenderThemeStyle(String renderThemeStyle) {
+        preferenceManager.setRenderThemeStyle(renderThemeStyle);
+
+        ThemeFile themeFile = getRenderTheme();
+
+        mapInitializationStateBuilder
+                .withTheme(themeFile);
+
+        mapInitializationStateObservable.setValue(mapInitializationStateBuilder.build());
+    }
+
+    void onMapLongPress() {
+        boolean followGps = !preferenceManager.mapFollowsGps();
+
+        preferenceManager.setMapFollowsGps(followGps);
+
+        MyMenuItem myMenuItem = optionsMenu.findItem(R.id.menu_mapLockedToGps);
+        myMenuItem.setVisible(followGps);
+        myMenuItem = optionsMenu.findItem(R.id.menu_mapNotLockedToGps);
+        myMenuItem.setVisible(!followGps);
+
+        optionsMenuObservable.setValue(optionsMenu);
+
+        updateMapFragmentViewStateForMapFollowsGps(followGps);
+    }
+
+    private void updateMapFragmentViewStateForMapFollowsGps(boolean followGps) {
+        MapFragmentViewState state = mapFragmentViewStateBuilder
+                .withMoveEnabled(!followGps)
+                .withRotationEnabled(!followGps)
+                .withTiltEnabled(true)
+                .withZoomEnabled(true)
+                .build();
+
+        viewStateObservable.setValue(state);
+
+        initCurrentMapPosition();
+        mapPositionObservable.setValue(currentMapPosition);
+    }
+
+    void onMapPositionChangedByUser(MapPosition mapPosition) {
+        Timber.e("onMapPositionChangedByUser");
+
+        currentMapPosition.copy(mapPosition);
+    }
+
+    void onSaveState() {
+        Timber.e("onSaveState()");
+
+        preferenceManager.setMapPosition(currentMapPosition);
+    }
+
+    private void onLocationChanged(Location location) {
+        if (!preferenceManager.mapFollowsGps()) {
             return;
         }
 
-        preferenceManager.setRenderThemeStyle((String) myMenuItem.getTag());
+        currentMapPosition.setPosition(location.getLatitude(), location.getLongitude());
 
-        MapInitializationState prevState = mapInitializationStateObservable.getValue();
-        ThemeFile themeFile = getRenderTheme();
+        float distance = location.distanceTo(previousLocation);
+        double groundResolution = MercatorProjection.groundResolutionWithScale(location.getLatitude(), currentMapPosition.getScale());
 
-        MapInitializationState.Builder builder = new MapInitializationState.Builder()
-                .withTileSource(prevState.tileSource)
-                .withTheme(themeFile)
-                .withBuildingLayer()
-                .withLabelLayer();
+        if (distance / groundResolution > 1.0f) {
+            mapPositionObservable.setValue(currentMapPosition);
+        }
 
-        mapInitializationStateObservable.setValue(builder.build());
+        locationLayerInfoObservable.setValue(new LocationLayerInfo(location));
+
+        previousLocation = location;
     }
 }

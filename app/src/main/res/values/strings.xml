@@ -58,6 +58,8 @@
     <string name="key_map_latitude" translatable="false">map_latitude</string>
     <string name="key_map_longitude" translatable="false">map_longitude</string>
     <string name="key_map_zoom_level" translatable="false">map_zoom_level</string>
+    <string name="key_map_tilt" translatable="false">map_tile</string>
+    <string name="key_map_bearing" translatable="false">map_bearing</string>
     <string name="key_map_scale_bar_type" translatable="false">map_scale_bar_type</string>
 
     <string name="prefs_storage_location">Storage Location</string>
@@ -159,4 +161,8 @@
 
     <!-- MapFragment -->
     <string name="menu_map_style">Map style</string>
+    <string name="menu_lock_to_gps">Lock to gps\nYou can also long press on the map</string>
+    <string name="menu_lock_to_gps_condensed">Lock to gps</string>
+    <string name="menu_unlock_from_gps">Unlock from gps\nYou can also long press on the map</string>
+    <string name="menu_unlock_from_gps_condensed">Unlock from gps</string>
 </resources>

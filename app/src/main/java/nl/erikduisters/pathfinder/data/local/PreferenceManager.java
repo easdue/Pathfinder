@@ -58,6 +58,8 @@ public class PreferenceManager {
     private final String KEY_MAP_LATITUDE;
     private final String KEY_MAP_LONGITUDE;
     private final String KEY_MAP_ZOOM_LEVEL;
+    private final String KEY_MAP_TILT;
+    private final String KEY_MAP_BEARING;
     private final String KEY_MAP_SCALE_BAR_TYPE;
 
     private final SharedPreferences preferences;
@@ -93,6 +95,8 @@ public class PreferenceManager {
         KEY_MAP_LATITUDE = context.getString(R.string.key_map_latitude);
         KEY_MAP_LONGITUDE = context.getString(R.string.key_map_longitude);
         KEY_MAP_ZOOM_LEVEL = context.getString(R.string.key_map_zoom_level);
+        KEY_MAP_TILT = context.getString(R.string.key_map_tilt);
+        KEY_MAP_BEARING = context.getString(R.string.key_map_bearing);
         KEY_MAP_SCALE_BAR_TYPE = context.getString(R.string.key_map_scale_bar_type);
 
         preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
@@ -216,6 +220,13 @@ public class PreferenceManager {
         return preferences.getString(KEY_OFFLINE_MAP, "");
     }
 
+    @NonNull
+    public synchronized void setOfflineMap(String fileName) {
+        preferences.edit()
+                .putString(KEY_OFFLINE_MAP, fileName)
+                .apply();;
+    }
+
     public synchronized OnlineMap getOnlineMap() throws IllegalArgumentException {
         return OnlineMap.valueOf(preferences.getString(KEY_ONLINE_MAP, OnlineMap.OSCIMAP4.name()));
     }
@@ -273,6 +284,8 @@ public class PreferenceManager {
 
         mapPosition.setPosition(latitude, longitude);
         mapPosition.setZoomLevel(preferences.getInt(KEY_MAP_ZOOM_LEVEL, DEFAULT_ZOOM_LEVEL));
+        mapPosition.setTilt(preferences.getFloat(KEY_MAP_TILT, 0f));
+        mapPosition.setBearing(preferences.getFloat(KEY_MAP_BEARING, 0f));
 
         return mapPosition;
     }
@@ -282,6 +295,8 @@ public class PreferenceManager {
                 .putString(KEY_MAP_LATITUDE, String.valueOf(mapPosition.getLatitude()))
                 .putString(KEY_MAP_LONGITUDE, String.valueOf(mapPosition.getLongitude()))
                 .putInt(KEY_MAP_ZOOM_LEVEL, mapPosition.getZoomLevel())
+                .putFloat(KEY_MAP_TILT, mapPosition.getTilt())
+                .putFloat(KEY_MAP_BEARING, mapPosition.getBearing())
                 .apply();
     }
 
