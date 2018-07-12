@@ -2,6 +2,7 @@ package nl.erikduisters.pathfinder.ui;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
@@ -9,6 +10,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+
+import java.lang.reflect.Field;
 
 import javax.inject.Inject;
 
@@ -112,7 +117,44 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
             unbinder.unbind();
         }
 
+        fixInputMethod(this);
         super.onDestroy();
+    }
+
+    //Fix for InputMethodManager leaks the last focused view, see https://issuetracker.google.com/issues/37043700
+    private void fixInputMethod(Context context) {
+        if (context == null) {
+            return;
+        }
+        InputMethodManager inputMethodManager = null;
+        try {
+            inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
+        if (inputMethodManager == null) {
+            return;
+        }
+        Field[] declaredFields = inputMethodManager.getClass().getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            try {
+                if (!declaredField.isAccessible()) {
+                    declaredField.setAccessible(true);
+                }
+                Object obj = declaredField.get(inputMethodManager);
+                if (obj == null || !(obj instanceof View)) {
+                    continue;
+                }
+                View view = (View) obj;
+                if (view.getContext() == context) {
+                    declaredField.set(inputMethodManager, null);
+                } else {
+                    return;
+                }
+            } catch (Throwable th) {
+                th.printStackTrace();
+            }
+        }
     }
 
     protected <T extends Fragment> T findFragment(String tag) {
