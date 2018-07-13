@@ -235,6 +235,12 @@ public class PreferenceManager {
         return preferences.getBoolean(KEY_USE_EXTERNAL_RENDER_THEME, false);
     }
 
+    public synchronized void setUseExternalRenderTheme(boolean useExternalRenderTheme) {
+        preferences.edit()
+                .putBoolean(KEY_USE_EXTERNAL_RENDER_THEME, useExternalRenderTheme)
+                .apply();
+    }
+
     public synchronized VtmThemes getInternalRenderTheme() {
         String theme = preferences.getString(KEY_INTERNAL_RENDER_THEME, "DEFAULT").toUpperCase();
         return VtmThemes.valueOf(theme);

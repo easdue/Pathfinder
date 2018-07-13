@@ -165,4 +165,5 @@
     <string name="menu_lock_to_gps_condensed">Lock to gps</string>
     <string name="menu_unlock_from_gps">Unlock from gps\nYou can also long press on the map</string>
     <string name="menu_unlock_from_gps_condensed">Unlock from gps</string>
+    <string name="loading_render_theme">Loading render theme</string>
 </resources>

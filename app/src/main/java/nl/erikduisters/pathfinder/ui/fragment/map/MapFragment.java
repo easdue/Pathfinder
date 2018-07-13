@@ -4,12 +4,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
+import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.oscim.android.MapView;
 import org.oscim.backend.CanvasAdapter;
@@ -31,22 +33,27 @@ import org.oscim.renderer.BitmapRenderer;
 import org.oscim.renderer.GLViewport;
 import org.oscim.renderer.atlas.TextureAtlas;
 import org.oscim.renderer.atlas.TextureRegion;
-import org.oscim.renderer.bucket.TextureItem;
 import org.oscim.scalebar.DefaultMapScaleBar;
 import org.oscim.scalebar.ImperialUnitAdapter;
 import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.scalebar.MetricUnitAdapter;
 import org.oscim.scalebar.NauticalUnitAdapter;
 import org.oscim.utils.IOUtils;
+import org.oscim.utils.TextureAtlasUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
+import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializedState;
+import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializingState;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 
@@ -56,12 +63,16 @@ import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 
 public class MapFragment extends BaseFragment<MapFragmentViewModel> implements Map.UpdateListener {
     @BindView(R.id.mapView) MapView mapView;
+    @BindView(R.id.progressGroup) View progressGroup;
+    @BindView(R.id.progressMessage) TextView progressMessage;
 
     private Map map;
-    @NonNull
-    private MyMenu optionsMenu;
-    private MapInitializationState currentMapInitializationState;
+    private MapFragmentViewState currentMapFragmentViewState;
+    @NonNull private MyMenu optionsMenu;
     private LocationTextureLayer locationTextureLayer;
+    private DefaultMapScaleBar scaleBar;
+    private TextureRegion locationFixedRegion;
+    private TextureRegion locationNotFixedRegion;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -87,11 +98,9 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
         map.getEventLayer().setFixOnCenter(true);
         map.events.bind(this);
 
+        viewModel.onMapViewReady();
         viewModel.getMapInitializationStateObservable().observe(this, this::render);
-        viewModel.getOptionsMenuObservable().observe(this, this::handleOptionsMenu);
-        viewModel.getViewStateObservable().observe(this, this::render);
-        viewModel.getMapPositionObservable().observe(this, this::handleMapPosition);
-        viewModel.getLocationMarkerInfoObservable().observe(this, this::handleLocationMarkerInfo);
+        viewModel.getMapFragmentViewStateObservable().observe(this, this::render);
 
         return v;
     }
@@ -99,6 +108,10 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
     @Override
     public void onDestroyView() {
         map.events.unbind(this);
+
+        //If I don't call this MainActivity is sometimes leaked
+        locationTextureLayer.setEnabled(false);
+        scaleBar.destroy();
         mapView.onDestroy();
 
         super.onDestroyView();
@@ -137,14 +150,41 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
 
     private void render(@Nullable MapFragmentViewState viewState) {
         if (viewState == null) {
+            currentMapFragmentViewState = null;
             return;
         }
 
+        if (currentMapFragmentViewState == null || currentMapFragmentViewState.optionsMenu != viewState.optionsMenu) {
+            this.optionsMenu = viewState.optionsMenu;
+            invalidateOptionsMenu();
+        }
+
+        if (currentMapFragmentViewState == null || currentMapFragmentViewState.locationLayerInfo != viewState.locationLayerInfo) {
+            handleLocationLayerInfo(viewState.locationLayerInfo);
+        }
+
+        if (currentMapFragmentViewState == null || currentMapFragmentViewState.mapPosition != viewState.mapPosition) {
+            map.setMapPosition(viewState.mapPosition);
+        }
+
         AbstractMapEventLayer eventLayer = map.getEventLayer();
+
         eventLayer.enableMove(viewState.moveEnabled);
         eventLayer.enableRotation(viewState.rotationEnabled);
         eventLayer.enableTilt(viewState.tiltEnabled);
         eventLayer.enableZoom(viewState.zoomEnabled);
+
+        currentMapFragmentViewState = viewState;
+    }
+
+    private void handleLocationLayerInfo(LocationLayerInfo info) {
+        if (info.hasFix) {
+            locationTextureLayer.locationRenderer.setTextureRegion(locationFixedRegion);
+            locationTextureLayer.setPosition(info.latitude, info.longitude, info.bearing, info.accuracy);
+        } else {
+            locationTextureLayer.locationRenderer.setTextureRegion(locationNotFixedRegion);
+            locationTextureLayer.setPosition(info.latitude, info.longitude, info.bearing, 0f);
+        }
     }
 
     private void render(@Nullable MapInitializationState viewState) {
@@ -152,45 +192,59 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
             return;
         }
 
-        if (currentMapInitializationState == null || currentMapInitializationState.tileSource != viewState.tileSource) {
-            Layers layers = map.layers();
-
-            for (int i = 2; i < layers.size(); i++) {
-                layers.remove(i);
-            }
-
-            OsmTileLayer tileLayer = new OsmTileLayer(map);
-
-            if (!tileLayer.setTileSource(viewState.tileSource)) {
-                viewModel.tileSourceCannotBeSet(viewState.tileSource);
-                return;
-            }
-
-            map.setBaseMap(tileLayer);
-
-            layers.add(new GestureLayer(map));
-
-            if (viewState.addBuildingLayer) {
-                layers.add(new BuildingLayer(map, tileLayer));
-            }
-            if (viewState.addLabelLayer) {
-                layers.add(new LabelLayer(map, tileLayer));
-            }
-
-            addScaleBarLayer(viewState.scaleBarType);
-
-            if (viewState.addLocationLayer) {
-                addLocationLayer(viewState.locationMarkerSvgResId);
-            }
+        if (viewState instanceof MapInitializingState) {
+            showProgress(((MapInitializingState) viewState).progressMessageResId);
+        } else {
+            showMap();
         }
 
-        if (currentMapInitializationState == null || currentMapInitializationState.themeFile != viewState.themeFile) {
-            /* TODO: For elevate this takes >= 1.5 seconds so it's maybe worth it to call
-                     ThemeLoader.load(viewState.themeFile) on a background thread */
-            map.setTheme(viewState.themeFile);
+        if (viewState instanceof MapInitializedState) {
+            render((MapInitializedState) viewState);
+        }
+    }
+
+    private void showProgress(@StringRes int progressMessageResId) {
+        progressGroup.setVisibility(View.VISIBLE);
+        progressMessage.setText(progressMessageResId);
+    }
+
+    private void showMap() {
+        progressGroup.setVisibility(View.GONE);
+    }
+
+    private void render(MapInitializedState state) {
+        Layers layers = map.layers();
+
+        for (int i = layers.size() - 1; i >= 1; i--) {
+            layers.remove(i);
         }
 
-        currentMapInitializationState = viewState;
+        OsmTileLayer tileLayer = new OsmTileLayer(map);
+
+        if (!tileLayer.setTileSource(state.tileSource)) {
+            viewModel.tileSourceCannotBeSet(state.tileSource);
+            return;
+        }
+
+        map.setBaseMap(tileLayer);
+
+        layers.add(new GestureLayer(map));
+
+        if (state.addBuildingLayer) {
+            layers.add(new BuildingLayer(map, tileLayer));
+        }
+
+        if (state.addLabelLayer) {
+            layers.add(new LabelLayer(map, tileLayer));
+        }
+
+        addScaleBarLayer(state.scaleBarType);
+
+        if (state.addLocationLayer) {
+            addLocationLayer(state.locationFixedMarkerSvgResId, state.locationNotFixedMarkerSvgResId);
+        }
+
+        map.setTheme(state.renderTheme);
     }
 
     private void addScaleBarLayer(@ScaleBarType int scaleBarType) {
@@ -198,7 +252,9 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
             return;
         }
 
-        DefaultMapScaleBar scaleBar = new DefaultMapScaleBar(map);
+        if (scaleBar == null) {
+            scaleBar = new DefaultMapScaleBar(map);
+        }
 
         switch (scaleBarType) {
             case ScaleBarType.METRIC:
@@ -228,53 +284,48 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
         map.layers().add(mapScaleBarLayer);
     }
 
-    private void addLocationLayer(@RawRes int locationMarkerSvgResId) {
+    private void addLocationLayer(@RawRes int locationFixedMarkerSvgResId, @RawRes int locationNotFixedMarkerSvgResId) {
         InputStream inputStream = null;
-        Bitmap bitmap;
+        Bitmap fixedBitmap;
+        Bitmap notFixedBitmap;
 
         int width = getResources().getDimensionPixelSize(R.dimen.location_marker_width);
         int height = getResources().getDimensionPixelSize(R.dimen.location_marker_height);
 
         try {
-            inputStream = getResources().openRawResource(locationMarkerSvgResId);
+            inputStream = getResources().openRawResource(locationFixedMarkerSvgResId);
             //TODO: Do this on a background thread
             //TODO: All bitmaps used on the map should be in a TextureAtlas
-            bitmap = CanvasAdapter.decodeSvgBitmap(inputStream, width, height, 100);
+            fixedBitmap = CanvasAdapter.decodeSvgBitmap(inputStream, width, height, 100);
+
+            inputStream.close();
+
+            inputStream = getResources().openRawResource(locationNotFixedMarkerSvgResId);
+            notFixedBitmap = CanvasAdapter.decodeSvgBitmap(inputStream, width, height, 100);
         } catch (IOException e) {
             IOUtils.closeQuietly(inputStream);
             throw new RuntimeException(e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
 
-        TextureAtlas.Rect rect = new TextureAtlas.Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        TextureRegion textureRegion = new TextureRegion(new TextureItem(bitmap), rect);
+        java.util.Map<Object, Bitmap> inputMap = new LinkedHashMap<>();
+        java.util.Map<Object, TextureRegion> regionsMap = new LinkedHashMap<>();
+        List<TextureAtlas> atlasList = new ArrayList<>();
 
-        locationTextureLayer = new LocationTextureLayer(map, textureRegion);
+        inputMap.put(locationFixedMarkerSvgResId, fixedBitmap);
+        inputMap.put(locationNotFixedMarkerSvgResId, notFixedBitmap);
+
+        TextureAtlasUtils.createTextureRegions(inputMap, regionsMap, atlasList, true, false);
+
+        locationFixedRegion = regionsMap.get(locationFixedMarkerSvgResId);
+        locationNotFixedRegion = regionsMap.get(locationNotFixedMarkerSvgResId);
+
+        locationTextureLayer = new LocationTextureLayer(map, locationNotFixedRegion);
         locationTextureLayer.locationRenderer.setBillboard(false);
-        locationTextureLayer.setEnabled(false);
+        locationTextureLayer.setEnabled(true);
 
         map.layers().add(locationTextureLayer);
-    }
-
-    private void handleOptionsMenu(@Nullable MyMenu optionsMenu) {
-        if (optionsMenu == null) {
-            return;
-        }
-
-        this.optionsMenu = optionsMenu;
-        invalidateOptionsMenu();
-    }
-
-    private void handleMapPosition(MapPosition mapPosition) {
-        map.setMapPosition(mapPosition);
-    }
-
-    private void handleLocationMarkerInfo(LocationLayerInfo info) {
-        if (info.hasFix) {
-            locationTextureLayer.setEnabled(false);
-        } else {
-            locationTextureLayer.setEnabled(true);
-            locationTextureLayer.setPosition(info.latitude, info.longitude, info.heading, info.accuracy);
-        }
     }
 
     @Override

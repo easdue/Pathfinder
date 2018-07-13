@@ -20,6 +20,12 @@ public class MyMenu {
 
     public MyMenu() { menuItems = new ArrayList<>(); }
 
+    public MyMenu(MyMenu from) {
+        this();
+
+        menuItems.addAll(from.menuItems);
+    }
+
     public void add(MyMenuItem menuItem) { menuItems.add(menuItem); }
 
     public MySubMenu add(MySubMenu subMenu) {
