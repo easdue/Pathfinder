@@ -202,20 +202,20 @@ public class GpsManager implements
                 fusedLocationProviderClient
                         .requestLocationUpdates(locationRequest, combinedLocationListener, null)
                         .addOnSuccessListener(aVoid -> {
-                            Timber.e("Using Google Play Services fusedLocationProvider");
+                            Timber.d("Using Google Play Services fusedLocationProvider");
 
                             waitingForFusedLocationProvider = false;
                             locationManager.removeUpdates(combinedLocationListener);
                         })
                         .addOnCanceledListener(() -> {
-                            Timber.e("RequestLocationUpdates was Canceled");
+                            Timber.d("RequestLocationUpdates was Canceled");
 
                             googlePlayServicesAvailable = false;
                             waitingForFusedLocationProvider = false;
                             initLocationUpdates();
                         })
                         .addOnFailureListener(e -> {
-                            Timber.e("RequestLocationUpdates failed");
+                            Timber.d("RequestLocationUpdates failed");
 
                             googlePlayServicesAvailable = false;
                             waitingForFusedLocationProvider = false;
@@ -223,7 +223,7 @@ public class GpsManager implements
                         });
             }
         } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Timber.e("Using LocationManager");
+            Timber.d("Using LocationManager");
 
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, interval, 0, combinedLocationListener);
         }
@@ -278,6 +278,7 @@ public class GpsManager implements
         lastLocation.removeSpeed();
 
         notifyLocationListeners();
+        notifyGpsFixListeners();    //Last location doesn't mean there is a fix
     }
 
     /**
@@ -327,7 +328,7 @@ public class GpsManager implements
         }
 
         if (delay != 0) {
-            Timber.e("Scheduling checkFix, delay=%d", delay);
+            Timber.d("Scheduling checkFix, delay=%d", delay);
             handler.postDelayed(checkFixRunnable, delay);
             checkFixRunnablePosted = true;
         }
@@ -496,14 +497,14 @@ public class GpsManager implements
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
 
-            Timber.e("onLocationResult - NumLocations: %d", locationResult.getLocations().size());
+            Timber.d("onLocationResult - NumLocations: %d", locationResult.getLocations().size());
             onLocationChanged(locationResult.getLastLocation());
 
         }
 
         @Override
         public void onLocationChanged(Location location) {
-            Timber.e("onLocationChanged received: %s", location == null ? "null" : location.toString());
+            Timber.d("onLocationChanged received: %s", location == null ? "null" : location.toString());
 
             if (location == null) {
                 return;
