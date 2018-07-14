@@ -3,6 +3,7 @@ package nl.erikduisters.pathfinder.di;
 import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -67,5 +68,16 @@ abstract class AppModule {
     @Singleton
     static FusedLocationProviderClient providedFusedLocationProviderClient(@ApplicationContext Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
+    }
+
+    @Provides
+    @Singleton
+    @Named("VersionCode")
+    static int provideVersionCode(@ApplicationContext Context context) {
+        try {
+            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException("Hey guys, apparently I'm not installed");
+        }
     }
 }

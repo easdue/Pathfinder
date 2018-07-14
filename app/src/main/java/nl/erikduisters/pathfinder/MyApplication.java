@@ -13,7 +13,9 @@ import javax.inject.Inject;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 import io.fabric.sdk.android.Fabric;
+import nl.erikduisters.pathfinder.data.local.SvgRenderer;
 import nl.erikduisters.pathfinder.di.DaggerAppComponent;
+import nl.erikduisters.pathfinder.ui.widget.SvgView;
 import timber.log.Timber;
 
 /**
@@ -24,6 +26,8 @@ import timber.log.Timber;
 public class MyApplication extends Application implements HasActivityInjector {
     @Inject
     DispatchingAndroidInjector<Activity> dispatchingAndroidInjector;
+    @Inject
+    SvgRenderer svgRenderer;
 
     @Override
     public void onCreate() {
@@ -48,6 +52,8 @@ public class MyApplication extends Application implements HasActivityInjector {
         DaggerAppComponent.builder()
                 .create(this)
                 .inject(this);
+
+        SvgView.init(svgRenderer);
     }
 
     private static class ReleaseTree extends Timber.Tree {

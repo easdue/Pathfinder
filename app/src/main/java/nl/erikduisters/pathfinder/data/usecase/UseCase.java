@@ -1,7 +1,6 @@
 package nl.erikduisters.pathfinder.data.usecase;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import nl.erikduisters.pathfinder.async.Cancellable;
 import nl.erikduisters.pathfinder.async.UseCaseJob;
@@ -32,7 +31,7 @@ public abstract class UseCase<I, R> {
     }
 
     public interface Callback<R> {
-        void onResult(@Nullable R result);
+        void onResult(@NonNull R result);
         void onError(@NonNull Throwable error);
     }
 
