@@ -37,7 +37,6 @@ public class UseCaseJob<R, U extends UseCase<?, R>> extends BackgroundJob implem
     @Override
     public void onResult(@NonNull final R result) {
         backgroundJobHandler.runOnUiThread(new Runnable() {
-
             @Override
             public void run() {
                 callback.onResult(result);

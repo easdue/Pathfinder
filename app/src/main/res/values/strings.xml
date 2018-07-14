@@ -61,6 +61,10 @@
     <string name="key_map_tilt" translatable="false">map_tile</string>
     <string name="key_map_bearing" translatable="false">map_bearing</string>
     <string name="key_map_scale_bar_type" translatable="false">map_scale_bar_type</string>
+    <string name="key_use_true_north" translatable="false">use_true_north</string>
+    <string name="key_use_gps_bearing" translatable="false">use_gps_bearing</string>
+    <string name="key_gps_bearing_speed" translatable="false">gps_bearing_speed</string>
+    <string name="key_gps_bearing_duration" translatable="false">gps_bearing_duration</string>
 
     <string name="prefs_storage_location">Storage Location</string>
     <string name="prefs_import_directory">Import Directory</string>

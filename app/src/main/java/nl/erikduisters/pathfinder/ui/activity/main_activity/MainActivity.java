@@ -53,6 +53,7 @@ import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import timber.log.Timber;
 
 //TODO: Remove fragment listeners
+//TODO: Bottom navigation instead of tabs?
 public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,

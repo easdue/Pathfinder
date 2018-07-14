@@ -61,6 +61,10 @@ public class PreferenceManager {
     private final String KEY_MAP_TILT;
     private final String KEY_MAP_BEARING;
     private final String KEY_MAP_SCALE_BAR_TYPE;
+    private final String KEY_USE_TRUE_NORTH;
+    private final String KEY_USE_GPS_BEARING;
+    private final String KEY_USE_GPS_BEARING_SPEED;
+    private final String KEY_USE_GPS_BEARING_DURATION;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -98,6 +102,10 @@ public class PreferenceManager {
         KEY_MAP_TILT = context.getString(R.string.key_map_tilt);
         KEY_MAP_BEARING = context.getString(R.string.key_map_bearing);
         KEY_MAP_SCALE_BAR_TYPE = context.getString(R.string.key_map_scale_bar_type);
+        KEY_USE_TRUE_NORTH = context.getString(R.string.key_use_true_north);
+        KEY_USE_GPS_BEARING = context.getString(R.string.key_use_gps_bearing);
+        KEY_USE_GPS_BEARING_SPEED = context.getString(R.string.key_gps_bearing_speed);
+        KEY_USE_GPS_BEARING_DURATION = context.getString(R.string.key_gps_bearing_duration);
 
         preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         storageDir = getStorageDir();
@@ -308,5 +316,21 @@ public class PreferenceManager {
 
     public synchronized @ScaleBarType int getScaleBarType() {
         return preferences.getInt(KEY_MAP_SCALE_BAR_TYPE, ScaleBarType.METRIC_AND_IMPERIAL);
+    }
+
+    public synchronized boolean getUseTrueNorth() {
+        return preferences.getBoolean(KEY_USE_TRUE_NORTH, true);
+    }
+
+    public synchronized boolean getUseGpsBearing() {
+        return preferences.getBoolean(KEY_USE_GPS_BEARING, false);
+    }
+
+    public synchronized int getUseGpsBearingSpeed() {
+        return preferences.getInt(KEY_USE_GPS_BEARING_SPEED, 10);
+    }
+
+    public synchronized int getUsGpsBearingDuration() {
+        return preferences.getInt(KEY_USE_GPS_BEARING_DURATION, 5);
     }
 }
