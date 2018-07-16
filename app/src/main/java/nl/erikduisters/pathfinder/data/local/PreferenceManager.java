@@ -22,6 +22,7 @@ import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.di.ApplicationContext;
 import nl.erikduisters.pathfinder.util.FileUtil;
+import nl.erikduisters.pathfinder.util.Units;
 import timber.log.Timber;
 
 /**
@@ -65,6 +66,7 @@ public class PreferenceManager {
     private final String KEY_USE_GPS_BEARING;
     private final String KEY_USE_GPS_BEARING_SPEED;
     private final String KEY_USE_GPS_BEARING_DURATION;
+    private final String KEY_UNIT;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -106,6 +108,7 @@ public class PreferenceManager {
         KEY_USE_GPS_BEARING = context.getString(R.string.key_use_gps_bearing);
         KEY_USE_GPS_BEARING_SPEED = context.getString(R.string.key_gps_bearing_speed);
         KEY_USE_GPS_BEARING_DURATION = context.getString(R.string.key_gps_bearing_duration);
+        KEY_UNIT = context.getString(R.string.key_unit);
 
         preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         storageDir = getStorageDir();
@@ -332,5 +335,10 @@ public class PreferenceManager {
 
     public synchronized int getUsGpsBearingDuration() {
         return preferences.getInt(KEY_USE_GPS_BEARING_DURATION, 5);
+    }
+
+    public synchronized @Units
+    int getUnits() {
+        return preferences.getInt(KEY_USE_GPS_BEARING_DURATION, Units.METRIC);
     }
 }

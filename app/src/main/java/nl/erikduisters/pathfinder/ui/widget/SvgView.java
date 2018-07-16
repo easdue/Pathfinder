@@ -82,8 +82,6 @@ public class SvgView extends View {
         layerList.add(null);
 
         layerBitmaps = new HashMap<>();
-
-        setLayerType(LAYER_TYPE_SOFTWARE, null);
     }
 
     public static void init(SvgRenderer svgRenderer) {

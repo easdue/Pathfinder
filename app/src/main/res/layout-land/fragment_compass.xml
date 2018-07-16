@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
         android:id="@+id/speedLabel"
@@ -41,16 +41,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5"/>
+        app:layout_constraintGuide_percent="0.4"/>
 
     <View
         android:id="@+id/verticalSeparator"
         android:layout_width="1dp"
         android:layout_height="0dp"
         android:background="#C0C0C0"
-        app:layout_constraintBottom_toBottomOf="@id/speed"
+        app:layout_constraintBottom_toBottomOf="@+id/distanceToNextHorizontalSeparator"
         app:layout_constraintStart_toStartOf="@id/infoBoxWidth"
         app:layout_constraintTop_toTopOf="@id/speedLabel"/>
+
+    <View
+        android:id="@+id/speedHorizontalSeparator"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#C0C0C0"
+        app:layout_constraintEnd_toStartOf="@id/infoBoxWidth"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/speed"/>
 
     <TextView
         android:id="@+id/distanceToNextLabel"
@@ -62,9 +71,9 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/primary_text_light"
         app:layout_constraintBottom_toTopOf="@+id/distanceToNext"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/verticalSeparator"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/infoBoxWidth"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/speedHorizontalSeparator"
         app:layout_constraintVertical_chainStyle="packed"/>
 
     <TextView
@@ -82,13 +91,13 @@
         tools:text="1.26 km"/>
 
     <View
-        android:id="@+id/horizontalSeparator"
+        android:id="@+id/distanceToNextHorizontalSeparator"
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="#C0C0C0"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/infoBoxWidth"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/speed"/>
+        app:layout_constraintTop_toBottomOf="@id/distanceToNext"/>
 
     <nl.erikduisters.pathfinder.ui.widget.CompassView
         android:id="@+id/compass"
@@ -96,9 +105,8 @@
         android:layout_height="0dp"
         android:src="@raw/compass"
         style="@style/Widget.Compass"
-        app:layout_constraintTop_toBottomOf="@id/horizontalSeparator"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/infoBoxWidth"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 </android.support.constraint.ConstraintLayout>

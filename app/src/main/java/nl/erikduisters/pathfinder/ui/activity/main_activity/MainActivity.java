@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -29,6 +28,7 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
+import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
@@ -79,7 +79,7 @@ public class MainActivity
     private Menu navigationMenu;
     private @NonNull MyMenu optionsMenu;
     private FragmentAdapter fragmentAdapter;
-    private int currentViewPagerPosition;
+    private int prevSelectedPage;
 
     public MainActivity() {
         optionsMenu = new MyMenu();
@@ -112,7 +112,7 @@ public class MainActivity
         viewPager.addOnPageChangeListener(this);
         tabLayout.setupWithViewPager(viewPager);
 
-        currentViewPagerPosition = -1;
+        prevSelectedPage = -1;
     }
 
     @Override
@@ -273,6 +273,7 @@ public class MainActivity
 
         viewPager.getViewTreeObserver().addOnGlobalLayoutListener(this);
         viewPager.requestLayout();
+        viewPager.setOffscreenPageLimit(2);
     }
 
     private void startInitStorageFragment(String tag) {
@@ -429,30 +430,72 @@ public class MainActivity
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        //Don't care
+        Timber.e("onPageScrolled() position: %d, positionOffset: %f, positionOffsetPixels: %d", position, positionOffset, positionOffsetPixels);
+        /*
+         * This is another hack. When there is a GLSurfaceView in the viewpager ofter when scrolling to other views from the GLSurfaceView
+         * there will only be a black screen. I now set the MapView to INVISIBLE/VISIBLE in onVisibilityChanged.
+         * This is here to early change its visibility to VISIBLE again when dragging the viewpager towards the MapFragment.
+         */
+        if ((position == 0 && positionOffset > 0) || (position == 1)) {
+            fragmentAdapter.getFragment(position).onVisibilityChanged(true);
+        }
     }
 
     @Override
     public void onPageSelected(int position) {
-        if (currentViewPagerPosition == position) {
+        if (prevSelectedPage == position) {
             return;
         }
 
-        Fragment frag = fragmentAdapter.getItem(position);
+        ViewPagerFragment frag;
+
+        if (prevSelectedPage != -1) {
+            frag = fragmentAdapter.getFragment(prevSelectedPage);
+
+            if (frag != null) {
+                frag.onVisibilityChanged(false);
+            }
+        }
+
+        frag = fragmentAdapter.getFragment(position);
 
         if (frag != null) {
-            currentViewPagerPosition = position;
+            prevSelectedPage = position;
 
             FirebaseAnalytics.getInstance(this)
                     .setCurrentScreen(this, frag.getClass().getSimpleName(), null);
         }
 
         viewPager.setPagingEnabled(position != 1);
+
+        onVisibilityChanged(true);
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        onVisibilityChanged(false);
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+
+        onVisibilityChanged(true);
+    }
+
+    private void onVisibilityChanged(boolean visible) {
+        ViewPagerFragment frag = fragmentAdapter.getFragment(viewPager.getCurrentItem());
+
+        if (frag != null) {
+            frag.onVisibilityChanged(visible);
+        }
     }
 
     @SuppressWarnings("deprecation")

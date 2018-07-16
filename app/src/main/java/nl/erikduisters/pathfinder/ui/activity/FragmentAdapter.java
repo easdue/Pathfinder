@@ -2,6 +2,7 @@ package nl.erikduisters.pathfinder.ui.activity;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,7 +20,7 @@ public class FragmentAdapter extends FragmentPagerAdapter {
         @StringRes private final int nameResId;
         private boolean enabled;
         private final FragmentProvider fragmentProvider;
-        private Fragment fragment;
+        private ViewPagerFragment fragment;
 
         public TabItem(@StringRes int nameResId, boolean enabled, FragmentProvider provider) {
             this.nameResId = nameResId;
@@ -48,7 +49,7 @@ public class FragmentAdapter extends FragmentPagerAdapter {
         TabItem item = tabList.get(index);
 
         item.fragment = item.fragmentProvider.provideFragment();
-        return item.fragment;
+        return (Fragment) item.fragment;
     }
 
     @NonNull
@@ -56,7 +57,7 @@ public class FragmentAdapter extends FragmentPagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         //On rotation change getItem is never called because the fragment is still available in the fragment manager
         TabItem item = tabList.get(position);
-        item.fragment = (Fragment) super.instantiateItem(container, position);
+        item.fragment = (ViewPagerFragment) super.instantiateItem(container, position);
 
         return item.fragment;
     }
@@ -85,4 +86,9 @@ public class FragmentAdapter extends FragmentPagerAdapter {
         tabList.get(position).vpiFragment=null;
     }
     */
+
+    public @Nullable
+    ViewPagerFragment getFragment(int index) {
+        return index >= tabList.size() ? null : tabList.get(index).fragment;
+    }
 }

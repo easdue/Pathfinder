@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.di.ApplicationContext;
+import nl.erikduisters.pathfinder.util.IntegerDegrees;
 import nl.erikduisters.pathfinder.util.UnitsUtil;
 import timber.log.Timber;
 
@@ -34,7 +35,7 @@ public class HeadingManager implements SensorEventListener, GpsManager.LocationL
          *
          * @param heading The heading in degrees (0-360) or -1 if unknown
          */
-        void onHeadingChanged(int heading);
+        void onHeadingChanged(IntegerDegrees heading);
     }
 
     private final float[] rotationMatrix = new float[16];
@@ -43,7 +44,7 @@ public class HeadingManager implements SensorEventListener, GpsManager.LocationL
     private final float[] truncatedRotationVector = new float[4];
     private float[] magneticValues = new float[]{0f, 0f, 0f};
     private float[] acceleroValues = new float[]{0f, 0f, 0f};
-    private int heading = -1;
+    private IntegerDegrees heading = new IntegerDegrees();
     private float newHeadingFloat;
     private int newHeadingInt;
     private boolean magneticValuesInitialized = false;
@@ -202,10 +203,10 @@ public class HeadingManager implements SensorEventListener, GpsManager.LocationL
                 newHeadingFloat += 360;
             }
 
-            int newHeadingInt = Math.round(newHeadingFloat);
+            newHeadingInt = Math.round(newHeadingFloat);
 
-            if (newHeadingInt != heading) {
-                heading = newHeadingInt;
+            if (newHeadingInt != heading.get()) {
+                heading.set(newHeadingInt);
 
                 updateListeners();
             }
@@ -286,8 +287,8 @@ public class HeadingManager implements SensorEventListener, GpsManager.LocationL
 
                         calculateNewHeadingInt(loc);
 
-                        if (newHeadingInt != heading) {
-                            heading = newHeadingInt;
+                        if (newHeadingInt != heading.get()) {
+                            heading.set(newHeadingInt);
                             useSensors = false;
                             updateListeners();
                         }
@@ -307,8 +308,8 @@ public class HeadingManager implements SensorEventListener, GpsManager.LocationL
                 /* The required sensors are not present */
                 calculateNewHeadingInt(loc);
 
-                if (newHeadingInt != heading) {
-                    heading = newHeadingInt;
+                if (newHeadingInt != heading.get()) {
+                    heading.set(newHeadingInt);
                     updateListeners();
                 }
             } else {
@@ -320,7 +321,7 @@ public class HeadingManager implements SensorEventListener, GpsManager.LocationL
     }
 
     private void calculateNewHeadingInt(Location location) {
-        newHeadingInt = -1;
+        newHeadingInt = IntegerDegrees.UNKNOWN;
 
         if (location.hasBearing()) {
             newHeadingFloat = location.getBearing();

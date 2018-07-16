@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import java.util.Map;
 
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.util.IntegerDegrees;
 
 /**
  * Created by Erik Duisters on 14-07-2018.
@@ -248,19 +249,21 @@ public class CompassView extends SvgView {
         compassCenterY = compassCaseBitmap.getHeight() / 2;
     }
 
-    public void setBearing(int bearing) {
-        if (bearing == 0) {
-            bearing = 360;
+    public void setBearing(IntegerDegrees bearing) {
+        int newBearing = bearing.get();
+
+        if (newBearing == 0) {
+            newBearing = 360;
         }
 
-        if (bearing == -1) {
+        if (bearing.isUnknown()) {
             this.bearing = -1;
 
             bearingCalculator.setTargetRotation(360, true);
 
             invalidate();
-        } else if (this.bearing != bearing) {
-            this.bearing = bearing;
+        } else if (this.bearing != newBearing) {
+            this.bearing = newBearing;
 
             bearingCalculator.setTargetRotation(this.bearing, true);
 
@@ -268,14 +271,14 @@ public class CompassView extends SvgView {
         }
     }
 
-    public void setHeading(int heading) {
-        if (heading == -1) {
-            if (this.heading != heading) {
+    public void setHeading(IntegerDegrees heading) {
+        if (heading.isUnknown()) {
+            if (this.heading != -1) {
                 this.heading = -1;
                 invalidate();
             }
-        } else if (this.heading != 360 - heading) {
-            this.heading = 360 - heading;
+        } else if (this.heading != 360 - heading.get()) {
+            this.heading = 360 - heading.get();
 
             headingCalculator.setTargetRotation(this.heading, true);
 

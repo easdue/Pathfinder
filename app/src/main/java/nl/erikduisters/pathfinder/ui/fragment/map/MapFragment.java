@@ -52,6 +52,7 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
+import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializedState;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializingState;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
@@ -61,7 +62,9 @@ import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
  * Created by Erik Duisters on 28-06-2018.
  */
 
-public class MapFragment extends BaseFragment<MapFragmentViewModel> implements Map.UpdateListener {
+public class MapFragment
+        extends BaseFragment<MapFragmentViewModel>
+        implements Map.UpdateListener, ViewPagerFragment {
     @BindView(R.id.mapView) MapView mapView;
     @BindView(R.id.progressGroup) View progressGroup;
     @BindView(R.id.progressMessage) TextView progressMessage;
@@ -110,8 +113,14 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
         map.events.unbind(this);
 
         //If I don't call this MainActivity is sometimes leaked
-        locationTextureLayer.setEnabled(false);
-        scaleBar.destroy();
+        if (locationTextureLayer != null) {
+            locationTextureLayer.setEnabled(false);
+        }
+
+        if (scaleBar != null) {
+            scaleBar.destroy();
+        }
+
         mapView.onDestroy();
 
         super.onDestroyView();
@@ -366,8 +375,18 @@ public class MapFragment extends BaseFragment<MapFragmentViewModel> implements M
         }
     }
 
+    @Override
+    public void onVisibilityChanged(boolean visible) {
+        //TODO:
+        /*
+         * On at least a Samsung Galaxy S5 mini when moving away from the Mapfragment a black screen is displayed
+         * by making the mapView invisible the new fragment is magically displayed as it should be
+         */
+        mapView.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+    }
+
     private class GestureLayer extends Layer implements GestureListener {
-        public GestureLayer(Map map) {
+        GestureLayer(Map map) {
             super(map);
         }
 

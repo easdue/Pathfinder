@@ -13,13 +13,16 @@ import android.widget.TextView;
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
+import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
 
 /**
  * Created by Erik Duisters on 28-06-2018.
  */
 
 //TODO: Implement
-public class TrackListFragment extends BaseFragment<TrackListFragmentViewModel> {
+public class TrackListFragment
+        extends BaseFragment<TrackListFragmentViewModel>
+        implements ViewPagerFragment {
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
     @BindView(R.id.progressBar) ProgressBar progressBar;
     @BindView(R.id.progressMessage) TextView progressMessage;
@@ -47,5 +50,10 @@ public class TrackListFragment extends BaseFragment<TrackListFragmentViewModel> 
     @Override
     protected Class<TrackListFragmentViewModel> getViewModelClass() {
         return TrackListFragmentViewModel.class;
+    }
+
+    @Override
+    public void onVisibilityChanged(boolean visible) {
+        //TODO:
     }
 }

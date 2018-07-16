@@ -65,6 +65,7 @@
     <string name="key_use_gps_bearing" translatable="false">use_gps_bearing</string>
     <string name="key_gps_bearing_speed" translatable="false">gps_bearing_speed</string>
     <string name="key_gps_bearing_duration" translatable="false">gps_bearing_duration</string>
+    <string name="key_unit" translatable="false">unit</string>
 
     <string name="prefs_storage_location">Storage Location</string>
     <string name="prefs_import_directory">Import Directory</string>
@@ -170,4 +171,16 @@
     <string name="menu_unlock_from_gps">Unlock from gps\nYou can also long press on the map</string>
     <string name="menu_unlock_from_gps_condensed">Unlock from gps</string>
     <string name="loading_render_theme">Loading render theme</string>
+
+    <!-- CompasFragment -->
+    <string name="speed_label">Speed:</string>
+    <string name="distance_to_next_label">Distance to next:</string>
+
+    <!-- Units -->
+    <string name="units_speed_metric">km/h</string>
+    <string name="units_speed_imperial">mi/h</string>
+    <string name="units_distance_far_metric">km</string>
+    <string name="units_distance_far_imperial">mi</string>
+    <string name="units_distance_near_metric">m</string>
+    <string name="units_distance_near_imperial">yd</string>
 </resources>
