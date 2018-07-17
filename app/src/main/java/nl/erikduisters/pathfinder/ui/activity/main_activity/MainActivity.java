@@ -430,7 +430,6 @@ public class MainActivity
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        Timber.e("onPageScrolled() position: %d, positionOffset: %f, positionOffsetPixels: %d", position, positionOffset, positionOffsetPixels);
         /*
          * This is another hack. When there is a GLSurfaceView in the viewpager ofter when scrolling to other views from the GLSurfaceView
          * there will only be a black screen. I now set the MapView to INVISIBLE/VISIBLE in onVisibilityChanged.

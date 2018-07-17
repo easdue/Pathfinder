@@ -62,6 +62,7 @@ public class PreferenceManager {
     private final String KEY_MAP_TILT;
     private final String KEY_MAP_BEARING;
     private final String KEY_MAP_SCALE_BAR_TYPE;
+    private final String KEY_MAP_DISPLAY_NORTH_UP;
     private final String KEY_USE_TRUE_NORTH;
     private final String KEY_USE_GPS_BEARING;
     private final String KEY_USE_GPS_BEARING_SPEED;
@@ -104,6 +105,7 @@ public class PreferenceManager {
         KEY_MAP_TILT = context.getString(R.string.key_map_tilt);
         KEY_MAP_BEARING = context.getString(R.string.key_map_bearing);
         KEY_MAP_SCALE_BAR_TYPE = context.getString(R.string.key_map_scale_bar_type);
+        KEY_MAP_DISPLAY_NORTH_UP = context.getString(R.string.key_map_display_north_up);
         KEY_USE_TRUE_NORTH = context.getString(R.string.key_use_true_north);
         KEY_USE_GPS_BEARING = context.getString(R.string.key_use_gps_bearing);
         KEY_USE_GPS_BEARING_SPEED = context.getString(R.string.key_gps_bearing_speed);
@@ -315,6 +317,10 @@ public class PreferenceManager {
                 .putFloat(KEY_MAP_TILT, mapPosition.getTilt())
                 .putFloat(KEY_MAP_BEARING, mapPosition.getBearing())
                 .apply();
+    }
+
+    public synchronized boolean mapDisplaysNorthUp() {
+        return preferences.getBoolean(KEY_MAP_DISPLAY_NORTH_UP, false);
     }
 
     public synchronized @ScaleBarType int getScaleBarType() {

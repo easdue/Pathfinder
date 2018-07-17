@@ -5,102 +5,83 @@
     <Preference
         android:key="@string/key_storage_directory"
         android:title="@string/prefs_storage_location"
-        android:enabled="true"
         android:selectable="false"/>
     <Preference
-        android:key="@string/key_cache_directory"
-        android:enabled="true"
-        android:persistent="true" />
+        android:key="@string/key_cache_directory"/>
     <EditTextPreference
         android:key="@string/key_storage_import_directory"
         android:title="@string/prefs_import_directory"
-        android:selectable="true"
-        android:enabled="true"
-        android:defaultValue='Import'
-        android:persistent="true"/>
+        android:defaultValue='Import'/>
     <EditTextPreference
         android:key="@string/key_storage_cache_directory"
-        android:persistent="true" android:title="@string/prefs_cache_directory"
-        android:selectable="true"
-        android:enabled="true"
+        android:title="@string/prefs_cache_directory"
         android:defaultValue='Cache'/>
     <EditTextPreference
         android:key="@string/key_storage_user_directory"
         android:title="@string/prefs_user_directory"
-        android:selectable="true"
-        android:enabled="true"
-        android:defaultValue="User"
-        android:persistent="true"/>
+        android:defaultValue="User"/>
     <EditTextPreference
         android:key="@string/key_storage_map_directory"
         android:title="@string/prefs_map_directory"
-        android:selectable="true"
-        android:enabled="true"
-        android:defaultValue="Maps"
-        android:persistent="true"/>
+        android:defaultValue="Maps"/>
     <EditTextPreference
         android:key="@string/key_storage_render_theme_directory"
         android:title="@string/prefs_render_theme_directory"
-        android:selectable="true"
-        android:enabled="true"
-        android:defaultValue="RenderThemes"
-        android:persistent="true"/>
+        android:defaultValue="RenderThemes"/>
     <SwitchPreference
-        android:defaultValue="true"
-        android:enabled="true"
         android:key="@string/key_ask_to_enable_gps"
-        android:title="@string/prefs_ask_to_enable_gps"/>
+        android:title="@string/prefs_ask_to_enable_gps"
+        android:defaultValue="true"/>
     <SwitchPreference
-        android:defaultValue="true"
-        android:enabled="true"
         android:key="@string/key_ask_to_resolve_play_services_unavailability"
-        android:title="@string/prefs_ask_to_resolve_play_services_unavailability"/>
+        android:title="@string/prefs_ask_to_resolve_play_services_unavailability"
+        android:defaultValue="true"/>
     <PreferenceScreen
         android:key="@string/key_map_preferences"
-        android:title="@string/prefs_map_preferences"
-        android:persistent="false">
+        android:title="@string/prefs_map_preferences">
 
         <SwitchPreference
-            android:defaultValue="false"
             android:key="@string/key_map_use_offline_map"
-            android:title="@string/prefs_map_use_offline_map"/>
+            android:title="@string/prefs_map_use_offline_map"
+            android:defaultValue="false"/>
 
         <Preference
             android:key="@string/key_map_offline_map"
             android:title="@string/prefs_map_offline_map"
-            android:defaultValue="@string/empty"
-            android:persistent="true"/>
+            android:defaultValue="@string/empty"/>
 
         <Preference
             android:key="@string/key_map_online_map"
             android:title="@string/prefs_map_online_map"
-            android:defaultValue="0"
-            android:persistent="true"/>
+            android:defaultValue="0"/>
 
         <SwitchPreference
-            android:defaultValue="false"
             android:key="@string/key_map_use_external_render_theme"
-            android:title="@string/prefs_map_use_external_render_theme"/>
+            android:title="@string/prefs_map_use_external_render_theme"
+            android:defaultValue="false"/>
 
         <Preference
             android:key="@string/key_map_internal_render_theme"
-            android:title="@string/prefs_map_internal_render_theme"
-            android:persistent="true"/>
+            android:title="@string/prefs_map_internal_render_theme"/>
 
         <Preference
             android:key="@string/key_map_external_render_theme"
-            android:title="@string/prefs_map_external_render_theme"
-            android:persistent="true"/>
+            android:title="@string/prefs_map_external_render_theme"/>
 
         <Preference
             android:key="@string/key_map_render_theme_style"
-            android:title="@string/prefs_map_render_theme_style"
-            android:persistent="true"/>
+            android:title="@string/prefs_map_render_theme_style"/>
 
         <Preference
             android:key="@string/key_map_scale_bar_type"
-            android:title="@string/prefs_map_scale_bar_type"
-            android:persistent="true"/>
+            android:title="@string/prefs_map_scale_bar_type"/>
+
+        <SwitchPreference
+            android:key="@string/key_map_display_north_up"
+            android:title="@string/prefs_map_display_mode"
+            android:defaultValue="false"
+            android:summaryOff="@string/prefs_map_heading_up"
+            android:summaryOn="@string/prefs_map_north_up"/>
 
     </PreferenceScreen>
 </PreferenceScreen>

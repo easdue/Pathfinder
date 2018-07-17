@@ -27,11 +27,13 @@ import javax.inject.Singleton;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.async.BackgroundJobHandler;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
+import nl.erikduisters.pathfinder.data.local.HeadingManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.data.usecase.LoadRenderTheme;
 import nl.erikduisters.pathfinder.data.usecase.UseCase;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializedState;
+import nl.erikduisters.pathfinder.util.IntegerDegrees;
 import nl.erikduisters.pathfinder.util.StringProvider;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
@@ -46,22 +48,27 @@ import static nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.
 
 //TODO: Map orientation (eg. always north/bearing)
 @Singleton
-public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFixListener {
+public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFixListener, HeadingManager.HeadingListener {
     private MutableLiveData<MapInitializationState> mapInitializationStateObservable;
     private MutableLiveData<MapFragmentViewState> mapFragmentViewStateObservable;
 
     private final PreferenceManager preferenceManager;
     private final GpsManager gpsManager;
     private final BackgroundJobHandler backgroundJobHandler;
+    private final HeadingManager headingManager;
 
     private MapInitializedState.Builder mapInitializedStateBuilder;
     private MapFragmentViewState.Builder mapFragmentViewStateBuilder;
 
     @Inject
-    MapFragmentViewModel(PreferenceManager preferenceManager, GpsManager gpsManager, BackgroundJobHandler backgroundJobHandler) {
+    MapFragmentViewModel(PreferenceManager preferenceManager,
+                         GpsManager gpsManager,
+                         BackgroundJobHandler backgroundJobHandler,
+                         HeadingManager headingManager) {
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
         this.backgroundJobHandler = backgroundJobHandler;
+        this.headingManager = headingManager;
 
         initLiveData();
         initMapFragmentViewStateBuilder();
@@ -84,6 +91,7 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
 
         initOptionsMenu();
         initMapPosition();
+        initLocationLayerInfo();
     }
 
     private void initOptionsMenu() {
@@ -98,31 +106,30 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     private void initMapPosition() {
         MapPosition mapPosition;
 
-        if (mapFragmentViewStateBuilder.getMapPosition() == null) {
-            mapPosition = preferenceManager.getMapPosition();
-            mapFragmentViewStateBuilder.withMapPosition(mapPosition);
-        } else {
-            mapPosition = mapFragmentViewStateBuilder.getMapPosition();
-        }
+        mapPosition = preferenceManager.getMapPosition();
 
         if (preferenceManager.mapFollowsGps()) {
             Location lastKnowLocation = gpsManager.getLastKnowLocation();
 
-            if (lastKnowLocation != null) {
-                mapPosition.setPosition(lastKnowLocation.getLatitude(), lastKnowLocation.getLongitude());
-            }
-
-            mapPosition.setBearing(0f);
+            mapPosition.setPosition(lastKnowLocation.getLatitude(), lastKnowLocation.getLongitude());
         }
+
+        mapPosition.setBearing(0);
+
+        mapFragmentViewStateBuilder.withMapPosition(mapPosition);
+    }
+
+    private void initLocationLayerInfo() {
+        LocationLayerInfo locationLayerInfo = new LocationLayerInfo(gpsManager.getLastKnowLocation());
+
+        mapFragmentViewStateBuilder.withLocationLayerInfo(locationLayerInfo);
     }
 
     private void initMapInitializedStateBuilder() {
-        TileSource tileSource = getTileSource();
-
         mapInitializedStateBuilder = new MapInitializedState.Builder();
 
         mapInitializedStateBuilder
-                .withTileSource(tileSource)
+                .withTileSource(getTileSource())
                 .withBuildingLayer()
                 .withLabelLayer()
                 .withScaleBarType(preferenceManager.getScaleBarType())
@@ -164,6 +171,8 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     void tileSourceCannotBeSet(TileSource tileSource) {
         if (tileSource instanceof MapFileTileSource) {
             preferenceManager.setUseOfflineMap(false);
+
+            clearMapStyleMenu();
 
             MapInitializationState state = mapInitializedStateBuilder
                     .withTileSource(getOnlineTileSource())
@@ -412,18 +421,23 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     private void onLocationChanged(Location location) {
         Timber.e("onLocationChanged()");
 
-;        if (!preferenceManager.mapFollowsGps()) {
+        if (!preferenceManager.mapFollowsGps()) {
             return;
         }
 
-        MapPosition mapPosition = new MapPosition();
-        mapPosition.copy(mapFragmentViewStateBuilder.getMapPosition());
+        MapPosition mapPosition = mapFragmentViewStateBuilder.getMapPosition();
 
         mapPosition.setPosition(location.getLatitude(), location.getLongitude());
 
+        LocationLayerInfo locationLayerInfo = mapFragmentViewStateBuilder.getLocationLayerInfo();
+
+        locationLayerInfo.latitude = location.getLatitude();
+        locationLayerInfo.longitude = location.getLongitude();
+        locationLayerInfo.hasFix = true;
+
         mapFragmentViewStateBuilder
                 .withMapPosition(mapPosition)
-                .withLocationLayerInfo(new LocationLayerInfo(location));
+                .withLocationLayerInfo(locationLayerInfo);
 
         if (mapInitializationStateObservable.getValue() instanceof MapInitializedState) {
             mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
@@ -443,8 +457,43 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     }
 
     private void handleFixChange(boolean hasFix) {
+        LocationLayerInfo locationLayerInfo = mapFragmentViewStateBuilder.getLocationLayerInfo();
+        locationLayerInfo.hasFix = hasFix;
+
         mapFragmentViewStateBuilder
-                .withLocationLayerInfo(new LocationLayerInfo(mapFragmentViewStateBuilder.getLocationLayerInfo(), hasFix));
+                .withLocationLayerInfo(locationLayerInfo);
+
+        if (mapInitializationStateObservable.getValue() instanceof MapInitializedState) {
+            mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
+        }
+    }
+
+    void onVisible() {
+        headingManager.addHeadingListener(this);
+    }
+
+    void onInvisible() {
+        headingManager.removeHeadingListener(this);
+    }
+
+    @Override
+    public void onHeadingChanged(IntegerDegrees heading) {
+        MapPosition mapPosition = mapFragmentViewStateBuilder.getMapPosition();
+        LocationLayerInfo locationLayerInfo = mapFragmentViewStateBuilder.getLocationLayerInfo();
+
+        if (preferenceManager.mapDisplaysNorthUp()) {
+            if (mapPosition.getBearing() != 0f) {
+                mapPosition.setBearing(0f);
+            }
+
+            locationLayerInfo.hasBearing = true;
+            locationLayerInfo.bearing = -heading.get();
+        } else {
+            mapPosition.setBearing(-heading.get());
+
+            locationLayerInfo.hasBearing = true;
+            locationLayerInfo.bearing = -heading.get();
+        }
 
         if (mapInitializationStateObservable.getValue() instanceof MapInitializedState) {
             mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());

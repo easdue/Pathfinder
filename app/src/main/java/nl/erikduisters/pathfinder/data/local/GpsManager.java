@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -387,7 +386,11 @@ public class GpsManager implements
      * Gets the lost know location
      * @return The last know location or null
      */
-    public @Nullable Location getLastKnowLocation() {
+    public @NonNull Location getLastKnowLocation() {
+        if (lastLocation == null) {
+            return preferenceManager.getLastKnownLocation();
+        }
+
         return lastLocation;
     }
 

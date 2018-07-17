@@ -130,12 +130,12 @@ public class MapFragment
     public void onResume() {
         super.onResume();
 
-        mapView.onResume();
+        //mapView.onResume();
     }
 
     @Override
     public void onPause() {
-        mapView.onPause();
+        //mapView.onPause();
 
         super.onPause();
     }
@@ -168,13 +168,8 @@ public class MapFragment
             invalidateOptionsMenu();
         }
 
-        if (currentMapFragmentViewState == null || currentMapFragmentViewState.locationLayerInfo != viewState.locationLayerInfo) {
-            handleLocationLayerInfo(viewState.locationLayerInfo);
-        }
-
-        if (currentMapFragmentViewState == null || currentMapFragmentViewState.mapPosition != viewState.mapPosition) {
-            map.setMapPosition(viewState.mapPosition);
-        }
+        handleLocationLayerInfo(viewState.locationLayerInfo);
+        map.setMapPosition(viewState.mapPosition);
 
         AbstractMapEventLayer eventLayer = map.getEventLayer();
 
@@ -383,6 +378,14 @@ public class MapFragment
          * by making the mapView invisible the new fragment is magically displayed as it should be
          */
         mapView.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+
+        if (visible) {
+            mapView.onResume();
+            viewModel.onVisible();
+        } else {
+            mapView.onPause();
+            viewModel.onInvisible();
+        }
     }
 
     private class GestureLayer extends Layer implements GestureListener {

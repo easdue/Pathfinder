@@ -61,6 +61,7 @@
     <string name="key_map_tilt" translatable="false">map_tile</string>
     <string name="key_map_bearing" translatable="false">map_bearing</string>
     <string name="key_map_scale_bar_type" translatable="false">map_scale_bar_type</string>
+    <string name="key_map_display_north_up" translatable="false">map_display_north_up</string>
     <string name="key_use_true_north" translatable="false">use_true_north</string>
     <string name="key_use_gps_bearing" translatable="false">use_gps_bearing</string>
     <string name="key_gps_bearing_speed" translatable="false">gps_bearing_speed</string>
@@ -84,6 +85,9 @@
     <string name="prefs_map_external_render_theme">External render theme</string>
     <string name="prefs_map_render_theme_style">Map style</string>
     <string name="prefs_map_scale_bar_type">Scale bar type</string>
+    <string name="prefs_map_display_mode">Display mode</string>
+    <string name="prefs_map_north_up">Map displays north up</string>
+    <string name="prefs_map_heading_up">Map displays heading up</string>
 
     <!-- Dialogs -->
     <string name="ok">@android:string/ok</string>
