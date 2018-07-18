@@ -76,12 +76,14 @@ public class MainActivity
 
     private CircleImageView avatar;
     private TextView username;
-    private Menu navigationMenu;
+    private @NonNull MyMenu navigationMenu;
     private @NonNull MyMenu optionsMenu;
     private FragmentAdapter fragmentAdapter;
     private int prevSelectedPage;
+    private boolean viewPagerInitialized;
 
     public MainActivity() {
+        navigationMenu = new MyMenu();
         optionsMenu = new MyMenu();
     }
 
@@ -102,10 +104,9 @@ public class MainActivity
         avatar = headerView.findViewById(R.id.gpsies_avatar);
         username = headerView.findViewById(R.id.gpsies_username);
 
-        navigationMenu = navigationView.getMenu();
-
         viewModel.getMainActivityViewStateObservable().observe(this, this::render);
         viewModel.getNavigationViewStateObservable().observe(this, this::render);
+        viewModel.getStartActivityViewStateObservable().observe(this, this::render);
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(fragmentAdapter);
@@ -162,15 +163,12 @@ public class MainActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         switch (item.getItemId()) {
             case R.id.nav_import:
-                break;
             case R.id.nav_login_register:
-                break;
             case R.id.nav_gps_status:
-                break;
             case R.id.nav_settings:
+                viewModel.onNavigationMenuItemSelected(navigationMenu.findItem(item.getItemId()));
                 break;
         }
 
@@ -189,7 +187,8 @@ public class MainActivity
         avatar.setImageDrawable(viewState.avatar.getDrawable(this));
         username.setText(viewState.userName.getString(this));
 
-        viewState.navigationMenu.updateAndroidMenu(navigationMenu, this);
+        navigationMenu = viewState.navigationMenu;
+        navigationMenu.updateAndroidMenu(navigationView.getMenu(), this);
     }
 
     void render(@Nullable MainActivityViewState viewState) {
@@ -263,7 +262,25 @@ public class MainActivity
         optionsMenu = state.optionsMenu;
         invalidateOptionsMenu();
 
-        initViewPager();
+        /*
+           ViewPager calls FragmentManager.commitNowPermittingStateLoss() somewhere that causes an "IllegalState exception:
+           FragmentManager is already executing transactions". This works around this situation.
+        */
+        if (!viewPagerInitialized) {
+            viewPagerInitialized = true;
+
+            viewPager.post(this::initViewPager);
+        }
+    }
+
+    private void render(@Nullable StartActivityViewState state) {
+        if (state == null) {
+            return;
+        }
+
+        startActivity(state.getIntent(this));
+
+        viewModel.onActivityStarted();
     }
 
     private void initViewPager() {

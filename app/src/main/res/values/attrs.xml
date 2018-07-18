@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="verticalProgressBarStyle" format="reference" />
     <attr name="compassStyle" format="reference" />
+
+    <attr name="text" format="string" />
+    <attr name="textColor" format="color" />
+    <attr name="textSize" format="dimension" />
+    <attr name="textStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" />
+    </attr>
+    <attr name="textPosition">
+        <flag name="top" value="0" />
+        <flag name="middle" value="1" />
+        <flag name="bottom" value="2" />
+    </attr>
     <declare-styleable name="SvgView">
         <attr name="android:src" />
         <attr name="android:minWidth" />
@@ -8,5 +23,13 @@
         <attr name="android:maxWidth" />
         <attr name="android:maxHeight" />
         <attr name="android:adjustViewBounds" />
+    </declare-styleable>
+
+    <declare-styleable name="VerticalProgressBar">
+        <attr name="text" />
+        <attr name="textColor" />
+        <attr name="textSize" />
+        <attr name="textStyle" />
+        <attr name="textPosition" />
     </declare-styleable>
 </resources>

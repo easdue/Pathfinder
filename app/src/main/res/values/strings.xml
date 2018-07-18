@@ -67,6 +67,7 @@
     <string name="key_gps_bearing_speed" translatable="false">gps_bearing_speed</string>
     <string name="key_gps_bearing_duration" translatable="false">gps_bearing_duration</string>
     <string name="key_unit" translatable="false">unit</string>
+    <string name="key_coordinate_display_format" translatable="false">coordinate_display_format</string>
 
     <string name="prefs_storage_location">Storage Location</string>
     <string name="prefs_import_directory">Import Directory</string>
@@ -88,6 +89,7 @@
     <string name="prefs_map_display_mode">Display mode</string>
     <string name="prefs_map_north_up">Map displays north up</string>
     <string name="prefs_map_heading_up">Map displays heading up</string>
+    <string name="prefs_coordinate_display_format">Coordinate display format</string>
 
     <!-- Dialogs -->
     <string name="ok">@android:string/ok</string>
@@ -187,4 +189,22 @@
     <string name="units_distance_far_imperial">mi</string>
     <string name="units_distance_near_metric">m</string>
     <string name="units_distance_near_imperial">yd</string>
+
+    <!-- GpsStatusFragment -->
+    <string name="gps_status_viewer">Gps Status Viewer</string>
+    <string name="gps_is_disabled">GPS is disabled!</string>
+    <string name="accuracy_label">Accuracy:</string>
+    <string name="altitude_label">Altitude:</string>
+    <string name="bearing_label">Bearing:</string>
+    <string name="heading_label">Heading:</string>
+    <string name="latitude_label">Latitude:</string>
+    <string name="longitude_label">Longitude:</string>
+    <string name="time_label">Time:</string>
+
+    <string-array name="coordinate_indicators">
+        <item>N</item>
+        <item>S</item>
+        <item>E</item>
+        <item>W</item>
+    </string-array>
 </resources>

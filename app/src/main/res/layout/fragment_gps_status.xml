@@ -1,0 +1,346 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/gpsstatus_layout_gps_disabled"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:enabled="false"
+            android:text="@string/gps_is_disabled"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <Button
+            android:id="@+id/gpsstatus_button_enable_gps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/enable_gps" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/gpsstatus_layout_gps_enabled"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <nl.erikduisters.pathfinder.ui.widget.GpsSkyView
+            android:id="@+id/gpsSkyView"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp" />
+
+        <TableLayout
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingRight="5dp" >
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/time_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/gpsstatus_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/latitude_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/gpsstatus_latitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/longitude_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/gpsstatus_longitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/accuracy_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/gpsstatus_accuracy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/altitude_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/gpsstatus_altitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/heading_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/gpsstatus_heading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="@string/speed_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/gpsstatus_speed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+            </TableRow>
+        </TableLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+  
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar1"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar2"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar3"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+        
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar4"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar5"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar5"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+            
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar6"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar6"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar7"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar7"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+            
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar8"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+            
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar9"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar9"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+            
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar10"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar10"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+        
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar11"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar11"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+        
+        <nl.erikduisters.pathfinder.ui.widget.VerticalProgressBar
+            android:id="@+id/satStatus_Bar12"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="1dp"
+            android:layout_weight="1"
+            android:progress="0"
+            android:tag="satStatus_Bar12"
+            app:textColor="#000000"
+            app:textPosition="bottom"
+            app:textSize="14sp"
+            app:textStyle="normal" />
+            
+    </LinearLayout>
+
+</LinearLayout>

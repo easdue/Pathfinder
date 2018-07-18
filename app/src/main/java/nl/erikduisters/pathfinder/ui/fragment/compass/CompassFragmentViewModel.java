@@ -55,8 +55,8 @@ public class CompassFragmentViewModel extends ViewModel implements GpsManager.Lo
                 .withOptionsMenu(createOptionsMenu())
                 .withBearing(new IntegerDegrees())
                 .withHeading(new IntegerDegrees())
-                .withDistanceToNext(new Distance(Distance.UNKNOWN_DISTANCE, 0, preferenceManager.getUnits()))
-                .withSpeed(new Speed(0, 0, preferenceManager.getUnits()));
+                .withDistanceToNext(new Distance(Distance.UNKNOWN_DISTANCE, 0))
+                .withSpeed(new Speed(0, 0));
     }
 
     private MyMenu createOptionsMenu() {
@@ -82,7 +82,7 @@ public class CompassFragmentViewModel extends ViewModel implements GpsManager.Lo
     public void onLocationChanged(@NonNull Location location) {
         double speed = UnitsUtil.metersPerSecond2KilometersPerHour(location.hasSpeed() ? location.getSpeed() : 0);
 
-        builder.withSpeed(new Speed(speed, 2, preferenceManager.getUnits()));
+        builder.withSpeed(new Speed(speed, 2));
 
         viewStateObservable.setValue(builder.build());
     }

@@ -5,8 +5,10 @@ import android.arch.lifecycle.ViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
+import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.compass.CompassFragmentViewModel;
+import nl.erikduisters.pathfinder.ui.fragment.gps_status.GpsStatusFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewModel;
@@ -53,4 +55,14 @@ abstract class ViewModelBindingModule {
     @IntoMap
     @ViewModelKey(CompassFragmentViewModel.class)
     abstract ViewModel bindCompassFragmentViewModel(CompassFragmentViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(GpsStatusActivityViewModel.class)
+    abstract ViewModel bindGpsStatusActivityViewModel(GpsStatusActivityViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(GpsStatusFragmentViewModel.class)
+    abstract ViewModel bindGpsStatusFragmentViewModel(GpsStatusFragmentViewModel viewModel);
 }

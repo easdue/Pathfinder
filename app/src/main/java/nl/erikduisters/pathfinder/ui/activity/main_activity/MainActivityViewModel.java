@@ -15,6 +15,7 @@ import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
@@ -37,6 +38,7 @@ import timber.log.Timber;
 
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
 //TODO: Create an OptionsMenuObservable and remove the optionsMenu from InitializedState
+//TODO: Enable/Disable navigation view menu items
 /**
  * Created by Erik Duisters on 03-06-2018.
  */
@@ -44,6 +46,7 @@ import timber.log.Timber;
 public class MainActivityViewModel extends ViewModel implements InitDatabaseHelper.InitDatabaseListener {
     private MutableLiveData<MainActivityViewState> mainActivityViewStateObservable;
     private MutableLiveData<NavigationViewState> navigationViewStateObservable;
+    private MutableLiveData<StartActivityViewState> startActivityViewStateObservable;
     private final GpsManager gpsManager;
     private final PreferenceManager preferenceManager;
 
@@ -53,6 +56,7 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
         mainActivityViewStateObservable = new MutableLiveData<>();
         navigationViewStateObservable = new MutableLiveData<>();
+        startActivityViewStateObservable = new MutableLiveData<>();
 
         this.gpsManager = gpsManager;
         this.preferenceManager = preferenceManager;
@@ -67,6 +71,7 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
 
     LiveData<MainActivityViewState> getMainActivityViewStateObservable() { return mainActivityViewStateObservable; }
     LiveData<NavigationViewState> getNavigationViewStateObservable() { return navigationViewStateObservable; }
+    LiveData<StartActivityViewState> getStartActivityViewStateObservable() { return startActivityViewStateObservable; }
 
     @Override
     public void onDatabaseInitializationProgress(@NonNull InitDatabase.Progress progress) {
@@ -213,5 +218,27 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
         MyMenu menu = new MyMenu();
 
         return menu;
+    }
+
+    void onNavigationMenuItemSelected(MyMenuItem menuItem) {
+        switch (menuItem.getId()) {
+            case R.id.nav_import:
+                //TODO
+                break;
+            case R.id.nav_login_register:
+                //TODO
+                break;
+            case R.id.nav_gps_status:
+                startActivityViewStateObservable
+                        .setValue(new StartActivityViewState(GpsStatusActivity.class));
+                break;
+            case R.id.nav_settings:
+                //TODO:
+                break;
+        }
+    }
+
+    void onActivityStarted() {
+        startActivityViewStateObservable.setValue(null);
     }
 }

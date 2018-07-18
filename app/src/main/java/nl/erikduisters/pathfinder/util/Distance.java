@@ -10,22 +10,25 @@ import nl.erikduisters.pathfinder.R;
 public class Distance {
     private static final String UNKNOWN_DISTANCE_STRING = "---";
 
-    public static final double UNKNOWN_DISTANCE = -1;
+    public static final double UNKNOWN_DISTANCE = Double.NaN;
+    private static @Units int displayUnits = Units.METRIC;
 
     private final double distanceMeters;
     private final int precision;
-    private final @Units int displayUnits;
 
-    public Distance(double distanceMeters, int precision, @Units int displayUnits) {
+    public Distance(double distanceMeters, int precision) {
         this.distanceMeters = distanceMeters;
         this.precision = precision;
-        this.displayUnits = displayUnits;
+    }
+
+    public static void setDisplayUnits(@Units int displayUnits) {
+        Distance.displayUnits = displayUnits;
     }
 
     public String getDistance(Context ctx) {
         String distance;
 
-        if (distanceMeters == UNKNOWN_DISTANCE) {
+        if (Double.isNaN(distanceMeters)) {
             return UNKNOWN_DISTANCE_STRING;
         }
 

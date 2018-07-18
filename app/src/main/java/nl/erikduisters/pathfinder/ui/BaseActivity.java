@@ -162,6 +162,11 @@ public abstract class BaseActivity<VM extends ViewModel> extends AppCompatActivi
         return (T) getSupportFragmentManager().findFragmentByTag(tag);
     }
 
+    protected <T extends Fragment> T findFragment(int id) {
+        //noinspection unchecked
+        return (T) getSupportFragmentManager().findFragmentById(id);
+    }
+
     protected void addFragment(Fragment fragment, String tag) {
         Timber.d("Adding fragment: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
         getSupportFragmentManager()

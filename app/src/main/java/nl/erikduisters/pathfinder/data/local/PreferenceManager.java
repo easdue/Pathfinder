@@ -21,7 +21,10 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.di.ApplicationContext;
+import nl.erikduisters.pathfinder.util.Coordinate;
+import nl.erikduisters.pathfinder.util.Distance;
 import nl.erikduisters.pathfinder.util.FileUtil;
+import nl.erikduisters.pathfinder.util.Speed;
 import nl.erikduisters.pathfinder.util.Units;
 import timber.log.Timber;
 
@@ -68,6 +71,7 @@ public class PreferenceManager {
     private final String KEY_USE_GPS_BEARING_SPEED;
     private final String KEY_USE_GPS_BEARING_DURATION;
     private final String KEY_UNIT;
+    private final String KEY_COORDINATE_DISPLAY_FORMAT;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -111,10 +115,15 @@ public class PreferenceManager {
         KEY_USE_GPS_BEARING_SPEED = context.getString(R.string.key_gps_bearing_speed);
         KEY_USE_GPS_BEARING_DURATION = context.getString(R.string.key_gps_bearing_duration);
         KEY_UNIT = context.getString(R.string.key_unit);
+        KEY_COORDINATE_DISPLAY_FORMAT = context.getString(R.string.key_coordinate_display_format);
 
         preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         storageDir = getStorageDir();
         cacheDir = getCacheDir();
+
+        Coordinate.setDisplayFormat(getCoordinateDisplayFormat());
+        Distance.setDisplayUnits(getUnits());
+        Speed.setDisplayUnits(getUnits());
     }
 
     public synchronized String getStorageDir() {
@@ -343,8 +352,11 @@ public class PreferenceManager {
         return preferences.getInt(KEY_USE_GPS_BEARING_DURATION, 5);
     }
 
-    public synchronized @Units
-    int getUnits() {
+    public synchronized @Units int getUnits() {
         return preferences.getInt(KEY_USE_GPS_BEARING_DURATION, Units.METRIC);
+    }
+
+    public synchronized @Coordinate.DisplayFormat int getCoordinateDisplayFormat() {
+        return preferences.getInt(KEY_COORDINATE_DISPLAY_FORMAT, Coordinate.DisplayFormat.FORMAT_DDMMMMM);
     }
 }

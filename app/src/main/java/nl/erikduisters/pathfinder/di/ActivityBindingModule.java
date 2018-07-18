@@ -2,6 +2,8 @@ package nl.erikduisters.pathfinder.di;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
+import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
+import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivityBindingModule;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityBindingModule;
 
@@ -13,4 +15,7 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityBindingM
 abstract class ActivityBindingModule {
     @ContributesAndroidInjector(modules = MainActivityBindingModule.class)
     abstract MainActivity contributeMainActivity();
+
+    @ContributesAndroidInjector(modules = GpsStatusActivityBindingModule.class)
+    abstract GpsStatusActivity contributeGpsStatusActivity();
 }
