@@ -2,9 +2,11 @@ package nl.erikduisters.pathfinder;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
 
@@ -47,7 +49,17 @@ public class MyApplication extends Application implements HasActivityInjector {
         }
 
         //TODO: Maybe make this optional through a preference see: https://docs.fabric.io/android/crashlytics/build-tools.html
-        Fabric.with(this, new Crashlytics());
+        if (Build.PRODUCT.startsWith("sdk") || Build.PRODUCT.startsWith("vbox")) {
+            Timber.d("Disabled Crashlytics");
+            CrashlyticsCore disabled = new CrashlyticsCore.Builder()
+                    .disabled(true)
+                    .build();
+
+            Fabric.with(this, new Crashlytics.Builder().core(disabled).build());
+        } else {
+            Timber.d("Enabled Crashlytics");
+            Fabric.with(this, new Crashlytics());
+        }
 
         DaggerAppComponent.builder()
                 .create(this)
