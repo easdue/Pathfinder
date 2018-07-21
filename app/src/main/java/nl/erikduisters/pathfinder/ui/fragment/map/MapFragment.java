@@ -24,6 +24,7 @@ import org.oscim.event.MotionEvent;
 import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
 import org.oscim.layers.LocationTextureLayer;
+import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
@@ -38,6 +39,7 @@ import org.oscim.scalebar.ImperialUnitAdapter;
 import org.oscim.scalebar.MapScaleBarLayer;
 import org.oscim.scalebar.MetricUnitAdapter;
 import org.oscim.scalebar.NauticalUnitAdapter;
+import org.oscim.tiling.source.bitmap.BitmapTileSource;
 import org.oscim.utils.IOUtils;
 import org.oscim.utils.TextureAtlasUtils;
 
@@ -223,32 +225,37 @@ public class MapFragment
             layers.remove(i);
         }
 
-        OsmTileLayer tileLayer = new OsmTileLayer(map);
+        if (state.tileSource instanceof BitmapTileSource) {
+            BitmapTileLayer bitmapLayer = new BitmapTileLayer(map, state.tileSource);
+            layers.add(bitmapLayer);
+        } else {
+            OsmTileLayer tileLayer = new OsmTileLayer(map);
 
-        if (!tileLayer.setTileSource(state.tileSource)) {
-            viewModel.tileSourceCannotBeSet(state.tileSource);
-            return;
+            if (!tileLayer.setTileSource(state.tileSource)) {
+                viewModel.tileSourceCannotBeSet(state.tileSource);
+                return;
+            }
+
+            map.setBaseMap(tileLayer);
+
+            if (state.addBuildingLayer) {
+                layers.add(new BuildingLayer(map, tileLayer));
+            }
+
+            if (state.addLabelLayer) {
+                layers.add(new LabelLayer(map, tileLayer));
+            }
+
+            map.setTheme(state.renderTheme);
         }
-
-        map.setBaseMap(tileLayer);
 
         layers.add(new GestureLayer(map));
-
-        if (state.addBuildingLayer) {
-            layers.add(new BuildingLayer(map, tileLayer));
-        }
-
-        if (state.addLabelLayer) {
-            layers.add(new LabelLayer(map, tileLayer));
-        }
 
         addScaleBarLayer(state.scaleBarType);
 
         if (state.addLocationLayer) {
             addLocationLayer(state.locationFixedMarkerSvgResId, state.locationNotFixedMarkerSvgResId);
         }
-
-        map.setTheme(state.renderTheme);
     }
 
     private void addScaleBarLayer(@ScaleBarType int scaleBarType) {

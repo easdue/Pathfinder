@@ -8,6 +8,7 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -17,9 +18,11 @@ import javax.inject.Singleton;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import nl.erikduisters.pathfinder.BuildConfig;
 import nl.erikduisters.pathfinder.MyApplication;
 import nl.erikduisters.pathfinder.data.local.database.PathfinderDatabase;
 import nl.erikduisters.pathfinder.util.MainThreadExecutor;
+import okhttp3.OkHttpClient;
 
 /**
  * Created by Erik Duisters on 01-06-2018.
@@ -79,5 +82,17 @@ abstract class AppModule {
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Hey guys, apparently I'm not installed");
         }
+    }
+
+    @Provides
+    @Singleton
+    static OkHttpClient.Builder provideOkHttpClientBuilder() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+        if (BuildConfig.DEBUG) {
+            builder.addNetworkInterceptor(new StethoInterceptor());
+        }
+
+        return builder;
     }
 }

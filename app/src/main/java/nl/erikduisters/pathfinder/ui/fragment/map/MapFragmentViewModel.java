@@ -38,6 +38,7 @@ import nl.erikduisters.pathfinder.util.StringProvider;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 import nl.erikduisters.pathfinder.util.menu.MySubMenu;
+import okhttp3.OkHttpClient;
 import timber.log.Timber;
 
 import static nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializingState;
@@ -56,6 +57,7 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     private final GpsManager gpsManager;
     private final BackgroundJobHandler backgroundJobHandler;
     private final HeadingManager headingManager;
+    private final OkHttpClient.Builder okHttpClientBuilder;
 
     private MapInitializedState.Builder mapInitializedStateBuilder;
     private MapFragmentViewState.Builder mapFragmentViewStateBuilder;
@@ -64,11 +66,13 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     MapFragmentViewModel(PreferenceManager preferenceManager,
                          GpsManager gpsManager,
                          BackgroundJobHandler backgroundJobHandler,
-                         HeadingManager headingManager) {
+                         HeadingManager headingManager,
+                         OkHttpClient.Builder okHttpClientBuilder) {
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
         this.backgroundJobHandler = backgroundJobHandler;
         this.headingManager = headingManager;
+        this.okHttpClientBuilder = okHttpClientBuilder;
 
         initLiveData();
         initMapFragmentViewStateBuilder();
@@ -165,7 +169,7 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     }
 
     private TileSource getOnlineTileSource() {
-        return preferenceManager.getOnlineMap().provideTileSource();
+        return preferenceManager.getOnlineMap().provideTileSource(okHttpClientBuilder);
     }
 
     void tileSourceCannotBeSet(TileSource tileSource) {
