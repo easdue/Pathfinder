@@ -7,9 +7,7 @@ import android.location.LocationManager;
 import android.support.annotation.NonNull;
 
 import org.oscim.core.MapPosition;
-import org.oscim.theme.ExternalRenderTheme;
 import org.oscim.theme.IRenderTheme;
-import org.oscim.theme.ThemeFile;
 import org.oscim.theme.VtmThemes;
 
 import java.util.UUID;
@@ -51,21 +49,21 @@ public class PreferenceManager {
     private final String KEY_LAST_KNOWN_LOCATION_TIME;
     private final String KEY_ASK_TO_ENABLE_GPS;
     private final String KEY_ASK_TO_RESOLVE_PLAY_SERVICES_UNAVAILABILITY;
-    private final String KEY_USE_OFFLINE_MAP;
-    private final String KEY_OFFLINE_MAP;
-    private final String KEY_ONLINE_MAP;
-    private final String KEY_USE_EXTERNAL_RENDER_THEME;
-    private final String KEY_INTERNAL_RENDER_THEME;
-    private final String KEY_EXTERNAL_RENDER_THEME;
-    private final String KEY_RENDER_THEME_STYLE;
+    public  final String KEY_USE_ONLINE_MAP;
+    public  final String KEY_OFFLINE_MAP;
+    public  final String KEY_ONLINE_MAP;
+    public  final String KEY_USE_INTERNAL_RENDER_THEME;
+    public  final String KEY_INTERNAL_RENDER_THEME;
+    public  final String KEY_EXTERNAL_RENDER_THEME;
+    private  final String KEY_RENDER_THEME_STYLE;
     private final String KEY_MAP_FOLLOWS_GPS;
     private final String KEY_MAP_LATITUDE;
     private final String KEY_MAP_LONGITUDE;
     private final String KEY_MAP_ZOOM_LEVEL;
     private final String KEY_MAP_TILT;
     private final String KEY_MAP_BEARING;
-    private final String KEY_MAP_SCALE_BAR_TYPE;
-    private final String KEY_MAP_DISPLAY_NORTH_UP;
+    public final String KEY_MAP_SCALE_BAR_TYPE;
+    public final String KEY_MAP_DISPLAY_NORTH_UP;
     private final String KEY_USE_TRUE_NORTH;
     private final String KEY_USE_GPS_BEARING;
     private final String KEY_USE_GPS_BEARING_SPEED;
@@ -80,7 +78,8 @@ public class PreferenceManager {
     @Inject
     public PreferenceManager(@ApplicationContext Context context) {
         Timber.e("new PreferenceManager created");
-        android.preference.PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
+        android.support.v7.preference.PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
+        //android.preference.PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
 
         KEY_STORAGE_DIRECTORY = context.getString(R.string.key_storage_directory);
         KEY_CACHE_DIRECTORY = context.getString(R.string.key_cache_directory);
@@ -95,10 +94,10 @@ public class PreferenceManager {
         KEY_LAST_KNOWN_LOCATION_TIME = context.getString(R.string.key_last_known_location_time);
         KEY_ASK_TO_ENABLE_GPS = context.getString(R.string.key_ask_to_enable_gps);
         KEY_ASK_TO_RESOLVE_PLAY_SERVICES_UNAVAILABILITY = context.getString(R.string.key_ask_to_resolve_play_services_unavailability);
-        KEY_USE_OFFLINE_MAP = context.getString(R.string.key_map_use_offline_map);
+        KEY_USE_ONLINE_MAP = context.getString(R.string.key_map_use_online_map);
         KEY_OFFLINE_MAP = context.getString(R.string.key_map_offline_map);
         KEY_ONLINE_MAP = context.getString(R.string.key_map_online_map);
-        KEY_USE_EXTERNAL_RENDER_THEME = context.getString(R.string.key_map_use_external_render_theme);
+        KEY_USE_INTERNAL_RENDER_THEME = context.getString(R.string.key_map_use_internal_render_theme);
         KEY_INTERNAL_RENDER_THEME = context.getString(R.string.key_map_internal_render_theme);
         KEY_EXTERNAL_RENDER_THEME = context.getString(R.string.key_map_external_render_theme);
         KEY_RENDER_THEME_STYLE = context.getString(R.string.key_map_render_theme_style);
@@ -117,13 +116,22 @@ public class PreferenceManager {
         KEY_UNIT = context.getString(R.string.key_unit);
         KEY_COORDINATE_DISPLAY_FORMAT = context.getString(R.string.key_coordinate_display_format);
 
-        preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        //preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        preferences = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
         storageDir = getStorageDir();
         cacheDir = getCacheDir();
 
         Coordinate.setDisplayFormat(getCoordinateDisplayFormat());
         Distance.setDisplayUnits(getUnits());
         Speed.setDisplayUnits(getUnits());
+    }
+
+    public void registerOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        preferences.registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public void unregisterOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        preferences.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
     public synchronized String getStorageDir() {
@@ -227,13 +235,13 @@ public class PreferenceManager {
                 .apply();
     }
 
-    public synchronized boolean useOfflineMap() {
-        return preferences.getBoolean(KEY_USE_OFFLINE_MAP, false);
+    public synchronized boolean useOnlineMap() {
+        return preferences.getBoolean(KEY_USE_ONLINE_MAP, true);
     }
 
-    public synchronized void setUseOfflineMap(boolean use) {
+    public synchronized void setUseOnlineMap(boolean use) {
         preferences.edit()
-                .putBoolean(KEY_USE_OFFLINE_MAP, use)
+                .putBoolean(KEY_USE_ONLINE_MAP, use)
                 .apply();
     }
 
@@ -246,20 +254,28 @@ public class PreferenceManager {
     public synchronized void setOfflineMap(String fileName) {
         preferences.edit()
                 .putString(KEY_OFFLINE_MAP, fileName)
-                .apply();;
+                .apply();
     }
 
-    public synchronized OnlineMap getOnlineMap() throws IllegalArgumentException {
-        return OnlineMap.valueOf(preferences.getString(KEY_ONLINE_MAP, OnlineMap.OSCIMAP4.name()));
+    public synchronized OnlineMap getOnlineMap(){
+        OnlineMap onlineMap;
+
+        try {
+            onlineMap = OnlineMap.valueOf(preferences.getString(KEY_ONLINE_MAP, OnlineMap.OSCIMAP4.name()));
+        } catch (IllegalArgumentException e) {
+            onlineMap = OnlineMap.OSCIMAP4;
+        }
+
+        return onlineMap;
     }
 
-    public synchronized boolean useExternalRenderTheme() {
-        return preferences.getBoolean(KEY_USE_EXTERNAL_RENDER_THEME, false);
+    public synchronized boolean useInternalRenderTheme() {
+        return preferences.getBoolean(KEY_USE_INTERNAL_RENDER_THEME, true);
     }
 
-    public synchronized void setUseExternalRenderTheme(boolean useExternalRenderTheme) {
+    public synchronized void setUseInternalRenderTheme(boolean useExternalRenderTheme) {
         preferences.edit()
-                .putBoolean(KEY_USE_EXTERNAL_RENDER_THEME, useExternalRenderTheme)
+                .putBoolean(KEY_USE_INTERNAL_RENDER_THEME, useExternalRenderTheme)
                 .apply();
     }
 
@@ -269,18 +285,13 @@ public class PreferenceManager {
     }
 
     @NonNull
-    public synchronized ThemeFile getExternalRenderTheme() throws IRenderTheme.ThemeException {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getStorageDir());
-        builder.append(getStorageRenderThemeSubDir());
-        builder.append(preferences.getString(KEY_EXTERNAL_RENDER_THEME, "NoSuchTheme.xml"));
-
-        return new ExternalRenderTheme(builder.toString());
+    public synchronized String getExternalRenderThemeName() throws IRenderTheme.ThemeException {
+        return preferences.getString(KEY_EXTERNAL_RENDER_THEME, "");
     }
 
-    public synchronized void setExternalRenderTheme(String path) {
+    public synchronized void setExternalRenderThemeName(String renderThemeName) {
         preferences.edit()
-                .putString(KEY_EXTERNAL_RENDER_THEME, path)
+                .putString(KEY_EXTERNAL_RENDER_THEME, renderThemeName)
                 .apply();
     }
 
@@ -332,8 +343,19 @@ public class PreferenceManager {
         return preferences.getBoolean(KEY_MAP_DISPLAY_NORTH_UP, false);
     }
 
-    public synchronized @ScaleBarType int getScaleBarType() {
-        return preferences.getInt(KEY_MAP_SCALE_BAR_TYPE, ScaleBarType.METRIC_AND_IMPERIAL);
+    public synchronized ScaleBarType getScaleBarType() {
+        //Stupid ListPreference wants its value as string
+        String val = preferences.getString(KEY_MAP_SCALE_BAR_TYPE, ScaleBarType.METRIC_AND_IMPERIAL.name());
+
+        ScaleBarType scaleBarType;
+
+        try {
+             scaleBarType = ScaleBarType.valueOf(val);
+        } catch (IllegalArgumentException e) {
+            scaleBarType = ScaleBarType.METRIC_AND_IMPERIAL;
+        }
+
+        return scaleBarType;
     }
 
     public synchronized boolean getUseTrueNorth() {
@@ -352,10 +374,12 @@ public class PreferenceManager {
         return preferences.getInt(KEY_USE_GPS_BEARING_DURATION, 5);
     }
 
+    //TODO: add to preferences.xml and handle
     public synchronized @Units int getUnits() {
-        return preferences.getInt(KEY_USE_GPS_BEARING_DURATION, Units.METRIC);
+        return preferences.getInt(KEY_UNIT, Units.METRIC);
     }
 
+    //TODO: add to preferences.xml and handle
     public synchronized @Coordinate.DisplayFormat int getCoordinateDisplayFormat() {
         return preferences.getInt(KEY_COORDINATE_DISPLAY_FORMAT, Coordinate.DisplayFormat.FORMAT_DDMMMMM);
     }

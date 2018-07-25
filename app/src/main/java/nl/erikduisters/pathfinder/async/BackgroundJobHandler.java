@@ -136,7 +136,7 @@ public class BackgroundJobHandler {
      * @param job The job to cancel
      * @return true if the job was cancelled successfully, false otherwise
      */
-    boolean cancelJob(BackgroundJob job) {
+    public boolean cancelJob(BackgroundJob job) {
         boolean res = false;
 
         synchronized (jobMapLock) {

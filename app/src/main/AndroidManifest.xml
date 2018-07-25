@@ -38,6 +38,16 @@
                 android:value=".ui.activity.main_activity.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".ui.activity.settings.SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.activity.main_activity.MainActivity"
+            android:theme="@style/SubAppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity.main_activity.MainActivity" />
+        </activity>
+
         <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
     </application>
 </manifest>

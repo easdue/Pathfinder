@@ -228,6 +228,7 @@ public class MapFragment
         if (state.tileSource instanceof BitmapTileSource) {
             BitmapTileLayer bitmapLayer = new BitmapTileLayer(map, state.tileSource);
             layers.add(bitmapLayer);
+            map.clearMap();
         } else {
             OsmTileLayer tileLayer = new OsmTileLayer(map);
 
@@ -258,7 +259,7 @@ public class MapFragment
         }
     }
 
-    private void addScaleBarLayer(@ScaleBarType int scaleBarType) {
+    private void addScaleBarLayer(ScaleBarType scaleBarType) {
         if (scaleBarType == ScaleBarType.NONE) {
             return;
         }
@@ -268,19 +269,19 @@ public class MapFragment
         }
 
         switch (scaleBarType) {
-            case ScaleBarType.METRIC:
+            case METRIC:
                 scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.SINGLE);
                 scaleBar.setDistanceUnitAdapter(MetricUnitAdapter.INSTANCE);
                 break;
-            case ScaleBarType.IMPERIAL:
+            case IMPERIAL:
                 scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.SINGLE);
                 scaleBar.setDistanceUnitAdapter(ImperialUnitAdapter.INSTANCE);
                 break;
-            case ScaleBarType.NAUTICAL:
+            case NAUTICAL:
                 scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.SINGLE);
                 scaleBar.setDistanceUnitAdapter(NauticalUnitAdapter.INSTANCE);
                 break;
-            case ScaleBarType.METRIC_AND_IMPERIAL:
+            case METRIC_AND_IMPERIAL:
                 scaleBar.setScaleBarMode(DefaultMapScaleBar.ScaleBarMode.BOTH);
                 scaleBar.setDistanceUnitAdapter(MetricUnitAdapter.INSTANCE);
                 scaleBar.setSecondaryDistanceUnitAdapter(ImperialUnitAdapter.INSTANCE);

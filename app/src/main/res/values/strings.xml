@@ -47,10 +47,10 @@
     <string name="key_ask_to_enable_gps" translatable="false">ask_to_enable_gps</string>
     <string name="key_ask_to_resolve_play_services_unavailability" translatable="false">ask_to_resolve_play_services_unavailability</string>
     <string name="key_map_preferences" translatable="false">map_preferences</string>
-    <string name="key_map_use_offline_map" translatable="false">map_use_offline_map</string>
+    <string name="key_map_use_online_map" translatable="false">map_use_online_map</string>
     <string name="key_map_offline_map" translatable="false">map_offline_map</string>
     <string name="key_map_online_map" translatable="false">map_online_map</string>
-    <string name="key_map_use_external_render_theme" translatable="false">map_use_external_render_theme</string>
+    <string name="key_map_use_internal_render_theme" translatable="false">map_use_internal_render_theme</string>
     <string name="key_map_internal_render_theme" translatable="false">map_internal_render_theme</string>
     <string name="key_map_external_render_theme" translatable="false">map_external_render_theme</string>
     <string name="key_map_render_theme_style" translatable="false">map_render_theme_style</string>
@@ -69,27 +69,35 @@
     <string name="key_unit" translatable="false">unit</string>
     <string name="key_coordinate_display_format" translatable="false">coordinate_display_format</string>
 
-    <string name="prefs_storage_location">Storage Location</string>
-    <string name="prefs_import_directory">Import Directory</string>
-    <string name="prefs_cache_directory">Cache Directory</string>
-    <string name="prefs_map_directory">Map Directory</string>
-    <string name="prefs_user_directory">User Directory</string>
-    <string name="prefs_render_theme_directory">Render Theme Directory</string>
-    <string name="prefs_ask_to_enable_gps">Ask To Enable GPS</string>
-    <string name="prefs_ask_to_resolve_play_services_unavailability">Ask to resolve Google Play Services unavailability</string>
-    <string name="prefs_map_preferences">Map settings</string>
-    <string name="prefs_map_use_offline_map">Use offline map</string>
+    <string name="prefs_settings">Settings</string>
+    <string name="prefs_reminders">Reminders</string>
+    <string name="prefs_reminder_gps">GPS disabled</string>
+    <string name="prefs_reminder_gps_on">Ask to turn GPS on</string>
+    <string name="prefs_reminder_gps_off">Do not ask to turn GPS on</string>
+    <string name="prefs_reminder_google_play_services">Google Play Services</string>
+    <string name="prefs_reminder_google_play_services_on">Ask to resolve Google Play Services unavailability</string>
+    <string name="prefs_reminder_google_play_services_off">Do not ask to resolve Google Play Services unavailability</string>
+    <string name="prefs_map_preferences">Map Settings</string>
+    <string name="prefs_map_source">Map Source</string>
+    <string name="prefs_map_use_online_map">Use online map</string>
     <string name="prefs_map_offline_map">Offline map</string>
+    <string name="download_map">DOWNLOAD MAP</string>
     <string name="prefs_map_online_map">Online map</string>
-    <string name="prefs_map_use_external_render_theme">Use external render theme</string>
+    <string name="prefs_map_render_theme">Render theme</string>
+    <string name="prefs_map_use_internal_render_theme">Use internal render theme</string>
     <string name="prefs_map_internal_render_theme">Internal render theme</string>
     <string name="prefs_map_external_render_theme">External render theme</string>
-    <string name="prefs_map_render_theme_style">Map style</string>
     <string name="prefs_map_scale_bar_type">Scale bar type</string>
     <string name="prefs_map_display_mode">Display mode</string>
     <string name="prefs_map_north_up">Map displays north up</string>
     <string name="prefs_map_heading_up">Map displays heading up</string>
-    <string name="prefs_coordinate_display_format">Coordinate display format</string>
+
+    <!-- ScaleBarType -->
+    <string name="scale_bar_none">None</string>
+    <string name="scale_bar_metric">Metric</string>
+    <string name="scale_bar_imperial">Imperial</string>
+    <string name="scale_bar_nautical">Nautical</string>
+    <string name="scale_bar_metric_and_imperial">Metric and Imperial</string>
 
     <!-- Dialogs -->
     <string name="ok">@android:string/ok</string>
@@ -207,4 +215,7 @@
         <item>E</item>
         <item>W</item>
     </string-array>
+
+    <!-- Manage offline maps -->
+    <string name="no_offline_maps_available">No offline maps available</string>
 </resources>

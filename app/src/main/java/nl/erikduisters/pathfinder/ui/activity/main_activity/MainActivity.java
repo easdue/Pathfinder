@@ -54,6 +54,8 @@ import timber.log.Timber;
 
 //TODO: Remove fragment listeners
 //TODO: Bottom navigation instead of tabs?
+//TODO: On orientation change restore last visible viewPager fragment
+//TODO: Remind user of mobile data usage and possible unavailability when using online map or remind users to install an offline map
 public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,

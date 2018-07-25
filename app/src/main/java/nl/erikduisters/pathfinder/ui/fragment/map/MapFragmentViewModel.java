@@ -3,6 +3,7 @@ package nl.erikduisters.pathfinder.ui.fragment.map;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import org.oscim.theme.ThemeFile;
 import org.oscim.theme.XmlRenderThemeStyleLayer;
 import org.oscim.theme.XmlRenderThemeStyleMenu;
 import org.oscim.tiling.TileSource;
+import org.oscim.tiling.source.bitmap.BitmapTileSource;
 import org.oscim.tiling.source.mapfile.MapFileTileSource;
 
 import java.util.LinkedHashMap;
@@ -26,6 +28,8 @@ import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.async.BackgroundJobHandler;
+import nl.erikduisters.pathfinder.async.UseCaseJob;
+import nl.erikduisters.pathfinder.data.local.ExternalRenderThemeManager;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.HeadingManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
@@ -47,9 +51,11 @@ import static nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.
  * Created by Erik Duisters on 28-06-2018.
  */
 
-//TODO: Map orientation (eg. always north/bearing)
 @Singleton
-public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFixListener, HeadingManager.HeadingListener {
+public class MapFragmentViewModel
+        extends ViewModel
+        implements GpsManager.GpsFixListener, HeadingManager.HeadingListener,
+                   SharedPreferences.OnSharedPreferenceChangeListener {
     private MutableLiveData<MapInitializationState> mapInitializationStateObservable;
     private MutableLiveData<MapFragmentViewState> mapFragmentViewStateObservable;
 
@@ -58,21 +64,26 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     private final BackgroundJobHandler backgroundJobHandler;
     private final HeadingManager headingManager;
     private final OkHttpClient.Builder okHttpClientBuilder;
+    private final ExternalRenderThemeManager externalRenderThemeManager;
 
     private MapInitializedState.Builder mapInitializedStateBuilder;
     private MapFragmentViewState.Builder mapFragmentViewStateBuilder;
+
+    private UseCaseJob renderThemeJob;
 
     @Inject
     MapFragmentViewModel(PreferenceManager preferenceManager,
                          GpsManager gpsManager,
                          BackgroundJobHandler backgroundJobHandler,
                          HeadingManager headingManager,
-                         OkHttpClient.Builder okHttpClientBuilder) {
+                         OkHttpClient.Builder okHttpClientBuilder,
+                         ExternalRenderThemeManager externalRenderThemeManager) {
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
         this.backgroundJobHandler = backgroundJobHandler;
         this.headingManager = headingManager;
         this.okHttpClientBuilder = okHttpClientBuilder;
+        this.externalRenderThemeManager = externalRenderThemeManager;
 
         initLiveData();
         initMapFragmentViewStateBuilder();
@@ -80,6 +91,15 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
 
         this.gpsManager.addLocationListener(this::onLocationChanged);
         this.gpsManager.addGpsFixListener(this);
+
+        preferenceManager.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+
+        preferenceManager.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     LiveData<MapInitializationState> getMapInitializationStateObservable() { return mapInitializationStateObservable; }
@@ -145,11 +165,13 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     private TileSource getTileSource() {
         TileSource tileSource;
 
-        if (preferenceManager.useOfflineMap()) {
-            tileSource = getOfflineTileSource();
-        } else {
+        if (preferenceManager.useOnlineMap()) {
             tileSource = getOnlineTileSource();
+        } else {
+            tileSource = getOfflineTileSource();
         }
+
+        updateMapFragmentViewStateFor(tileSource);
 
         return tileSource;
     }
@@ -159,7 +181,7 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
 
         if (!mapFileTileSource.setMapFile(preferenceManager.getStorageDir() + preferenceManager.getStorageMapSubDir() + preferenceManager.getOfflineMap())) {
             //TODO: Inform the user that the mapfile does not exits
-            preferenceManager.setUseOfflineMap(false);
+            preferenceManager.setUseOnlineMap(true);
             return getOnlineTileSource();
         }
 
@@ -172,9 +194,17 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
         return preferenceManager.getOnlineMap().provideTileSource(okHttpClientBuilder);
     }
 
+    private void updateMapFragmentViewStateFor(TileSource tileSource) {
+        if (tileSource instanceof BitmapTileSource) {
+            setMapStyleMenuVisibility(false);
+        } else if (mapInitializedStateBuilder.hasRenderTheme()) {
+            setMapStyleMenuVisibility(true);
+        }
+    }
+
     void tileSourceCannotBeSet(TileSource tileSource) {
         if (tileSource instanceof MapFileTileSource) {
-            preferenceManager.setUseOfflineMap(false);
+            preferenceManager.setUseOnlineMap(true);
 
             clearMapStyleMenu();
 
@@ -193,8 +223,11 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
     }
 
     private void loadRenderTheme() {
+        cancelPreviousRenderJob();
+
         MapInitializingState state = new MapInitializingState(R.string.loading_render_theme);
         mapInitializationStateObservable.setValue(state);
+        clearMapStyleMenu();
         mapFragmentViewStateObservable.setValue(null);
 
         ThemeFile themeFile = getRenderTheme();
@@ -203,12 +236,15 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
             @Override
             public void onResult(@Nullable IRenderTheme result) {
                 setMapInitializedState(result);
+                renderThemeJob = null;
             }
 
             @Override
             public void onError(@NonNull Throwable error) {
-                if (preferenceManager.useExternalRenderTheme()) {
-                    preferenceManager.setUseExternalRenderTheme(false);
+                renderThemeJob = null;
+
+                if (!preferenceManager.useInternalRenderTheme()) {
+                    preferenceManager.setUseInternalRenderTheme(true);
                     clearMapStyleMenu();
                     loadRenderTheme();
                 } // else assets have become corrupt?
@@ -216,6 +252,13 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
         });
 
         backgroundJobHandler.runJob(useCase.getUseCaseJob());
+    }
+
+    private void cancelPreviousRenderJob() {
+        if (renderThemeJob != null && backgroundJobHandler.isRunning(renderThemeJob)) {
+            backgroundJobHandler.cancelJob(renderThemeJob);
+            renderThemeJob = null;
+        }
     }
 
     private void clearMapStyleMenu() {
@@ -229,6 +272,15 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
                 .withOptionsMenu(optionsMenu);
     }
 
+    private void setMapStyleMenuVisibility(boolean visible) {
+        MyMenu optionsMenu = new MyMenu(mapFragmentViewStateBuilder.getOptionsMenu());
+        MyMenuItem mapStyleMenu = optionsMenu.findItem(R.id.menu_mapStyle);
+        mapStyleMenu.setVisible(visible);
+
+        mapFragmentViewStateBuilder
+                .withOptionsMenu(optionsMenu);
+    }
+
     private void setMapInitializedState(IRenderTheme renderTheme) {
         MapInitializedState state = mapInitializedStateBuilder
                 .withRenderTheme(renderTheme)
@@ -236,23 +288,25 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
 
         mapInitializationStateObservable.setValue(state);
         updateMapFragmentViewState(preferenceManager.mapFollowsGps());
+
+        mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
     }
 
     private ThemeFile getRenderTheme() {
         ThemeFile themeFile;
 
-        if (preferenceManager.useExternalRenderTheme()) {
+        if (preferenceManager.useInternalRenderTheme()) {
+            themeFile = preferenceManager.getInternalRenderTheme();
+        } else {
             try {
-                themeFile = preferenceManager.getExternalRenderTheme();
+                themeFile = externalRenderThemeManager.getThemeWithName(preferenceManager.getExternalRenderThemeName());
                 themeFile.setMenuCallback(this::getCategories);
             } catch (IRenderTheme.ThemeException e) {
                 //TODO: Inform user
-                preferenceManager.setUseExternalRenderTheme(false);
+                preferenceManager.setUseInternalRenderTheme(true);
                 themeFile = preferenceManager.getInternalRenderTheme();
                 clearMapStyleMenu();
             }
-        } else {
-            themeFile = preferenceManager.getInternalRenderTheme();
         }
 
         return themeFile;
@@ -397,17 +451,21 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
                 .withOptionsMenu(optionsMenu);
 
         updateMapFragmentViewState(followGps);
+
+        if (followGps) {
+            onLocationChanged(gpsManager.getLastKnowLocation());
+        } else {
+            mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
+        }
     }
 
     private void updateMapFragmentViewState(boolean followGps) {
-        MapFragmentViewState state = mapFragmentViewStateBuilder
+        mapFragmentViewStateBuilder
                 .withMoveEnabled(!followGps)
                 .withRotationEnabled(!followGps)
                 .withTiltEnabled(true)
                 .withZoomEnabled(true)
                 .build();
-
-        mapFragmentViewStateObservable.setValue(state);
     }
 
     void onMapPositionChangedByUser(MapPosition mapPosition) {
@@ -443,9 +501,7 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
                 .withMapPosition(mapPosition)
                 .withLocationLayerInfo(locationLayerInfo);
 
-        if (mapInitializationStateObservable.getValue() instanceof MapInitializedState) {
-            mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
-        }
+        setMapFragmentViewStateIfInitialized();
     }
 
     @Override
@@ -467,13 +523,13 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
         mapFragmentViewStateBuilder
                 .withLocationLayerInfo(locationLayerInfo);
 
-        if (mapInitializationStateObservable.getValue() instanceof MapInitializedState) {
-            mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
-        }
+        setMapFragmentViewStateIfInitialized();
     }
 
     void onVisible() {
-        headingManager.addHeadingListener(this);
+        if (!preferenceManager.mapDisplaysNorthUp()) {
+            headingManager.addHeadingListener(this);
+        }
     }
 
     void onInvisible() {
@@ -499,6 +555,60 @@ public class MapFragmentViewModel extends ViewModel implements GpsManager.GpsFix
             locationLayerInfo.bearing = -heading.get();
         }
 
+        setMapFragmentViewStateIfInitialized();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (preferenceManager.KEY_USE_ONLINE_MAP.equals(key) ||
+                preferenceManager.KEY_ONLINE_MAP.equals(key) ||
+                preferenceManager.KEY_OFFLINE_MAP.equals(key)) {
+            if (preferenceManager.useOnlineMap() ||
+                    !preferenceManager.getOfflineMap().isEmpty()) {
+                mapInitializedStateBuilder.withTileSource(getTileSource());
+
+                setMapInitializedStateIfRenderThemeIsSet();
+            }
+        }
+
+        if (preferenceManager.KEY_USE_INTERNAL_RENDER_THEME.equals(key) ||
+                preferenceManager.KEY_INTERNAL_RENDER_THEME.equals(key) ||
+                preferenceManager.KEY_EXTERNAL_RENDER_THEME.equals(key)) {
+            if (preferenceManager.useInternalRenderTheme()) {
+                loadRenderTheme();
+            } else {
+                try {
+                    externalRenderThemeManager.getThemeWithName(preferenceManager.getExternalRenderThemeName());
+                    loadRenderTheme();
+                } catch (IRenderTheme.ThemeException e) {
+                    //To bad stay with what we've got
+                }
+            }
+        }
+
+        if (preferenceManager.KEY_MAP_SCALE_BAR_TYPE.equals(key)) {
+            mapInitializedStateBuilder.withScaleBarType(preferenceManager.getScaleBarType());
+
+            setMapInitializedStateIfRenderThemeIsSet();
+        }
+
+        if (preferenceManager.KEY_MAP_DISPLAY_NORTH_UP.equals(key)) {
+            if (preferenceManager.mapDisplaysNorthUp()) {
+                headingManager.removeHeadingListener(this);
+                onHeadingChanged(new IntegerDegrees(0));
+            } else {
+                headingManager.addHeadingListener(this);
+            }
+        }
+    }
+
+    private void setMapInitializedStateIfRenderThemeIsSet() {
+        if (mapInitializedStateBuilder.hasRenderTheme()) {
+            setMapInitializedState(mapInitializedStateBuilder.getRenderTheme());
+        }
+    }
+
+    private void setMapFragmentViewStateIfInitialized() {
         if (mapInitializationStateObservable.getValue() instanceof MapInitializedState) {
             mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
         }

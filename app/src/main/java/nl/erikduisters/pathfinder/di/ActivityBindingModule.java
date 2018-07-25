@@ -6,6 +6,8 @@ import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivityBindingModule;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityBindingModule;
+import nl.erikduisters.pathfinder.ui.activity.settings.SettingsActivity;
+import nl.erikduisters.pathfinder.ui.activity.settings.SettingsActivityBindingModule;
 
 /**
  * Created by Erik Duisters on 01-06-2018.
@@ -18,4 +20,7 @@ abstract class ActivityBindingModule {
 
     @ContributesAndroidInjector(modules = GpsStatusActivityBindingModule.class)
     abstract GpsStatusActivity contributeGpsStatusActivity();
+
+    @ContributesAndroidInjector(modules = SettingsActivityBindingModule.class)
+    abstract SettingsActivity contributeSettingsActivity();
 }

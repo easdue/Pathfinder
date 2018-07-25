@@ -27,6 +27,7 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
+import nl.erikduisters.pathfinder.ui.activity.settings.SettingsActivity;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
@@ -233,7 +234,8 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
                         .setValue(new StartActivityViewState(GpsStatusActivity.class));
                 break;
             case R.id.nav_settings:
-                //TODO:
+                startActivityViewStateObservable
+                        .setValue(new StartActivityViewState(SettingsActivity.class));
                 break;
         }
     }

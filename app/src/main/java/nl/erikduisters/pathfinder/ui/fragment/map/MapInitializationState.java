@@ -27,7 +27,7 @@ public interface MapInitializationState {
         @NonNull final IRenderTheme renderTheme;
         final boolean addBuildingLayer;
         final boolean addLabelLayer;
-        final @ScaleBarType int scaleBarType;
+        final ScaleBarType scaleBarType;
         final boolean addLocationLayer;
         final @RawRes int locationFixedMarkerSvgResId;
         final @RawRes int locationNotFixedMarkerSvgResId;
@@ -48,7 +48,7 @@ public interface MapInitializationState {
             private IRenderTheme renderTheme;
             private boolean addBuildingLayer;
             private boolean addLabelLayer;
-            private @ScaleBarType int scaleBarType;
+            private ScaleBarType scaleBarType;
             private boolean addLocationLayer;
             private @RawRes int locationFixedMarkerSvgResId;
             private @RawRes int locationNotFixedMarkerSvgResId;
@@ -65,6 +65,11 @@ public interface MapInitializationState {
                 return this;
             }
 
+            public boolean hasRenderTheme() {
+                return renderTheme != null;
+            }
+            public IRenderTheme getRenderTheme() { return renderTheme; }
+
             public Builder withBuildingLayer() {
                 addBuildingLayer = true;
 
@@ -77,7 +82,7 @@ public interface MapInitializationState {
                 return this;
             }
 
-            public Builder withScaleBarType(@ScaleBarType int scaleBarType) {
+            public Builder withScaleBarType(ScaleBarType scaleBarType) {
                 this.scaleBarType = scaleBarType;
 
                 return this;

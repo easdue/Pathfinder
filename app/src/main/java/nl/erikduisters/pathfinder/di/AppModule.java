@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -94,5 +95,11 @@ abstract class AppModule {
         }
 
         return builder;
+    }
+
+    @Provides
+    @Singleton
+    static AssetManager provideAssetManager(@ApplicationContext Context context) {
+        return context.getAssets();
     }
 }

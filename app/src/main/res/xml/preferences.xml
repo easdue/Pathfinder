@@ -1,87 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- TODO: Add summaries -->
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <Preference
-        android:key="@string/key_storage_directory"
-        android:title="@string/prefs_storage_location"
-        android:selectable="false"/>
-    <Preference
-        android:key="@string/key_cache_directory"/>
-    <EditTextPreference
-        android:key="@string/key_storage_import_directory"
-        android:title="@string/prefs_import_directory"
-        android:defaultValue='Import'/>
-    <EditTextPreference
-        android:key="@string/key_storage_cache_directory"
-        android:title="@string/prefs_cache_directory"
-        android:defaultValue='Cache'/>
-    <EditTextPreference
-        android:key="@string/key_storage_user_directory"
-        android:title="@string/prefs_user_directory"
-        android:defaultValue="User"/>
-    <EditTextPreference
-        android:key="@string/key_storage_map_directory"
-        android:title="@string/prefs_map_directory"
-        android:defaultValue="Maps"/>
-    <EditTextPreference
-        android:key="@string/key_storage_render_theme_directory"
-        android:title="@string/prefs_render_theme_directory"
-        android:defaultValue="RenderThemes"/>
-    <SwitchPreference
-        android:key="@string/key_ask_to_enable_gps"
-        android:title="@string/prefs_ask_to_enable_gps"
-        android:defaultValue="true"/>
-    <SwitchPreference
-        android:key="@string/key_ask_to_resolve_play_services_unavailability"
-        android:title="@string/prefs_ask_to_resolve_play_services_unavailability"
-        android:defaultValue="true"/>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/prefs_settings">
+
+    <PreferenceCategory
+        android:title="@string/prefs_reminders">
+
+        <SwitchPreference
+            android:key="@string/key_ask_to_enable_gps"
+            android:title="@string/prefs_reminder_gps"
+            android:summaryOn="@string/prefs_reminder_gps_on"
+            android:summaryOff="@string/prefs_reminder_gps_off"
+            android:defaultValue="true"/>
+
+        <SwitchPreference
+            android:key="@string/key_ask_to_resolve_play_services_unavailability"
+            android:title="@string/prefs_reminder_google_play_services"
+            android:summaryOn="@string/prefs_reminder_google_play_services_on"
+            android:summaryOff="@string/prefs_reminder_google_play_services_off"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
+
     <PreferenceScreen
         android:key="@string/key_map_preferences"
         android:title="@string/prefs_map_preferences">
 
-        <SwitchPreference
-            android:key="@string/key_map_use_offline_map"
-            android:title="@string/prefs_map_use_offline_map"
-            android:defaultValue="false"/>
+        <PreferenceCategory
+            android:title="@string/prefs_map_source">
 
-        <Preference
-            android:key="@string/key_map_offline_map"
-            android:title="@string/prefs_map_offline_map"
-            android:defaultValue="@string/empty"/>
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="@string/key_map_use_online_map"
+                android:title="@string/prefs_map_use_online_map"/>
 
-        <Preference
-            android:key="@string/key_map_online_map"
-            android:title="@string/prefs_map_online_map"
-            android:defaultValue="0"/>
+            <ListPreference
+                android:key="@string/key_map_online_map"
+                android:title="@string/prefs_map_online_map"
+                app:asp_menuMode="simple_adaptive"/>
 
-        <SwitchPreference
-            android:key="@string/key_map_use_external_render_theme"
-            android:title="@string/prefs_map_use_external_render_theme"
-            android:defaultValue="false"/>
+            <nl.erikduisters.pathfinder.ui.preference.ListPreferenceWithButton
+                android:key="@string/key_map_offline_map"
+                android:title="@string/prefs_map_offline_map"
+                app:asp_menuMode="dialog"/>
+        </PreferenceCategory>
 
-        <Preference
-            android:key="@string/key_map_internal_render_theme"
-            android:title="@string/prefs_map_internal_render_theme"/>
+        <PreferenceCategory
+            android:title="@string/prefs_map_render_theme">
 
-        <Preference
-            android:key="@string/key_map_external_render_theme"
-            android:title="@string/prefs_map_external_render_theme"/>
+            <SwitchPreference
+                android:defaultValue="true"
+                android:key="@string/key_map_use_internal_render_theme"
+                android:title="@string/prefs_map_use_internal_render_theme"/>
 
-        <Preference
-            android:key="@string/key_map_render_theme_style"
-            android:title="@string/prefs_map_render_theme_style"/>
+            <ListPreference
+                android:key="@string/key_map_internal_render_theme"
+                android:title="@string/prefs_map_internal_render_theme"
+                app:asp_menuMode="simple_adaptive"/>
 
-        <Preference
+            <ListPreference
+                android:key="@string/key_map_external_render_theme"
+                android:title="@string/prefs_map_external_render_theme"
+                app:asp_menuMode="simple_adaptive"/>
+        </PreferenceCategory>
+
+        <ListPreference
             android:key="@string/key_map_scale_bar_type"
-            android:title="@string/prefs_map_scale_bar_type"/>
+            android:title="@string/prefs_map_scale_bar_type"
+            app:asp_menuMode="simple_adaptive"/>
 
         <SwitchPreference
-            android:key="@string/key_map_display_north_up"
-            android:title="@string/prefs_map_display_mode"
             android:defaultValue="false"
+            android:key="@string/key_map_display_north_up"
             android:summaryOff="@string/prefs_map_heading_up"
-            android:summaryOn="@string/prefs_map_north_up"/>
+            android:summaryOn="@string/prefs_map_north_up"
+            android:title="@string/prefs_map_display_mode"/>
 
     </PreferenceScreen>
 </PreferenceScreen>

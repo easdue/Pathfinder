@@ -48,7 +48,7 @@ public class MyApplication extends Application implements HasActivityInjector {
             Timber.plant(new ReleaseTree());
         }
 
-        //TODO: Maybe make this optional through a preference see: https://docs.fabric.io/android/crashlytics/build-tools.html
+        //TODO: Maybe make this optional through a preference
         if (Build.PRODUCT.startsWith("sdk") || Build.PRODUCT.startsWith("vbox")) {
             Timber.d("Disabled Crashlytics");
             CrashlyticsCore disabled = new CrashlyticsCore.Builder()

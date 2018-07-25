@@ -59,9 +59,12 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
     implementation "com.android.support:support-annotations:$supportLibraryVersion"
     implementation "com.android.support:support-fragment:$supportLibraryVersion"
+    implementation "com.android.support:preference-v7:$supportLibraryVersion"
+    //implementation "com.android.support:preference-v14:$supportLibraryVersion"
     implementation "com.google.android.gms:play-services-location:$googlePlayServicesVersion"
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     implementation "android.arch.lifecycle:common-java8:$lifecycle_version"
+    implementation "net.xpece.android:support-preference:2.2.0"
 
     implementation "android.arch.persistence.room:runtime:$room_version"
     annotationProcessor "android.arch.persistence.room:compiler:$room_version"

@@ -8,6 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="compassStyle">@style/Widget.Compass</item>
         <item name="verticalProgressBarStyle">@style/Widget.VerticalProgressBar</item>
+        <item name="preferenceTheme">@style/MyPreferenceTheme</item>
+        <item name="asp_preferenceIconTint">@color/colorAccent</item>
+        <item name="asp_preferenceDialogIconTint">@color/colorAccent</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -19,6 +22,10 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="SubAppTheme" parent="AppTheme.NoActionBar"/>
+
+    <style name="FullScreenDialogTheme" parent="SubAppTheme">
+        <!-- Use this for a white background <item name="android:windowBackground">@color/white</item> -->
+    </style>
 
     <style name="MyRecyclerView" parent="@android:style/Widget.ListView.White">
     </style>
@@ -41,4 +48,14 @@
         <item name="android:maxWidth">12dip</item>
     </style>
 
+    <!-- Hack to get preference titles/summary aligned with the ActionBar Title. -->
+    <style name="MyPreferenceTheme" parent="PreferenceThemeOverlay.Material">
+        <!-- <item name="listPreferredItemPaddingLeft">72dp</item> -->
+        <item name="android:icon">@android:color/transparent</item>
+        <item name="preferenceCategoryStyle">@style/MyPreferenceCategoryStyle</item>
+    </style>
+
+    <style name="MyPreferenceCategoryStyle" parent="Preference.Material.Category">
+        <item name="android:layout">@layout/my_preference_category</item>
+    </style>
 </resources>
