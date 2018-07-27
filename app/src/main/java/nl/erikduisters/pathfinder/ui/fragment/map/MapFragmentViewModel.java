@@ -182,6 +182,7 @@ public class MapFragmentViewModel
         if (!mapFileTileSource.setMapFile(preferenceManager.getStorageDir() + preferenceManager.getStorageMapSubDir() + preferenceManager.getOfflineMap())) {
             //TODO: Inform the user that the mapfile does not exits
             preferenceManager.setUseOnlineMap(true);
+            preferenceManager.setOfflineMap("");
             return getOnlineTileSource();
         }
 
@@ -205,6 +206,7 @@ public class MapFragmentViewModel
     void tileSourceCannotBeSet(TileSource tileSource) {
         if (tileSource instanceof MapFileTileSource) {
             preferenceManager.setUseOnlineMap(true);
+            preferenceManager.setOfflineMap("");
 
             clearMapStyleMenu();
 
@@ -560,30 +562,12 @@ public class MapFragmentViewModel
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (preferenceManager.KEY_USE_ONLINE_MAP.equals(key) ||
-                preferenceManager.KEY_ONLINE_MAP.equals(key) ||
-                preferenceManager.KEY_OFFLINE_MAP.equals(key)) {
-            if (preferenceManager.useOnlineMap() ||
-                    !preferenceManager.getOfflineMap().isEmpty()) {
-                mapInitializedStateBuilder.withTileSource(getTileSource());
-
-                setMapInitializedStateIfRenderThemeIsSet();
-            }
+        if (handleTileSourcePreferenceChanges(key)) {
+            return;
         }
 
-        if (preferenceManager.KEY_USE_INTERNAL_RENDER_THEME.equals(key) ||
-                preferenceManager.KEY_INTERNAL_RENDER_THEME.equals(key) ||
-                preferenceManager.KEY_EXTERNAL_RENDER_THEME.equals(key)) {
-            if (preferenceManager.useInternalRenderTheme()) {
-                loadRenderTheme();
-            } else {
-                try {
-                    externalRenderThemeManager.getThemeWithName(preferenceManager.getExternalRenderThemeName());
-                    loadRenderTheme();
-                } catch (IRenderTheme.ThemeException e) {
-                    //To bad stay with what we've got
-                }
-            }
+        if (handleRenderThemePreferenceChanges(key)) {
+            return;
         }
 
         if (preferenceManager.KEY_MAP_SCALE_BAR_TYPE.equals(key)) {
@@ -600,6 +584,52 @@ public class MapFragmentViewModel
                 headingManager.addHeadingListener(this);
             }
         }
+    }
+
+    private boolean handleTileSourcePreferenceChanges(String key) {
+        boolean useOnlineMapPrefChanged = preferenceManager.KEY_USE_ONLINE_MAP.equals(key);
+        boolean onlineMapPrefChanged = preferenceManager.KEY_ONLINE_MAP.equals(key);
+        boolean offLineMapPrefChanged = preferenceManager.KEY_OFFLINE_MAP.equals(key);
+
+        boolean setNewTileSource = false;
+
+        if (onlineMapPrefChanged && preferenceManager.useOnlineMap()) {
+            setNewTileSource = true;
+        } else if (offLineMapPrefChanged && !preferenceManager.useOnlineMap()) {
+            setNewTileSource = true;
+        } else if (useOnlineMapPrefChanged) {
+            setNewTileSource = true;
+        }
+
+        if (setNewTileSource) {
+            mapInitializedStateBuilder.withTileSource(getTileSource());
+
+            setMapInitializedStateIfRenderThemeIsSet();
+        }
+
+        return useOnlineMapPrefChanged || onlineMapPrefChanged || offLineMapPrefChanged;
+    }
+
+    private boolean handleRenderThemePreferenceChanges(String key) {
+        boolean useInternalRenderThemePrefChanged = preferenceManager.KEY_USE_INTERNAL_RENDER_THEME.equals(key);
+        boolean internalRenderThemePrefChanged = preferenceManager.KEY_INTERNAL_RENDER_THEME.equals(key);
+        boolean externalRenderThemePrefChanged = preferenceManager.KEY_EXTERNAL_RENDER_THEME.equals(key);
+
+        boolean loadNewRenderTheme = false;
+
+        if (internalRenderThemePrefChanged && preferenceManager.useInternalRenderTheme()) {
+            loadNewRenderTheme = true;
+        } else if (externalRenderThemePrefChanged && !preferenceManager.useInternalRenderTheme()) {
+            loadNewRenderTheme = true;
+        } else if (useInternalRenderThemePrefChanged) {
+            loadNewRenderTheme = true;
+        }
+
+        if (loadNewRenderTheme) {
+            loadRenderTheme();
+        }
+
+        return useInternalRenderThemePrefChanged || internalRenderThemePrefChanged || externalRenderThemePrefChanged;
     }
 
     private void setMapInitializedStateIfRenderThemeIsSet() {

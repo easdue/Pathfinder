@@ -12,6 +12,7 @@ import android.support.v7.preference.XpPreferenceFragment;
 import android.view.View;
 
 import net.xpece.android.support.preference.ListPreference;
+import net.xpece.android.support.preference.SwitchPreference;
 
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.VtmThemes;
@@ -107,11 +108,7 @@ public class SettingsFragment
 
     @Override
     public void onCreatePreferences2(Bundle savedInstanceState, String rootKey) {
-        if (rootKey == null) {
-            addPreferencesFromResource(R.xml.preferences);
-        } else {
-            setPreferencesFromResource(R.xml.preferences, rootKey);
-        }
+        setPreferencesFromResource(R.xml.preferences, rootKey);
 
         setupPreferenceScreen();
     }
@@ -137,15 +134,13 @@ public class SettingsFragment
     }
 
     private void setupMapSourcePreferences(PreferenceScreen screen) {
-        setupOnlineMapPreferences(screen);
-        setupOfflineMapPreferences(screen);
+        setupOnlineMapPreference(screen);
+        boolean offLineMapConfigured = setupOfflineMapPreference(screen);
+        setupUseOnlineMapPreference(screen, offLineMapConfigured);
     }
 
-    private void setupOnlineMapPreferences(PreferenceScreen screen) {
-        boolean online = preferenceManager.useOnlineMap();
-
+    private void setupOnlineMapPreference(PreferenceScreen screen) {
         ListPreference listPreference = (ListPreference) screen.findPreference(getString(R.string.key_map_online_map));
-        listPreference.setEnabled(online);
 
         if (listPreference.getEntries() == null) {
             listPreference.setEntries(getEntries(OnlineMap.class, false));
@@ -156,11 +151,10 @@ public class SettingsFragment
         listPreference.setSummary(listPreference.getEntry());
     }
 
-    private void setupOfflineMapPreferences(PreferenceScreen screen) {
-        boolean online = preferenceManager.useOnlineMap();
+    private boolean setupOfflineMapPreference(PreferenceScreen screen) {
+        boolean configured = false;
 
         ListPreferenceWithButton preference = (ListPreferenceWithButton) screen.findPreference(getString(R.string.key_map_offline_map));
-        preference.setEnabled(!online);
 
         if (preference.getEntries() == null) {
             String[] mapNames = getOfflineMapNames();
@@ -171,10 +165,29 @@ public class SettingsFragment
 
             if (arrayContains(mapNames, currentMap)) {
                 preference.setValue(currentMap);
+                configured = true;
+            } else if (mapNames.length > 0) {
+                preference.setValue(mapNames[0]);
+                configured = true;
+            } else {
+                preference.setValue("");
             }
         }
 
         preference.setSummary(preference.getEntry());
+
+        if (!configured && !preferenceManager.useOnlineMap()) {
+            preferenceManager.setUseOnlineMap(true);
+        }
+
+        return configured;
+    }
+
+    private void setupUseOnlineMapPreference(PreferenceScreen screen, boolean offlineMapConfigured) {
+        SwitchPreference switchPreference = (SwitchPreference) screen.findPreference(preferenceManager.KEY_USE_ONLINE_MAP);
+
+        switchPreference.setChecked(preferenceManager.useOnlineMap());
+        switchPreference.setEnabled(offlineMapConfigured);
     }
 
     private String[] getOfflineMapNames() {
@@ -214,10 +227,7 @@ public class SettingsFragment
     }
 
     private void setupInternalThemePreferences(PreferenceScreen screen) {
-        boolean internal = preferenceManager.useInternalRenderTheme();
-
         ListPreference listPreference = (ListPreference) screen.findPreference(getString(R.string.key_map_internal_render_theme));
-        listPreference.setEnabled(internal);
 
         if (listPreference.getEntries() == null) {
             listPreference.setEntries(getEntries(VtmThemes.class, false, VtmThemes.MAPZEN));
@@ -229,10 +239,7 @@ public class SettingsFragment
     }
 
     private void setupExternalThemePreferences(PreferenceScreen screen) {
-        boolean internal = preferenceManager.useInternalRenderTheme();
-
         ListPreference listPreference = (ListPreference) screen.findPreference(getString(R.string.key_map_external_render_theme));
-        listPreference.setEnabled(!internal);
 
         if (listPreference.getEntries() == null) {
             CharSequence[] themeNames = externalRenderThemeManager.getThemeNames();
@@ -320,7 +327,7 @@ public class SettingsFragment
     public void onDisplayPreferenceDialog(Preference preference) {
         if (preference instanceof ListPreferenceWithButton) {
             ListPreferenceWithButtonDialogFragment fragment =
-                    ListPreferenceWithButtonDialogFragment.newInstance(preference.getKey(), R.string.download_map, R.string.download_map);
+                    ListPreferenceWithButtonDialogFragment.newInstance(preference.getKey(), R.string.download_map, R.string.no_offline_maps_available);
 
             fragment.setTargetFragment(this, 0);
             fragment.setButtonClickListener(this);
