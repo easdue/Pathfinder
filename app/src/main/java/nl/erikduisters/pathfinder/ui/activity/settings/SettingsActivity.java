@@ -49,12 +49,16 @@ public class SettingsActivity
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        SettingsFragment settingsFragment = SettingsFragment.newInstance(null);
+        SettingsFragment settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentPlaceHolder);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.fragmentPlaceHolder, settingsFragment)
-                .commit();
+        if (settingsFragment == null) {
+            settingsFragment = SettingsFragment.newInstance(null);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.fragmentPlaceHolder, settingsFragment)
+                    .commit();
+        }
     }
 
     @Override
