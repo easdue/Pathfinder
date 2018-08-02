@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -81,7 +83,6 @@ public class ListPreferenceWithButtonDialogFragment
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog dialog = (AlertDialog) super.onCreateDialog(savedInstanceState);
         listView = dialog.getListView();
-
         listView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
         button.setText(getArguments().getInt(ARG_BUTTON_TEXT));
@@ -113,6 +114,8 @@ public class ListPreferenceWithButtonDialogFragment
     public void onClick(View v) {
         if (listener != null) {
             listener.onButtonClicked((ListPreferenceWithButton) getPreference());
+
+            dismiss();
         }
     }
 
@@ -125,6 +128,14 @@ public class ListPreferenceWithButtonDialogFragment
         }
 
         ViewParent viewParent = listView.getParent();
+
+        /*
+         * If you want something done right you have to do it yourself.
+         * The RecyclerViews containing FrameLayout has height:wrap_content but the RecyclerView as height:match_parent
+         */
+        FrameLayout frameLayout = (FrameLayout) listView.getParent();
+        frameLayout.setLayoutParams(new LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, 0, 1.0f));
+        frameLayout.requestLayout();
 
         if (viewParent != null && viewParent instanceof View) {
             ((View) listView.getParent()).setVisibility(hideListView ? View.GONE : View.VISIBLE);
