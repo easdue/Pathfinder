@@ -100,10 +100,10 @@ public class RenderSvgView extends UseCase<RenderSvgView.RequestInfo, SvgView> {
         fileNameTemplate.append(requestInfo.version)
                 .append(".png");
 
-        fileNameTemplate.insert(0, requestInfo.svgCacheDir);
+        File outFile = new File(requestInfo.svgCacheDir, fileNameTemplate.toString());
 
         try {
-            bos = new BufferedOutputStream(new FileOutputStream(fileNameTemplate.toString(), false));
+            bos = new BufferedOutputStream(new FileOutputStream(outFile.getAbsolutePath(), false));
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
             bos.flush();
         } catch (FileNotFoundException e) {

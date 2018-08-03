@@ -53,18 +53,16 @@ public class SvgRenderer {
     }
 
     public void render(SvgView view) {
-        String svgCacheDir = preferenceManager.getCacheDir() + CACHESUBDIR;
-
         /* Make sure the cachedir exists. If the user clears the cache android deletes
          * the entire cache directory
          */
-        File f = new File(svgCacheDir);
+        File f = new File(preferenceManager.getCacheDir(), CACHESUBDIR);
         if (!f.exists()) {
             f.mkdirs();
         }
 
         if (cancelPotentialWork(view)) {
-            RenderSvgView.RequestInfo requestInfo = new RenderSvgView.RequestInfo(view, svgCacheDir, versionCode);
+            RenderSvgView.RequestInfo requestInfo = new RenderSvgView.RequestInfo(view, f.getAbsolutePath(), versionCode);
             RenderSvgView useCase = new RenderSvgView(requestInfo, new UseCase.Callback<SvgView>() {
                 @Override
                 public void onResult(@NonNull SvgView result) {
