@@ -46,11 +46,7 @@ public class OkMessageDialog extends DialogFragment {
         }
 
         builder.setTitle(msg.titleResId);
-        if (msg.messageResId > 0) {
-            builder.setMessage(msg.messageResId);
-        } else {
-            builder.setMessage(msg.message);
-        }
+        builder.setMessage(msg.getMessage(getContext()));
 
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

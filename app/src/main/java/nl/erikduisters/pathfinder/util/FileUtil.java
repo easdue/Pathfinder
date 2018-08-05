@@ -82,4 +82,12 @@ public class FileUtil {
 
         return path;
     }
+
+    public static String removeEndSeparator(String path) {
+        if (path.endsWith(File.separator)) {
+            return path.substring(0, path.length()-1);
+        }
+
+        return path;
+    }
 }

@@ -68,6 +68,9 @@
     <string name="key_gps_bearing_duration" translatable="false">gps_bearing_duration</string>
     <string name="key_unit" translatable="false">unit</string>
     <string name="key_coordinate_display_format" translatable="false">coordinate_display_format</string>
+    <string name="key_downloading_maps" translatable="false">downloading_maps</string>
+    <string name="key_retryable_map_download_ids" translatable="false">retryable_map_download_ids</string>
+    <string name="key_reported_failed_map_download_ids" translatable="false">reported_failed_map_download_ids</string>
 
     <string name="prefs_settings">Settings</string>
     <string name="prefs_reminders">Reminders</string>
@@ -218,4 +221,38 @@
 
     <!-- Manage offline maps -->
     <string name="no_offline_maps_available">No offline maps available</string>
+
+    <!-- DownloadMapActivity/Fragment/Service -->
+    <string name="activity_download_map_name">Download Maps</string>
+    <string name="please_use_the_main_download_link">Please use the main download link</string>
+    <string name="the_render_theme_is_already_installed">The render theme is already installed</string>
+    <string name="world_maps_are_not_supported">World maps are not supported</string>
+    <string name="pois_are_not_supported">Points of interest are not supported</string>
+    <string name="downloading_map">Downloading: %s</string>
+    <string name="already_downloading_map">Already downloading: %s</string>
+    <string name="notification_summary">Downloading map</string>
+
+    <!-- BaseActivity -->
+    <string name="menu_failed_downloads_available">Failed downloads available!\nClick to open Downloads app</string>
+    <string name="menu_retryable_downloads">Unpacking a map failed!\nClick for more information</string>
+    <string name="map_available">Map %s is now available!</string>
+    <string name="map_download_failed">Downloading %s failed!</string>
+    <string name="map_unzip_failed">Unzipping %s failed!</string>
+    <string name="map_unpack_fialed_dialog_title">Unpack failed!</string>
+    <string name="map_unpack_failed_dialog_message">Unpacking one or more maps failed because there is not enough available space in: %s.\n\nYou can retry unpacking after you free up more space or delete the downloaded map from the Downloads app</string>
+    <string name="retry">Retry</string>
+    <string name="open_downloads_app">Open downloads App</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- MapDownloadService -->
+    <string name="extracting_maps">Extracting maps</string>
+    <string name="extracting_map">Extracting %s</string>
+    <string name="available_maps_title">New available maps</string>
+    <string name="available_maps_description">There are new maps available</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_extracting_maps">Extracting maps</string>
+    <string name="channel_extracting_maps_description">Used to show map extraction notification</string>
+    <string name="channel_available_maps">Available maps</string>
+    <string name="channel_available_maps_description">Used to show new map availability notification</string>
 </resources>

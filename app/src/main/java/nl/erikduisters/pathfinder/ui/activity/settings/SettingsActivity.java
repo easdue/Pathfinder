@@ -2,46 +2,37 @@ package nl.erikduisters.pathfinder.ui.activity.settings;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-
-import javax.inject.Inject;
+import android.view.View;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import dagger.android.AndroidInjection;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.HasSupportFragmentInjector;
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.fragment.settings.SettingsFragment;
+import nl.erikduisters.pathfinder.viewmodel.VoidViewModel;
 
 /**
  * Created by Erik Duisters on 18-07-2018.
  */
-public class SettingsActivity
-        extends AppCompatActivity
-        implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
-                   PreferenceFragmentCompat.OnPreferenceStartScreenCallback,
-                   HasSupportFragmentInjector {
-    @Inject
-    DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
 
+public class SettingsActivity
+        extends BaseActivity<VoidViewModel>
+        implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
+                   PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+
+    @BindView(R.id.contraintLayout) ConstraintLayout constraintLayout;
     @BindView(R.id.toolbar) Toolbar toolbar;
+    private SettingsFragment settingsFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_settings);
-
-        ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
 
@@ -49,7 +40,7 @@ public class SettingsActivity
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        SettingsFragment settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentPlaceHolder);
+        settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentPlaceHolder);
 
         if (settingsFragment == null) {
             settingsFragment = SettingsFragment.newInstance(null);
@@ -59,6 +50,21 @@ public class SettingsActivity
                     .add(R.id.fragmentPlaceHolder, settingsFragment)
                     .commit();
         }
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_settings;
+    }
+
+    @Override
+    protected Class<VoidViewModel> getViewModelClass() {
+        return VoidViewModel.class;
+    }
+
+    @Override
+    protected View getCoordinatorLayoutOrRootView() {
+        return constraintLayout;
     }
 
     @Override
@@ -101,7 +107,9 @@ public class SettingsActivity
     }
 
     @Override
-    public DispatchingAndroidInjector<Fragment> supportFragmentInjector() {
-        return dispatchingAndroidInjector;
+    public void onMapAvailable(String mapName) {
+        super.onMapAvailable(mapName);
+
+        settingsFragment.onMapAvailable();
     }
 }

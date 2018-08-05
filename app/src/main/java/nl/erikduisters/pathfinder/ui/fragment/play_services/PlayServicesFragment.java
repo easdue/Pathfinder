@@ -228,6 +228,11 @@ public class PlayServicesFragment
     }
 
     @Override
+    public void onDialogCancelled(@NonNull String tag) {
+        viewModel.onUserDoesNotWantToResolveUnavailabilityState(false);
+    }
+
+    @Override
     public void checkLocationSettings(LocationRequest locationRequest, LocationSettingsCallback callback) {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);

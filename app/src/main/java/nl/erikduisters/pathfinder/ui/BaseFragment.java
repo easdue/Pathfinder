@@ -27,7 +27,7 @@ import timber.log.Timber;
  * Created by Erik Duisters on 02-06-2018.
  */
 
-public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
+public abstract class BaseFragment<VM extends ViewModel> extends Fragment implements BackPressed {
     @Nullable private Unbinder unbinder;
 
     @Inject
@@ -152,5 +152,10 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment {
             Timber.d("Dismissing dialog: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
             fragment.dismiss();
         }
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return false;
     }
 }

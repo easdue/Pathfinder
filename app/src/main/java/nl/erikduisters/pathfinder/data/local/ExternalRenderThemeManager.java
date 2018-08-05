@@ -63,10 +63,6 @@ public class ExternalRenderThemeManager {
     private void getAssetsThemes() {
         String renderThemeBaseDir = preferenceManager.getStorageRenderThemeSubDir();
 
-        if (renderThemeBaseDir.endsWith(File.separator)) {
-            renderThemeBaseDir = renderThemeBaseDir.substring(0, renderThemeBaseDir.length() - 1);
-        }
-
         try {
             String[] renderThemeDirs = assetManager.list(renderThemeBaseDir);
 
@@ -98,7 +94,7 @@ public class ExternalRenderThemeManager {
     }
 
     private void getStorageThemes() {
-        File renderThemeDir = new File(preferenceManager.getStorageDir(), preferenceManager.getStorageRenderThemeSubDir());
+        File renderThemeDir = preferenceManager.getStorageRenderThemeDir();
 
         File[] dirEntries = renderThemeDir.listFiles(pathname -> {
             if (pathname.isDirectory()) {

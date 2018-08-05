@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -25,6 +26,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.service.MapDownloadService;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
@@ -56,11 +58,13 @@ import timber.log.Timber;
 //TODO: Bottom navigation instead of tabs?
 //TODO: On orientation change restore last visible viewPager fragment
 //TODO: Remind user of mobile data usage and possible unavailability when using online map or remind users to install an offline map
+//TODO: After setting finish state the viewState must be set to null or something else otherwise the app cannot be started again
+//TODO: Allow user to configure a new storage location (clear storagedir/cachedir and storageUUID
 public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
                    FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener,
-                   PlayServicesFragment.PlayServicesFragmentListener, PositiveNegativeButtonMessageDialog.Listener,
+                   PlayServicesFragment.PlayServicesFragmentListener,
                    ViewPager.OnPageChangeListener, ViewTreeObserver.OnGlobalLayoutListener{
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
@@ -70,6 +74,9 @@ public class MainActivity
     private static final String TAG_INIT_DATABASE_PROGRESS_DIALOG = "InitDatabaseProgressDialog";
     private static final String TAG_ASK_USER_TO_ENABLE_GPS_DIALOG = "AskUserToEnableGpsDialog";
 
+    public static final String INTENT_EXTRA_STARTED_FROM_MAP_AVAILABLE_NOTIFICATION = "nl.erikduisters.pathfinder.StartedFromMapAvailableNotification";
+
+    @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
     @BindView(R.id.nav_view) NavigationView navigationView;
@@ -116,6 +123,17 @@ public class MainActivity
         tabLayout.setupWithViewPager(viewPager);
 
         prevSelectedPage = -1;
+
+        onNewIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent.hasExtra(INTENT_EXTRA_STARTED_FROM_MAP_AVAILABLE_NOTIFICATION)) {
+            MapDownloadService.cleanupMapAvailableNotification();
+        }
     }
 
     @Override
@@ -126,6 +144,12 @@ public class MainActivity
     @Override
     protected Class<MainActivityViewModel> getViewModelClass() {
         return MainActivityViewModel.class;
+    }
+
+    @Override
+    protected View getCoordinatorLayoutOrRootView() {
+        //TODO: If I ever have a FAB in a fragment I will I have to ask my fragment for its coordinator layout?
+        return coordinatorLayout;
     }
 
     @Override
@@ -140,7 +164,7 @@ public class MainActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.activity_base, menu);
         return true;
     }
 
@@ -382,7 +406,22 @@ public class MainActivity
             show(dialog, tag);
         }
 
-        dialog.setListener(this);
+        dialog.setListener(new PositiveNegativeButtonMessageDialog.Listener() {
+            @Override
+            public void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+                viewModel.onUserWantsToEnableGps(neverAskAgain);
+            }
+
+            @Override
+            public void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+                viewModel.onUserDoesNotWantToEnableGps(neverAskAgain);
+            }
+
+            @Override
+            public void onDialogCancelled(@NonNull String tag) {
+                viewModel.onUserDoesNotWantToEnableGps(false);
+            }
+        });
     }
 
     @Override
@@ -395,12 +434,11 @@ public class MainActivity
 
         sb.append(getString(message.titleResId));
 
-        if (message.messageResId != 0) {
+        String msg =  message.getMessage(this);
+
+        if (!msg.isEmpty()) {
             sb.append("\n");
-            sb.append(getString(message.messageResId));
-        } else if (!message.message.isEmpty()) {
-            sb.append("\n");
-            sb.append(message.message);
+            sb.append(msg);
         }
 
         Snackbar.make(viewPager, sb.toString(), Snackbar.LENGTH_LONG).show();
@@ -424,16 +462,6 @@ public class MainActivity
     @Override
     public void onPlayServicesUnavailable() {
         viewModel.onPlayServicesUnavailable();
-    }
-
-    @Override
-    public void onPositiveButtonClicked(String tag, boolean neverAskAgain) {
-        viewModel.onUserWantsToEnableGps(neverAskAgain);
-    }
-
-    @Override
-    public void onNegativeButtonClicked(String tag, boolean neverAskAgain) {
-        viewModel.onUserDoesNotWantToEnableGps(neverAskAgain);
     }
 
     @Override

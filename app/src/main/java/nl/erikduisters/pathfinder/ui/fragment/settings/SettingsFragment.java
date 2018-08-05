@@ -1,6 +1,7 @@
 package nl.erikduisters.pathfinder.ui.fragment.settings;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,7 +19,7 @@ import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.VtmThemes;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.util.Arrays;
 
 import javax.inject.Inject;
 
@@ -29,6 +30,7 @@ import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.model.map.ExternalThemeFile;
 import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
+import nl.erikduisters.pathfinder.ui.activity.map_download.MapDownloadActivity;
 import nl.erikduisters.pathfinder.ui.activity.settings.SettingsActivity;
 import nl.erikduisters.pathfinder.ui.preference.ListPreferenceWithButton;
 import nl.erikduisters.pathfinder.ui.preference.ListPreferenceWithButtonDialogFragment;
@@ -135,8 +137,8 @@ public class SettingsFragment
 
     private void setupMapSourcePreferences(PreferenceScreen screen) {
         setupOnlineMapPreference(screen);
-        boolean offLineMapConfigured = setupOfflineMapPreference(screen);
-        setupUseOnlineMapPreference(screen, offLineMapConfigured);
+        setupOfflineMapPreference(screen);
+        setupUseOnlineMapPreference(screen);
     }
 
     private void setupOnlineMapPreference(PreferenceScreen screen) {
@@ -151,12 +153,10 @@ public class SettingsFragment
         listPreference.setSummary(listPreference.getEntry());
     }
 
-    private boolean setupOfflineMapPreference(PreferenceScreen screen) {
-        boolean configured = false;
-
+    private void setupOfflineMapPreference(PreferenceScreen screen) {
         ListPreferenceWithButton preference = (ListPreferenceWithButton) screen.findPreference(getString(R.string.key_map_offline_map));
 
-        if (preference.getEntries() == null) {
+        if (preference.getEntries() == null || preference.getEntries().length == 0) {
             String[] mapNames = getOfflineMapNames();
             preference.setEntries(mapNames);
             preference.setEntryValues(mapNames);
@@ -165,40 +165,28 @@ public class SettingsFragment
 
             if (arrayContains(mapNames, currentMap)) {
                 preference.setValue(currentMap);
-                configured = true;
             } else if (mapNames.length > 0) {
                 preference.setValue(mapNames[0]);
-                configured = true;
             } else {
                 preference.setValue("");
             }
         }
 
         preference.setSummary(preference.getEntry());
-
-        if (!configured && !preferenceManager.useOnlineMap()) {
-            preferenceManager.setUseOnlineMap(true);
-        }
-
-        return configured;
     }
 
-    private void setupUseOnlineMapPreference(PreferenceScreen screen, boolean offlineMapConfigured) {
+    private void setupUseOnlineMapPreference(PreferenceScreen screen) {
         SwitchPreference switchPreference = (SwitchPreference) screen.findPreference(preferenceManager.KEY_USE_ONLINE_MAP);
 
-        switchPreference.setChecked(preferenceManager.useOnlineMap());
+        boolean offlineMapConfigured = !preferenceManager.getOfflineMap().isEmpty();
+        switchPreference.setChecked(!offlineMapConfigured || preferenceManager.useOnlineMap());
         switchPreference.setEnabled(offlineMapConfigured);
     }
 
     private String[] getOfflineMapNames() {
-        File externalMapDir = new File(preferenceManager.getStorageDir(), preferenceManager.getStorageMapSubDir());
+        File externalMapDir = preferenceManager.getStorageMapDir();
 
-        File[] mapFiles = externalMapDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return (pathname.isFile() && pathname.getName().endsWith(".map"));
-            }
-        });
+        File[] mapFiles = externalMapDir.listFiles(pathname -> (pathname.isFile() && pathname.getName().endsWith(".map")));
 
         String[] mapFileNames = new String[mapFiles.length];
 
@@ -207,6 +195,8 @@ public class SettingsFragment
             mapFileNames[index] = mapFile.getName();
             index++;
         }
+
+        Arrays.sort(mapFileNames);
 
         return mapFileNames;
     }
@@ -342,6 +332,7 @@ public class SettingsFragment
         super.onResume();
 
         ((SettingsActivity) getActivity()).setToolbarTitle(getPreferenceScreen().getTitle());
+        setupPreferenceScreen();
     }
 
     @Override
@@ -352,6 +343,14 @@ public class SettingsFragment
 
     @Override
     public void onButtonClicked(ListPreferenceWithButton preference) {
-        //TODO: Implement
+        Intent intent = new Intent(getContext(), MapDownloadActivity.class);
+
+        startActivity(intent);
+    }
+
+    public void onMapAvailable() {
+        if (getPreferenceScreen().getTitle().equals(getString(R.string.prefs_map_preferences))) {
+            setupOfflineMapPreference(getPreferenceScreen());
+        }
     }
 }

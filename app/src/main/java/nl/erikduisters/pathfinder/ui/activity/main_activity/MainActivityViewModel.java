@@ -3,7 +3,6 @@ package nl.erikduisters.pathfinder.ui.activity.main_activity;
 import android.Manifest;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -15,6 +14,7 @@ import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.ui.BaseActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
@@ -40,19 +40,20 @@ import timber.log.Timber;
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
 //TODO: Create an OptionsMenuObservable and remove the optionsMenu from InitializedState
 //TODO: Enable/Disable navigation view menu items
+//TODO: Add a navigation options menu item allowing the user to manage external maps (eg. delete)
 /**
  * Created by Erik Duisters on 03-06-2018.
  */
 @Singleton
-public class MainActivityViewModel extends ViewModel implements InitDatabaseHelper.InitDatabaseListener {
+public class MainActivityViewModel extends BaseActivityViewModel implements InitDatabaseHelper.InitDatabaseListener {
     private MutableLiveData<MainActivityViewState> mainActivityViewStateObservable;
     private MutableLiveData<NavigationViewState> navigationViewStateObservable;
     private MutableLiveData<StartActivityViewState> startActivityViewStateObservable;
     private final GpsManager gpsManager;
-    private final PreferenceManager preferenceManager;
 
     @Inject
     MainActivityViewModel(InitDatabaseHelper initDatabaseHelper, GpsManager gpsManager, PreferenceManager preferenceManager) {
+        super(preferenceManager);
         Timber.d("New MainActivityViewModel created");
 
         mainActivityViewStateObservable = new MutableLiveData<>();
@@ -60,7 +61,6 @@ public class MainActivityViewModel extends ViewModel implements InitDatabaseHelp
         startActivityViewStateObservable = new MutableLiveData<>();
 
         this.gpsManager = gpsManager;
-        this.preferenceManager = preferenceManager;
 
         ProgressDialog.Properties properties =
                 new ProgressDialog.Properties(R.string.initializing_database, true,

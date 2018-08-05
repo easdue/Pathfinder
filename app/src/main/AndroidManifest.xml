@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.erikduisters.pathfinder" android:installLocation="preferExternal" >
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18"/>
+    <!-- On API 22 DownloadManager throws a SecurityException if I don't have WRITE_EXTERNAL_STORAGE permission normally maxSdkVersion should be 18-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="22"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- TODO: on API 28 I will require android.permission.FOREGROUND_SERVICE -->
 
     <uses-feature android:name="android.hardware.location.gps" android:required="true"/>
 
@@ -48,6 +49,25 @@
                 android:value=".ui.activity.main_activity.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".ui.activity.map_download.MapDownloadActivity"
+            android:exported="false"
+            android:theme="@style/SubAppTheme"
+            android:label="@string/activity_download_map_name"/>
+
         <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
+
+        <service
+            android:name=".service.MapDownloadService"
+            android:exported="false"/>
+        
+        <receiver
+            android:name="nl.erikduisters.pathfinder.DownloadCompleteBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>

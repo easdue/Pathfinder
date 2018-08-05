@@ -19,6 +19,7 @@ import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.bitmap.BitmapTileSource;
 import org.oscim.tiling.source.mapfile.MapFileTileSource;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -179,7 +180,9 @@ public class MapFragmentViewModel
     private TileSource getOfflineTileSource() {
         MapFileTileSource mapFileTileSource = new MapFileTileSource();
 
-        if (!mapFileTileSource.setMapFile(preferenceManager.getStorageDir() + preferenceManager.getStorageMapSubDir() + preferenceManager.getOfflineMap())) {
+        File mapFile = new File(preferenceManager.getStorageMapDir(), preferenceManager.getOfflineMap());
+
+        if (!mapFileTileSource.setMapFile(mapFile.getAbsolutePath())) {
             //TODO: Inform the user that the mapfile does not exits
             preferenceManager.setUseOnlineMap(true);
             preferenceManager.setOfflineMap("");

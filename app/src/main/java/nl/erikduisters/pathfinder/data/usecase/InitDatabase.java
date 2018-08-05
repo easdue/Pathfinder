@@ -27,7 +27,7 @@ public class InitDatabase extends ProgressUseCase<Void, InitDatabase.Progress, V
             Cursor c = database.query("SELECT _id FROM track LIMIT 1", null);
             c.close();
 
-            callback.onFinished();
+            callback.onResult(null);
         } catch (Exception e) {
             callback.onError(e);
         }

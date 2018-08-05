@@ -184,7 +184,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
     private boolean initDirectoryStructure(File storage) {
         boolean allOk;
 
-        allOk = FileUtil.createDirectory(new File(storage,preferenceManager.getStorageImportSubDir()));
+        allOk = FileUtil.createDirectory(new File(storage, preferenceManager.getStorageImportSubDir()));
         if (allOk) allOk = FileUtil.createDirectory(new File(storage, preferenceManager.getStorageMapSubDir()));
         if (allOk) allOk = FileUtil.createDirectory(new File(storage, preferenceManager.getStorageCacheSubDir()));
         if (allOk) allOk = FileUtil.createDirectory(new File(storage, preferenceManager.getStorageUserSubDir()));

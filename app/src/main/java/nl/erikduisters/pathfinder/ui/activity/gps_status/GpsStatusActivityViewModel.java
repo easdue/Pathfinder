@@ -3,11 +3,12 @@ package nl.erikduisters.pathfinder.ui.activity.gps_status;
 import android.Manifest;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import nl.erikduisters.pathfinder.data.local.PreferenceManager;
+import nl.erikduisters.pathfinder.ui.BaseActivityViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionHelper;
 
 /**
@@ -15,11 +16,12 @@ import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissi
  */
 
 @Singleton
-public class GpsStatusActivityViewModel extends ViewModel {
+public class GpsStatusActivityViewModel extends BaseActivityViewModel {
     private final MutableLiveData<GpsStatusActivityViewState> viewStateObservable;
 
     @Inject
-    GpsStatusActivityViewModel() {
+    GpsStatusActivityViewModel(PreferenceManager preferenceManager) {
+        super(preferenceManager);
         viewStateObservable = new MutableLiveData<>();
     }
 

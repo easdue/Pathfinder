@@ -6,10 +6,16 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.oscim.core.MapPosition;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.VtmThemes;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -70,6 +76,9 @@ public class PreferenceManager {
     private final String KEY_USE_GPS_BEARING_DURATION;
     private final String KEY_UNIT;
     private final String KEY_COORDINATE_DISPLAY_FORMAT;
+    private final String KEY_DOWNLOADING_MAPS;
+    private final String KEY_RETRYABLE_MAP_DOWNLOAD_IDS;
+    private final String KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -115,6 +124,9 @@ public class PreferenceManager {
         KEY_USE_GPS_BEARING_DURATION = context.getString(R.string.key_gps_bearing_duration);
         KEY_UNIT = context.getString(R.string.key_unit);
         KEY_COORDINATE_DISPLAY_FORMAT = context.getString(R.string.key_coordinate_display_format);
+        KEY_DOWNLOADING_MAPS = context.getString(R.string.key_downloading_maps);
+        KEY_RETRYABLE_MAP_DOWNLOAD_IDS = context.getString(R.string.key_retryable_map_download_ids);
+        KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS = context.getString(R.string.key_reported_failed_map_download_ids);
 
         //preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         preferences = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
@@ -137,13 +149,17 @@ public class PreferenceManager {
     public synchronized String getStorageDir() {
         if (storageDir == null) {
             storageDir = preferences.getString(KEY_STORAGE_DIRECTORY, "");
+
+            if (storageDir.endsWith(File.separator)) {
+                setStorageDir(storageDir);
+            }
         }
 
         return storageDir;
     }
 
     public synchronized void setStorageDir(String dir) {
-        storageDir = FileUtil.ensureEndsWithSeparator(dir);
+        storageDir = FileUtil.removeEndSeparator(dir);
 
         preferences.edit()
                 .putString(KEY_STORAGE_DIRECTORY, storageDir)
@@ -153,13 +169,17 @@ public class PreferenceManager {
     public synchronized String getCacheDir() {
         if (cacheDir == null) {
             cacheDir = preferences.getString(KEY_CACHE_DIRECTORY, "");
+
+            if (cacheDir.endsWith(File.separator)) {
+                setCacheDir(cacheDir);
+            }
         }
 
         return cacheDir;
     }
 
     public synchronized  void setCacheDir(String dir) {
-        cacheDir = FileUtil.ensureEndsWithSeparator(dir);
+        cacheDir = FileUtil.removeEndSeparator(dir);
 
         preferences.edit()
                 .putString(KEY_CACHE_DIRECTORY, cacheDir)
@@ -167,23 +187,43 @@ public class PreferenceManager {
     }
 
     public synchronized String getStorageImportSubDir() {
-        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_IMPORT_DIRECTORY, "Import"));
+        return FileUtil.removeEndSeparator(preferences.getString(KEY_STORAGE_IMPORT_DIRECTORY, "Import"));
+    }
+
+    public synchronized File getStorageImportDir() {
+        return new File(storageDir, getStorageImportSubDir());
     }
 
     public synchronized String getStorageCacheSubDir() {
-        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_CACHE_DIRECTORY, "Cache"));
+        return FileUtil.removeEndSeparator(preferences.getString(KEY_STORAGE_CACHE_DIRECTORY, "Cache"));
+    }
+
+    public synchronized File getStorageCacheDir() {
+        return new File(storageDir, getStorageCacheSubDir());
     }
 
     public synchronized String getStorageMapSubDir() {
-        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_MAP_DIRECTORY, "Maps"));
+        return FileUtil.removeEndSeparator(preferences.getString(KEY_STORAGE_MAP_DIRECTORY, "Maps"));
+    }
+
+    public synchronized File getStorageMapDir() {
+        return new File(storageDir, getStorageMapSubDir());
     }
 
     public synchronized String getStorageUserSubDir() {
-        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_USER_DIRECTORY, "User"));
+        return FileUtil.removeEndSeparator(preferences.getString(KEY_STORAGE_USER_DIRECTORY, "User"));
+    }
+
+    public synchronized File getStorageUserDir() {
+        return new File(storageDir, getStorageUserSubDir());
     }
 
     public synchronized String getStorageRenderThemeSubDir() {
-        return FileUtil.ensureEndsWithSeparator(preferences.getString(KEY_STORAGE_RENDERTHEME_DIRECTORY, "RenderThemes"));
+        return FileUtil.removeEndSeparator(preferences.getString(KEY_STORAGE_RENDERTHEME_DIRECTORY, "RenderThemes"));
+    }
+
+    public synchronized File getStorageRenderThemeDir() {
+        return new File(storageDir, getStorageRenderThemeSubDir());
     }
 
     public synchronized UUID getStorageUUID() {
@@ -382,5 +422,69 @@ public class PreferenceManager {
     //TODO: add to preferences.xml and handle
     public synchronized @Coordinate.DisplayFormat int getCoordinateDisplayFormat() {
         return preferences.getInt(KEY_COORDINATE_DISPLAY_FORMAT, Coordinate.DisplayFormat.FORMAT_DDMMMMM);
+    }
+
+    public synchronized boolean areMapsDownloading() { return preferences.getBoolean(KEY_DOWNLOADING_MAPS, false); }
+
+    public synchronized void setMapsAreDownloading(boolean downloading) {
+        preferences.edit()
+                .putBoolean(KEY_DOWNLOADING_MAPS, downloading)
+                .apply();
+    }
+
+    @NonNull
+    private List<Long> getLongListForKey(@NonNull String key) {
+        List<Long> retryableMapDownloadIds = new ArrayList<>();
+
+        try {
+            JSONObject jsonObject = new JSONObject(preferences.getString(key, "{}"));
+
+            if (jsonObject.has(key)) {
+                JSONArray jsonArray = jsonObject.getJSONArray(key);
+
+                for (int i=0, length = jsonArray.length(); i < length; i++) {
+                    retryableMapDownloadIds.add(jsonArray.getLong(i));
+                }
+            }
+        } catch (JSONException e) {
+            //To bad
+        }
+
+        return retryableMapDownloadIds;
+    }
+
+    private void setLongList(@NonNull String key, @NonNull List<Long> longList) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            JSONArray jsonArray = new JSONArray();
+
+            for (Long id : longList) {
+                jsonArray.put(id);
+            }
+
+            jsonObject.put(key, jsonArray);
+
+            preferences.edit().putString(key, jsonObject.toString()).apply();
+        } catch (JSONException e) {
+            preferences.edit().putString(key, "{}").apply();
+        }
+    }
+
+    @NonNull
+    public synchronized List<Long> getRetryableMapDownloadIds() {
+        return getLongListForKey(KEY_RETRYABLE_MAP_DOWNLOAD_IDS);
+    }
+
+    public synchronized void setRetryableMapDownloadIds(List<Long> retryableMapDownloadIds) {
+        setLongList(KEY_RETRYABLE_MAP_DOWNLOAD_IDS, retryableMapDownloadIds);
+    }
+
+    @NonNull
+    public synchronized List<Long> getReportedFailedMapDownloadIds() {
+        return getLongListForKey(KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS);
+    }
+
+    public synchronized void setReportedFailedMapDownloadIds(List<Long> reportedFailedMapDownloadIds) {
+        setLongList(KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS, reportedFailedMapDownloadIds);
     }
 }

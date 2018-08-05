@@ -366,9 +366,8 @@ public class MapFragment
             default:
                 myMenuItem = optionsMenu.findItem(item.getItemId());
                 viewModel.onMenuItemSelected(myMenuItem);
+                return true;
         }
-
-        return false;
     }
 
     @Override

@@ -7,13 +7,16 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewModel;
+import nl.erikduisters.pathfinder.ui.activity.map_download.MapDownloadActivityViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.compass.CompassFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.gps_status.GpsStatusFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapFragmentViewModel;
+import nl.erikduisters.pathfinder.ui.fragment.map_download.MapDownloadFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.track_list.TrackListFragmentViewModel;
+import nl.erikduisters.pathfinder.viewmodel.VoidViewModel;
 
 /**
  * Created by Erik Duisters on 01-06-2018.
@@ -21,6 +24,11 @@ import nl.erikduisters.pathfinder.ui.fragment.track_list.TrackListFragmentViewMo
 
 @Module
 abstract class ViewModelBindingModule {
+    @Binds
+    @IntoMap
+    @ViewModelKey(VoidViewModel.class)
+    abstract ViewModel bindVoidViewModel(VoidViewModel voidViewModel);
+
     @Binds
     @IntoMap
     @ViewModelKey(MainActivityViewModel.class)
@@ -65,4 +73,14 @@ abstract class ViewModelBindingModule {
     @IntoMap
     @ViewModelKey(GpsStatusFragmentViewModel.class)
     abstract ViewModel bindGpsStatusFragmentViewModel(GpsStatusFragmentViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MapDownloadActivityViewModel.class)
+    abstract ViewModel bindMapDownloadActivityViewModel(MapDownloadActivityViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MapDownloadFragmentViewModel.class)
+    abstract ViewModel bindMapDownloadFragmentViewModel(MapDownloadFragmentViewModel viewModel);
 }

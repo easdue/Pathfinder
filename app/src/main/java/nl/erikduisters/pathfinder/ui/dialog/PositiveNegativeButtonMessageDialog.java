@@ -31,6 +31,7 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
     public interface Listener {
         void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain);
         void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain);
+        void onDialogCancelled(@NonNull String tag);
     }
 
     @Nullable private Listener listener;
@@ -111,11 +112,7 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
 
         title.setText(messageWithTitle.titleResId);
 
-        if (messageWithTitle.messageResId > 0) {
-            message.setText(messageWithTitle.messageResId);
-        } else {
-            message.setText(messageWithTitle.message);
-        }
+        message.setText(messageWithTitle.getMessage(getContext()));
 
         checkBox.setVisibility(showNeverAskAgain ? View.VISIBLE : View.GONE);
 
@@ -146,7 +143,9 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
 
-        onNegativeButtonClicked(tag);
+        if (listener != null) {
+            listener.onDialogCancelled(tag);
+        }
     }
 
     void onPositiveButtonClicked(String tag) {

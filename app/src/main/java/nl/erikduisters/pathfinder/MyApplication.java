@@ -2,6 +2,9 @@ package nl.erikduisters.pathfinder;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.Service;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
@@ -14,10 +17,12 @@ import javax.inject.Inject;
 
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
+import dagger.android.HasServiceInjector;
 import io.fabric.sdk.android.Fabric;
 import nl.erikduisters.pathfinder.data.local.SvgRenderer;
 import nl.erikduisters.pathfinder.di.DaggerAppComponent;
 import nl.erikduisters.pathfinder.ui.widget.SvgView;
+import nl.erikduisters.pathfinder.util.NotificationChannels;
 import timber.log.Timber;
 
 /**
@@ -25,9 +30,11 @@ import timber.log.Timber;
  */
 
 //TODO: Before submission create a readme file that explains that the reviewer needs to provide his/her own google-services.json file downloadable from the firebase console
-public class MyApplication extends Application implements HasActivityInjector {
+public class MyApplication extends Application implements HasActivityInjector, HasServiceInjector {
     @Inject
-    DispatchingAndroidInjector<Activity> dispatchingAndroidInjector;
+    DispatchingAndroidInjector<Activity> dispatchingAndroidActivityInjector;
+    @Inject
+    DispatchingAndroidInjector<Service> dispatchingAndroidServiceInjector;
     @Inject
     SvgRenderer svgRenderer;
 
@@ -66,6 +73,30 @@ public class MyApplication extends Application implements HasActivityInjector {
                 .inject(this);
 
         SvgView.init(svgRenderer);
+
+        createNotificationChannels();
+    }
+
+    private void createNotificationChannels() {
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        }
+
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+        if (notificationManager == null) {
+            return;
+        }
+
+        for (NotificationChannels myChannel : NotificationChannels.values()) {
+            CharSequence name = getString(myChannel.getChannelNameResId());
+            String description = getString(myChannel.getChannelDescriptionResId());
+
+            NotificationChannel channel = new NotificationChannel(myChannel.getChannelId(), name, myChannel.getImportance());
+            channel.setDescription(description);
+
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     private static class ReleaseTree extends Timber.Tree {
@@ -76,6 +107,11 @@ public class MyApplication extends Application implements HasActivityInjector {
 
     @Override
     public DispatchingAndroidInjector<Activity> activityInjector() {
-        return dispatchingAndroidInjector;
+        return dispatchingAndroidActivityInjector;
+    }
+
+    @Override
+    public DispatchingAndroidInjector<Service> serviceInjector() {
+        return dispatchingAndroidServiceInjector;
     }
 }

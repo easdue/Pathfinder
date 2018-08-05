@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import nl.erikduisters.pathfinder.data.usecase.ProgressUseCase;
+import timber.log.Timber;
 
 /**
  * Created by Erik Duisters on 16-06-2018.
@@ -14,14 +15,19 @@ public class ProgressUseCaseJob<P, R, U extends ProgressUseCase<?, P, R>> extend
     ProgressUseCase.Callback<P, R> callback;
 
     public ProgressUseCaseJob(@NonNull U usecase) {
+        Timber.d("New %s created %s", usecase.getClass().getSimpleName(), this);
+
         this.useCase = usecase;
         this.callback = useCase.getCallback();
 
         this.useCase.setCallback(this);
     }
 
+    public U getUseCase() { return useCase; }
+
     @Override
     public void run() {
+        Timber.d("%s@%s.run()", useCase.getClass().getSimpleName(), this);
         useCase.execute(this);
 
         if (canceled) {
@@ -37,6 +43,7 @@ public class ProgressUseCaseJob<P, R, U extends ProgressUseCase<?, P, R>> extend
                 callback.onResult(result);
             }
         });
+        finish();
     }
 
     @Override
@@ -61,14 +68,16 @@ public class ProgressUseCaseJob<P, R, U extends ProgressUseCase<?, P, R>> extend
     }
 
     @Override
-    public void onFinished() {
-        backgroundJobHandler.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                callback.onFinished();
-            }
-        });
+    void finish() {
+        super.finish();
 
-        finish();
+        Timber.d("%s@%s Finished", useCase.getClass().getSimpleName(), this);
+    }
+
+    @Override
+    public void cancel() {
+        super.cancel();
+
+        Timber.d("%s@%s Cancelled", getClass().getSimpleName(), this);
     }
 }

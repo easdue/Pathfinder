@@ -3,6 +3,7 @@ package nl.erikduisters.pathfinder.async;
 import android.support.annotation.NonNull;
 
 import nl.erikduisters.pathfinder.data.usecase.UseCase;
+import timber.log.Timber;
 
 /**
  * Created by Erik Duisters on 16-06-2018.
@@ -13,7 +14,7 @@ public class UseCaseJob<R, U extends UseCase<?, R>> extends BackgroundJob implem
     private UseCase.Callback<R> callback;
 
     public UseCaseJob(@NonNull U usecase) {
-        super();
+        Timber.d("New %s created %s", usecase.getClass().getSimpleName(), this);
 
         this.useCase = usecase;
         this.callback = usecase.getCallback();
@@ -23,6 +24,7 @@ public class UseCaseJob<R, U extends UseCase<?, R>> extends BackgroundJob implem
 
     @Override
     public void run() {
+        Timber.d("%s@%s.run()", useCase.getClass().getSimpleName(), this);
         useCase.execute(this);
 
         if (canceled) {
@@ -54,5 +56,19 @@ public class UseCaseJob<R, U extends UseCase<?, R>> extends BackgroundJob implem
             }
         });
         finish();
+    }
+
+    @Override
+    void finish() {
+        super.finish();
+
+        Timber.d("%s@%s Finished", useCase.getClass().getSimpleName(), this);
+    }
+
+    @Override
+    public void cancel() {
+        super.cancel();
+
+        Timber.d("%s@%s Cancelled", getClass().getSimpleName(), this);
     }
 }

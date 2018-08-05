@@ -3,9 +3,11 @@ package nl.erikduisters.pathfinder.ui.activity.gps_status;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
@@ -19,6 +21,8 @@ import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissi
 public class GpsStatusActivity
         extends BaseActivity<GpsStatusActivityViewModel>
         implements RuntimePermissionHelper {
+
+    @BindView(R.id.contraintLayout) ConstraintLayout constraintLayout;
     @BindView(R.id.toolbar) Toolbar toolbar;
     private GpsStatusFragment gpsStatusFragment;
 
@@ -77,6 +81,11 @@ public class GpsStatusActivity
     @Override
     protected Class<GpsStatusActivityViewModel> getViewModelClass() {
         return GpsStatusActivityViewModel.class;
+    }
+
+    @Override
+    protected View getCoordinatorLayoutOrRootView() {
+        return constraintLayout;
     }
 
     @Override

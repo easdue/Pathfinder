@@ -39,10 +39,12 @@ public class StorageHelper {
         return ctx.getCacheDir();
     }
 
+    public File getExternalFilesDir() { return ctx.getExternalFilesDir(null); }
     public File[] getExternalFilesDirs() {
         return ContextCompat.getExternalFilesDirs(ctx, null);
     }
 
+    public File getExternalCacheDir() { return ctx.getExternalCacheDir(); }
     public File[] getExternalCacheDirs() {
         return ContextCompat.getExternalCacheDirs(ctx);
     }

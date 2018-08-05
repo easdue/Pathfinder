@@ -19,6 +19,8 @@ public abstract class ProgressUseCase<I, P, R> {
         this.callback = callback;
     }
 
+    public I getRequestInfo() { return requestInfo; }
+
     public Callback<P, R> getCallback() {
         return callback;
     }
@@ -31,7 +33,6 @@ public abstract class ProgressUseCase<I, P, R> {
         void onResult(@Nullable R result);
         void onProgress(@NonNull P progress);
         void onError(@NonNull Throwable error);
-        void onFinished();
     }
 
     abstract public void execute(Cancellable cancellable);

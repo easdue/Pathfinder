@@ -131,7 +131,7 @@ public class BackgroundJobHandler {
     }
 
     /**
-     * Cancel a job with the given name
+     * Cancel a job
      *
      * @param job The job to cancel
      * @return true if the job was cancelled successfully, false otherwise
