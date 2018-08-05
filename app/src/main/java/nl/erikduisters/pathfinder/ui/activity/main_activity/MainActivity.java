@@ -56,7 +56,7 @@ import timber.log.Timber;
 
 //TODO: Remove fragment listeners
 //TODO: Bottom navigation instead of tabs?
-//TODO: Remind user of mobile data usage and possible unavailability when using online map or remind users to install an offline map
+//TODO: Remind users to install an offline map
 //TODO: After setting finish state the viewState must be set to null or something else otherwise the app cannot be started again
 //TODO: Allow user to configure a new storage location (clear storagedir/cachedir and storageUUID
 public class MainActivity
@@ -117,6 +117,7 @@ public class MainActivity
         viewModel.getMainActivityViewStateObservable().observe(this, this::render);
         viewModel.getNavigationViewStateObservable().observe(this, this::render);
         viewModel.getStartActivityViewStateObservable().observe(this, this::render);
+        viewModel.getOptionsMenuObservable().observe(this, this::render);
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(fragmentAdapter);
@@ -287,9 +288,6 @@ public class MainActivity
     }
 
     private void render(InitializedState state) {
-        optionsMenu = state.optionsMenu;
-        invalidateOptionsMenu();
-
         /*
            ViewPager calls FragmentManager.commitNowPermittingStateLoss() somewhere that causes an "IllegalState exception:
            FragmentManager is already executing transactions". This works around this situation.
@@ -309,6 +307,17 @@ public class MainActivity
         startActivity(state.getIntent(this));
 
         viewModel.onActivityStarted();
+    }
+
+    private void render(@Nullable MyMenu optionsMenu) {
+        if (optionsMenu == null) {
+            return;
+        }
+
+        if (optionsMenu != this.optionsMenu) {
+            this.optionsMenu = optionsMenu;
+            invalidateOptionsMenu();
+        }
     }
 
     private void initViewPager() {

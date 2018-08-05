@@ -8,7 +8,6 @@ import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
-import nl.erikduisters.pathfinder.util.menu.MyMenu;
 
 /**
  * Created by Erik Duisters on 03-06-2018.
@@ -23,7 +22,7 @@ interface MainActivityViewState {
             this.progress = progress;
         }
 
-        InitDatabaseState updateProgress(@NonNull InitDatabase.Progress progress) {
+        InitDatabaseState createNewWithUpdateProgress(@NonNull InitDatabase.Progress progress) {
             return new InitDatabaseState(this.dialogProperties, progress);
         }
     }
@@ -44,6 +43,7 @@ interface MainActivityViewState {
     //TODO: Think of a better way to handle these type of "snackbar" messages. Maybe move to MainActivityViewState
     class ShowMessageState implements MainActivityViewState {
         @NonNull final MessageWithTitle message;
+        //TODO: This needs to become nextState;
         @Nullable MainActivityViewState prevState;
 
         ShowMessageState(@NonNull MessageWithTitle message, @Nullable MainActivityViewState prevState) {
@@ -82,11 +82,5 @@ interface MainActivityViewState {
     class ShowEnableGpsSettingState implements MainActivityViewState {}
     class WaitingForGpsToBeEnabledState implements MainActivityViewState {}
 
-    class InitializedState implements MainActivityViewState {
-        @NonNull MyMenu optionsMenu;
-
-        InitializedState(@NonNull MyMenu optionsMenu) {
-            this.optionsMenu = optionsMenu;
-        }
-    }
+    class InitializedState implements MainActivityViewState { }
 }

@@ -38,7 +38,6 @@ import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 import timber.log.Timber;
 
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
-//TODO: Create an OptionsMenuObservable and remove the optionsMenu from InitializedState
 //TODO: Enable/Disable navigation view menu items
 //TODO: Add a navigation options menu item allowing the user to manage external maps (eg. delete)
 /**
@@ -49,7 +48,10 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     private MutableLiveData<MainActivityViewState> mainActivityViewStateObservable;
     private MutableLiveData<NavigationViewState> navigationViewStateObservable;
     private MutableLiveData<StartActivityViewState> startActivityViewStateObservable;
+    private MutableLiveData<MyMenu> optionsMenuObservable;
+
     private final GpsManager gpsManager;
+    private final InitDatabaseHelper initDatabaseHelper;
 
     @Inject
     MainActivityViewModel(InitDatabaseHelper initDatabaseHelper, GpsManager gpsManager, PreferenceManager preferenceManager) {
@@ -59,9 +61,25 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         mainActivityViewStateObservable = new MutableLiveData<>();
         navigationViewStateObservable = new MutableLiveData<>();
         startActivityViewStateObservable = new MutableLiveData<>();
+        optionsMenuObservable = new MutableLiveData<>();
 
         this.gpsManager = gpsManager;
+        this.initDatabaseHelper = initDatabaseHelper;
+    }
 
+    LiveData<MainActivityViewState> getMainActivityViewStateObservable() {
+        if (mainActivityViewStateObservable.getValue() == null) {
+            initDatabase();
+        }
+
+        return mainActivityViewStateObservable;
+    }
+
+    LiveData<NavigationViewState> getNavigationViewStateObservable() { return navigationViewStateObservable; }
+    LiveData<StartActivityViewState> getStartActivityViewStateObservable() { return startActivityViewStateObservable; }
+    LiveData<MyMenu> getOptionsMenuObservable() { return optionsMenuObservable; }
+
+    private void initDatabase() {
         ProgressDialog.Properties properties =
                 new ProgressDialog.Properties(R.string.initializing_database, true,
                         false, 0, false);
@@ -69,10 +87,6 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         mainActivityViewStateObservable.setValue(new InitDatabaseState(properties, null));
         initDatabaseHelper.initDatabase(this);
     }
-
-    LiveData<MainActivityViewState> getMainActivityViewStateObservable() { return mainActivityViewStateObservable; }
-    LiveData<NavigationViewState> getNavigationViewStateObservable() { return navigationViewStateObservable; }
-    LiveData<StartActivityViewState> getStartActivityViewStateObservable() { return startActivityViewStateObservable; }
 
     @Override
     public void onDatabaseInitializationProgress(@NonNull InitDatabase.Progress progress) {
@@ -84,7 +98,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
 
         InitDatabaseState prevInitDatabaseState = (InitDatabaseState) state;
 
-        mainActivityViewStateObservable.setValue(prevInitDatabaseState.updateProgress(progress));
+        mainActivityViewStateObservable.setValue(prevInitDatabaseState.createNewWithUpdateProgress(progress));
     }
 
     @Override
@@ -191,7 +205,8 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     }
 
     private void setInitializedState() {
-        mainActivityViewStateObservable.setValue(new InitializedState(createInitialOptionsMenu()));
+        mainActivityViewStateObservable.setValue(new InitializedState());
+        optionsMenuObservable.setValue(createInitialOptionsMenu());
         navigationViewStateObservable.setValue(createInitialNavigationViewState());
     }
 
@@ -204,6 +219,12 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         return new NavigationViewState(avatar, user, navigationMenu);
     }
 
+    private MyMenu createInitialOptionsMenu() {
+        MyMenu menu = new MyMenu();
+
+        return menu;
+    }
+
     private MyMenu createInitialNavigationMenu() {
         MyMenu menu = new MyMenu();
 
@@ -211,12 +232,6 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         menu.add(new MyMenuItem(R.id.nav_login_register, true, true));
         menu.add(new MyMenuItem(R.id.nav_gps_status, true, true));
         menu.add(new MyMenuItem(R.id.nav_settings, true, true));
-
-        return menu;
-    }
-
-    private MyMenu createInitialOptionsMenu() {
-        MyMenu menu = new MyMenu();
 
         return menu;
     }
