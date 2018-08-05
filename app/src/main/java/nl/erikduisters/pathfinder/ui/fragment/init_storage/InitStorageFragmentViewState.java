@@ -1,7 +1,6 @@
 package nl.erikduisters.pathfinder.ui.fragment.init_storage;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 
@@ -27,23 +26,15 @@ interface InitStorageFragmentViewState {
         }
     }
 
-    final class StorageInitializedState implements InitStorageFragmentViewState {
-        boolean initializationSuccessfull;
-        @Nullable final MessageWithTitle failureMessage;
+    final class StorageInitializedState implements InitStorageFragmentViewState {}
+
+    final class StorageInitializationFailedState implements InitStorageFragmentViewState {
+        @NonNull final MessageWithTitle failureMessage;
         final boolean isFatal;
 
-        private StorageInitializedState(boolean initializationSuccessfull, @Nullable MessageWithTitle failureMessage, boolean isFatal) {
-            this.initializationSuccessfull = initializationSuccessfull;
+        StorageInitializationFailedState(@NonNull MessageWithTitle failureMessage, boolean isFatal) {
             this.failureMessage = failureMessage;
             this.isFatal = isFatal;
-        }
-
-        static StorageInitializedState getSuccessState() {
-            return new StorageInitializedState(true, null, false);
-        }
-
-        static StorageInitializedState getFailedState(@NonNull MessageWithTitle failureMessage, boolean isFatal) {
-            return new StorageInitializedState(false, failureMessage, isFatal);
         }
     }
 }

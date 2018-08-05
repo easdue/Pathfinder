@@ -15,6 +15,7 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.local.StorageHelper;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.StorageInitializationFailedState;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.StorageInitializedState;
 import nl.erikduisters.pathfinder.util.FileUtil;
 import timber.log.Timber;
@@ -111,8 +112,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         if (!storageHelper.isStorageMounted(storage)) {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_not_mounted);
 
-            //TODO: Don't throw a FatalErrorEvent, the user should be able to reconfigure storage
-            viewState.setValue(StorageInitializedState.getFailedState(message, true));
+            viewState.setValue(new StorageInitializationFailedState(message, false));
 
             return false;
         }
@@ -124,7 +124,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         if (!initDirectoryStructure(storage)) {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_create_dir_layout_failed);
 
-            viewState.setValue(StorageInitializedState.getFailedState(message, true));
+            viewState.setValue(new StorageInitializationFailedState(message, false));
 
             return false;
         }
@@ -146,7 +146,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         if (!createUUID(storage)) {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_create_dir_layout_failed);
 
-            viewState.setValue(StorageInitializedState.getFailedState(message, true));
+            viewState.setValue(new StorageInitializationFailedState(message, false));
 
             return false;
         }
@@ -159,7 +159,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         if (!uuidFile.exists()) {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_device_changed);
 
-            viewState.setValue(StorageInitializedState.getFailedState(message, true));
+            viewState.setValue(new StorageInitializationFailedState(message, false));
 
             return false;
         }
@@ -199,7 +199,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_adopted_storage_unsupported);
 
-            viewState.setValue(StorageInitializedState.getFailedState(message, true));
+            viewState.setValue(new StorageInitializationFailedState(message, true));
 
             return false;
         }
@@ -259,10 +259,10 @@ public class InitStorageFragmentViewModel extends ViewModel {
     }
 
     private void onStorageInitialized() {
-        viewState.setValue(StorageInitializedState.getSuccessState());
+        viewState.setValue(new StorageInitializedState());
     }
 
     void storageInitializedStateReported() {
-        viewState.setValue(null);
+        /*viewState.setValue(null);*/
     }
 }

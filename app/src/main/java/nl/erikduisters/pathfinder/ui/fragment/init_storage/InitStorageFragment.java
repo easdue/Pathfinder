@@ -7,6 +7,7 @@ import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.OkMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.select_storage_dialog.SelectStorageDialog;
+import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.StorageInitializationFailedState;
 import timber.log.Timber;
 
 import static nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.SelectStorageState;
@@ -74,18 +75,16 @@ public class InitStorageFragment extends BaseFragment<InitStorageFragmentViewMod
 
         if (viewState instanceof StorageInitializedState) {
             if (listener != null) {
-                StorageInitializedState state = (StorageInitializedState) viewState;
-
-                if (state.initializationSuccessfull) {
-                    listener.onStorageInitialized();
-                } else {
-                    listener.onStorageInitializationFailed(state.failureMessage, state.isFatal);
-                }
-
-                viewModel.storageInitializedStateReported();
+                listener.onStorageInitialized();
             }
         }
+
+        if (viewState instanceof StorageInitializationFailedState) {
+            StorageInitializationFailedState state = (StorageInitializationFailedState) viewState;
+            listener.onStorageInitializationFailed(state.failureMessage, state.isFatal);
+        }
     }
+
 
     private void showSelectStorageDialog(String tag, SelectStorageState state) {
         SelectStorageDialog dialog = findFragment(tag);
