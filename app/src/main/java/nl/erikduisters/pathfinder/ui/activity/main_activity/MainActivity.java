@@ -56,7 +56,6 @@ import timber.log.Timber;
 
 //TODO: Remove fragment listeners
 //TODO: Bottom navigation instead of tabs?
-//TODO: On orientation change restore last visible viewPager fragment
 //TODO: Remind user of mobile data usage and possible unavailability when using online map or remind users to install an offline map
 //TODO: After setting finish state the viewState must be set to null or something else otherwise the app cannot be started again
 //TODO: Allow user to configure a new storage location (clear storagedir/cachedir and storageUUID
@@ -74,6 +73,8 @@ public class MainActivity
     private static final String TAG_INIT_DATABASE_PROGRESS_DIALOG = "InitDatabaseProgressDialog";
     private static final String TAG_ASK_USER_TO_ENABLE_GPS_DIALOG = "AskUserToEnableGpsDialog";
 
+    private static final String KEY_CURRENT_VIEWPAGER_POSITION = "CurrentViewpagerPosition";
+
     public static final String INTENT_EXTRA_STARTED_FROM_MAP_AVAILABLE_NOTIFICATION = "nl.erikduisters.pathfinder.StartedFromMapAvailableNotification";
 
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
@@ -88,7 +89,7 @@ public class MainActivity
     private @NonNull MyMenu navigationMenu;
     private @NonNull MyMenu optionsMenu;
     private FragmentAdapter fragmentAdapter;
-    private int prevSelectedPage;
+    private int currentViewPagerPosition;
     private boolean viewPagerInitialized;
 
     public MainActivity() {
@@ -119,10 +120,11 @@ public class MainActivity
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(fragmentAdapter);
+        viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(this);
         tabLayout.setupWithViewPager(viewPager);
 
-        prevSelectedPage = -1;
+        currentViewPagerPosition = -1;
 
         onNewIntent(getIntent());
     }
@@ -316,7 +318,7 @@ public class MainActivity
 
         viewPager.getViewTreeObserver().addOnGlobalLayoutListener(this);
         viewPager.requestLayout();
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setCurrentItem(currentViewPagerPosition);
     }
 
     private void startInitStorageFragment(String tag) {
@@ -489,14 +491,14 @@ public class MainActivity
 
     @Override
     public void onPageSelected(int position) {
-        if (prevSelectedPage == position) {
+        if (currentViewPagerPosition == position) {
             return;
         }
 
         ViewPagerFragment frag;
 
-        if (prevSelectedPage != -1) {
-            frag = fragmentAdapter.getFragment(prevSelectedPage);
+        if (currentViewPagerPosition != -1) {
+            frag = fragmentAdapter.getFragment(currentViewPagerPosition);
 
             if (frag != null) {
                 frag.onVisibilityChanged(false);
@@ -506,7 +508,7 @@ public class MainActivity
         frag = fragmentAdapter.getFragment(position);
 
         if (frag != null) {
-            prevSelectedPage = position;
+            currentViewPagerPosition = position;
 
             FirebaseAnalytics.getInstance(this)
                     .setCurrentScreen(this, frag.getClass().getSimpleName(), null);
@@ -542,6 +544,20 @@ public class MainActivity
         if (frag != null) {
             frag.onVisibilityChanged(visible);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(KEY_CURRENT_VIEWPAGER_POSITION, currentViewPagerPosition);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        currentViewPagerPosition = savedInstanceState.getInt(KEY_CURRENT_VIEWPAGER_POSITION);
     }
 
     @SuppressWarnings("deprecation")
