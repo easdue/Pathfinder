@@ -11,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.oscim.android.MapView;
@@ -60,6 +61,8 @@ import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInit
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 
+import static android.view.View.VISIBLE;
+
 /**
  * Created by Erik Duisters on 28-06-2018.
  */
@@ -69,6 +72,8 @@ public class MapFragment
         implements Map.UpdateListener, ViewPagerFragment {
     @BindView(R.id.mapView) MapView mapView;
     @BindView(R.id.progressGroup) View progressGroup;
+    @BindView(R.id.scrimm) View  scrimm;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
     @BindView(R.id.progressMessage) TextView progressMessage;
 
     private Map map;
@@ -210,12 +215,18 @@ public class MapFragment
     }
 
     private void showProgress(@StringRes int progressMessageResId) {
-        progressGroup.setVisibility(View.VISIBLE);
+        //progressGroup.setVisibility(VISIBLE);     //I've seen it happen especially when debugging that setting group visibility to VISIBLE/GONE does not work
+        scrimm.setVisibility(VISIBLE);
+        progressBar.setVisibility(VISIBLE);
+        progressMessage.setVisibility(VISIBLE);
         progressMessage.setText(progressMessageResId);
     }
 
     private void showMap() {
-        progressGroup.setVisibility(View.GONE);
+        //progressGroup.setVisibility(View.GONE);
+        scrimm.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
+        progressMessage.setVisibility(View.INVISIBLE);
     }
 
     private void render(MapInitializedState state) {
@@ -384,7 +395,7 @@ public class MapFragment
          * On at least a Samsung Galaxy S5 mini when moving away from the Mapfragment a black screen is displayed
          * by making the mapView invisible the new fragment is magically displayed as it should be
          */
-        mapView.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        mapView.setVisibility(visible ? VISIBLE : View.INVISIBLE);
 
         if (visible) {
             mapView.onResume();
