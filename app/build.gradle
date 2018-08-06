@@ -39,7 +39,7 @@ ext {
     constraintLayoutVersion = '1.1.2'
     butterknifeVersion = '8.8.1'
     daggerVersion = '2.14.1'
-    leakCanaryVersion = '1.5.4'
+    leakCanaryVersion = '1.6.1'
     timberVersion = '4.7.0'
     lifecycle_version = '1.1.1'
     mockito_version = '2.15.0'
@@ -106,6 +106,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     testImplementation 'android.arch.core:core-testing:1.1.1'
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
+    debugImplementation "com.squareup.leakcanary:leakcanary-support-fragment:$leakCanaryVersion"
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
     androidTestImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
 }
