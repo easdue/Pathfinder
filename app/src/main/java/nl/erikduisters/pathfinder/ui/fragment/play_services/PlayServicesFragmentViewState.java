@@ -3,7 +3,7 @@ package nl.erikduisters.pathfinder.ui.fragment.play_services;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
-import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 
 /**
@@ -11,47 +11,10 @@ import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
  */
 public interface PlayServicesFragmentViewState {
     final class AskUserToResolveUnavailabilityState implements PlayServicesFragmentViewState {
-        @NonNull MessageWithTitle messageWithTitle;
-        boolean showNeverAskAgain;
-        @StringRes int positiveButtonTextResId;
-        @StringRes int negativeButtonTextResId;
+        @NonNull final PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo;
 
-        private AskUserToResolveUnavailabilityState(Builder builder) {
-            this.messageWithTitle = builder.messageWithTitle;
-            this.showNeverAskAgain = builder.showNeverAskAgain;
-            this.positiveButtonTextResId = builder.positiveButtonTextResId;
-            this.negativeButtonTextResId = builder.negativeButtonTextResId;
-        }
-
-        static class Builder {
-            private MessageWithTitle messageWithTitle;
-            private boolean showNeverAskAgain;
-            private @StringRes int positiveButtonTextResId;
-            private @StringRes int negativeButtonTextResId;
-
-            Builder setMessageWithTitle(@NonNull MessageWithTitle messageWithTitle) {
-                this.messageWithTitle = messageWithTitle;
-                return this;
-            }
-
-            Builder setShowNeverAskAgain(boolean showNeverAskAgain) {
-                this.showNeverAskAgain = showNeverAskAgain;
-                return this;
-            }
-
-            Builder setPositiveButtonTextResId(@StringRes int positiveButtonTextResId) {
-                this.positiveButtonTextResId = positiveButtonTextResId;
-                return this;
-            }
-
-            Builder setNegativeButtonTextResId(@StringRes int negativeButtonTextResId) {
-                this.negativeButtonTextResId = negativeButtonTextResId;
-                return this;
-            }
-
-            AskUserToResolveUnavailabilityState build() {
-                return new AskUserToResolveUnavailabilityState(this);
-            }
+        AskUserToResolveUnavailabilityState(PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo) {
+            this.dialogInfo = dialogInfo;
         }
     }
 

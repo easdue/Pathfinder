@@ -12,6 +12,7 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.ReportPlayServicesAvailabilityState;
@@ -79,14 +80,14 @@ public class PlayServicesFragmentViewModel
                 MessageWithTitle message =
                         new MessageWithTitle(playServicesHelper.getDialogTitle(serviceState), playServicesHelper.getDialogMessage(serviceState));
 
-                PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState.Builder builder =
-                        new PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState.Builder()
-                                .setMessageWithTitle(message)
-                                .setShowNeverAskAgain(true)
-                                .setNegativeButtonTextResId(playServicesHelper.getDialogNegativeButtonText(serviceState))
-                                .setPositiveButtonTextResId(playServicesHelper.getDialogPositiveButtonText(serviceState));
+                PositiveNegativeButtonMessageDialog.DialogInfo.Builder builder = new PositiveNegativeButtonMessageDialog.DialogInfo.Builder();
+                builder.withMessageWithTitle(message)
+                        .withShowNeverAskAgain(true)
+                        .withPositiveButtonLabelResId(playServicesHelper.getDialogPositiveButtonText(serviceState))
+                        .withNegativeButtonLabelResId(playServicesHelper.getDialogNegativeButtonText(serviceState))
+                        .withCancellable(false);
 
-                viewStateObservable.setValue(builder.build());
+                viewStateObservable.setValue(new AskUserToResolveUnavailabilityState(builder.build()));
             } else {
                 //TODO: Show a snackbar informing the user that GooglePlayservices are not available
                 reportPlayservicesAvailabilityState(false);

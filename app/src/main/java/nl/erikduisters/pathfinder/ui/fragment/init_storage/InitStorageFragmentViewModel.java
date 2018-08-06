@@ -3,6 +3,7 @@ package nl.erikduisters.pathfinder.ui.fragment.init_storage;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,6 +16,8 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.local.StorageHelper;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
+import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.ShowPositiveNegativeButtonMessageDialogState;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.StorageInitializationFailedState;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.StorageInitializedState;
 import nl.erikduisters.pathfinder.util.FileUtil;
@@ -37,11 +40,15 @@ public class InitStorageFragmentViewModel extends ViewModel {
         this.storageHelper = storageHelper;
 
         viewState = new MutableLiveData<>();
-
-        initStorage();
     }
 
-    LiveData<InitStorageFragmentViewState> getViewState() { return viewState; }
+    LiveData<InitStorageFragmentViewState> getViewState() {
+        if (viewState.getValue() == null) {
+            initStorage();
+        }
+
+        return viewState;
+    }
 
     private void initStorage() {
         /*
@@ -112,7 +119,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         if (!storageHelper.isStorageMounted(storage)) {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_not_mounted);
 
-            viewState.setValue(new StorageInitializationFailedState(message, false));
+            viewState.setValue(new ShowPositiveNegativeButtonMessageDialogState(getDialogInfo(message)));
 
             return false;
         }
@@ -120,11 +127,39 @@ public class InitStorageFragmentViewModel extends ViewModel {
         return true;
     }
 
+    @NonNull
+    private PositiveNegativeButtonMessageDialog.DialogInfo getDialogInfo(MessageWithTitle message) {
+        PositiveNegativeButtonMessageDialog.DialogInfo.Builder builder = new PositiveNegativeButtonMessageDialog.DialogInfo.Builder();
+        builder.withMessageWithTitle(message)
+                .withShowNeverAskAgain(false)
+                .withPositiveButtonLabelResId(R.string.yes)
+                .withNegativeButtonLabelResId(R.string.no)
+                .withCancellable(false);
+
+        return builder.build();
+    }
+
+    void onPositiveNegativeButtonMessageDialogDismissed(boolean positiveButtonClicked, boolean neverAskAgain) {
+        if (positiveButtonClicked) {
+            preferenceManager.setStorageDir("");
+            preferenceManager.setCacheDir("");
+            preferenceManager.setStorageUUID(null);
+
+            initStorage();
+        } else {
+            viewState.setValue(new StorageInitializationFailedState());
+        }
+    }
+
+    void onPositiveNegativeButtonMessageDialogCancelled() {
+        //I never allow cancellation
+    }
+
     private boolean verifyDirectoryStructure(File storage) {
         if (!initDirectoryStructure(storage)) {
-            MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_create_dir_layout_failed);
+            MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_initialization_failed);
 
-            viewState.setValue(new StorageInitializationFailedState(message, false));
+            viewState.setValue(new ShowPositiveNegativeButtonMessageDialogState(getDialogInfo(message)));
 
             return false;
         }
@@ -144,9 +179,9 @@ public class InitStorageFragmentViewModel extends ViewModel {
 
     private boolean verifyUUIdCanBeCreated(File storage) {
         if (!createUUID(storage)) {
-            MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_create_dir_layout_failed);
+            MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_initialization_failed);
 
-            viewState.setValue(new StorageInitializationFailedState(message, false));
+            viewState.setValue(new ShowPositiveNegativeButtonMessageDialogState(getDialogInfo(message)));
 
             return false;
         }
@@ -159,7 +194,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         if (!uuidFile.exists()) {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_device_changed);
 
-            viewState.setValue(new StorageInitializationFailedState(message, false));
+            viewState.setValue(new ShowPositiveNegativeButtonMessageDialogState(getDialogInfo(message)));
 
             return false;
         }
@@ -199,7 +234,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         {
             MessageWithTitle message = new MessageWithTitle(R.string.storage_error, R.string.storage_adopted_storage_unsupported);
 
-            viewState.setValue(new StorageInitializationFailedState(message, true));
+            viewState.setValue(new InitStorageFragmentViewState.ShowFatalMessageDialogState(message));
 
             return false;
         }
@@ -258,11 +293,19 @@ public class InitStorageFragmentViewModel extends ViewModel {
         onStorageInitialized();
     }
 
+    void onFatalMessageDialogDismissed() {
+        viewState.setValue(new StorageInitializationFailedState());
+    }
+
     private void onStorageInitialized() {
         viewState.setValue(new StorageInitializedState());
     }
 
-    void storageInitializedStateReported() {
-        /*viewState.setValue(null);*/
+    void onStorageInitializedStateReported() {
+        //As long as the app is not killed assume storage remains initialized
+    }
+
+    void onStorageInitializationFailedStateReported() {
+        viewState.setValue(null);   //Retry on next run
     }
 }

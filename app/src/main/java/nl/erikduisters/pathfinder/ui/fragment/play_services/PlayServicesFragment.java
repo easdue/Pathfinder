@@ -34,7 +34,7 @@ import timber.log.Timber;
  */
 public class PlayServicesFragment
         extends BaseFragment<PlayServicesFragmentViewModel>
-        implements PlayServicesHelper, PositiveNegativeButtonMessageDialog.Listener {
+        implements PlayServicesHelper {
 
     public interface PlayServicesFragmentListener {
         void onPlayServicesAvailable();
@@ -132,14 +132,28 @@ public class PlayServicesFragment
         PositiveNegativeButtonMessageDialog dialog = findFragment(tag);
 
         if (dialog == null) {
-            dialog = PositiveNegativeButtonMessageDialog.newInstance(viewState.messageWithTitle, viewState.showNeverAskAgain,
-                    viewState.positiveButtonTextResId, viewState.negativeButtonTextResId, tag);
+            dialog = PositiveNegativeButtonMessageDialog.newInstance(viewState.dialogInfo);
             dialog.setCancelable(false);
 
             show(dialog, tag);
         }
 
-        dialog.setListener(this);
+        dialog.setListener(new PositiveNegativeButtonMessageDialog.Listener() {
+            @Override
+            public void onPositiveButtonClicked(boolean neverAskAgain) {
+                viewModel.onUserWantsToResolveUnavailabilityState(neverAskAgain);
+            }
+
+            @Override
+            public void onNegativeButtonClicked(boolean neverAskAgain) {
+                viewModel.onUserDoesNotWantToResolveUnavailabilityState(neverAskAgain);
+            }
+
+            @Override
+            public void onDialogCancelled() {
+                viewModel.onUserDoesNotWantToResolveUnavailabilityState(false);
+            }
+        });
     }
 
     private void ShowProgressDialog(WaitForPlayServicesUpdateState state, String tag) {
@@ -215,21 +229,6 @@ public class PlayServicesFragment
                 //resultCode is always RESULT_CANCELED
                 viewModel.onLocationSettingsCorrect();
         }
-    }
-
-    @Override
-    public void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain) {
-        viewModel.onUserWantsToResolveUnavailabilityState(neverAskAgain);
-    }
-
-    @Override
-    public void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain) {
-        viewModel.onUserDoesNotWantToResolveUnavailabilityState(neverAskAgain);
-    }
-
-    @Override
-    public void onDialogCancelled(@NonNull String tag) {
-        viewModel.onUserDoesNotWantToResolveUnavailabilityState(false);
     }
 
     @Override

@@ -17,15 +17,15 @@
     <string name="action_settings">Settings</string>
 
     <!-- SelectStorage -->
-    <string name="select_storage">Select Storage</string>
+    <string name="select_storage">Select storage device</string>
     <string name="device">Device</string>
     <string name="free">Free</string>
     <string name="total">Total</string>
     <string name="placeholder_128_5GB">128.5GB</string>
     <string name="storage_error">Storage error</string>
-    <string name="storage_not_mounted">The configured storage device is not mounted\n\nPlease remount the device or configure a new storage device</string>
-    <string name="storage_create_dir_layout_failed">Could not create the required directory layout on the configured storage device\n\nPlease verify that the device has free space available.</string>
-    <string name="storage_device_changed">The configured storage device has been replaced. Please re-insert it or copy the apps storage directory over to the new device.</string>
+    <string name="storage_not_mounted">The configured storage device is not mounted! Please remount the device or reconfigure storage\n\nWould you like to reconfigure storage?</string>
+    <string name="storage_initialization_failed">Failed to initialize storage! Please verify that the device has free space available or reconfigure storage\n\nWould you like to reconfigure storage?</string>
+    <string name="storage_device_changed">The configured storage device has been replaced! Please re-insert it or reconfigure storage\n\nWould you like to reconfigure storage?</string>
     <string name="storage_adopted_storage_unsupported">Adopted internal storage is not supported because there are severe issues with that type of storage\n\nPlease move %1$s back to internal storage</string>
     <string name="storage_internal">Internal</string>
     <string name="storage_external">External</string>

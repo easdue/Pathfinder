@@ -24,14 +24,14 @@ import nl.erikduisters.pathfinder.R;
 public class PositiveNegativeButtonMessageDialog extends DialogFragment {
     private static final String KEY_MESSAGE = "Message";
     private static final String KEY_SHOW_NEVER_ASK_AGAIN = "ShowNeverAskAGain";
-    private static final String KEY_POSITIVE_BUTTON_TEXT_RES_ID = "PositiveButtonTextResId";
-    private static final String KEY_NEGATIVE_BUTTON_TEXT_RES_ID = "NegativeButtonTextResId";
-    private static final String KEY_TAG = "Tag";
+    private static final String KEY_POSITIVE_BUTTON_LABEL_RES_ID = "PositiveButtonLabelResId";
+    private static final String KEY_NEGATIVE_BUTTON_LABEL_RES_ID = "NegativeButtonLabelResId";
+    private static final String KEY_CANCELLABLE = "Cancellable";
 
     public interface Listener {
-        void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain);
-        void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain);
-        void onDialogCancelled(@NonNull String tag);
+        void onPositiveButtonClicked(boolean neverAskAgain);
+        void onNegativeButtonClicked(boolean neverAskAgain);
+        void onDialogCancelled();
     }
 
     @Nullable private Listener listener;
@@ -39,7 +39,7 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
     private boolean showNeverAskAgain;
     @StringRes int positiveButtonTextResId;
     @StringRes int negativeButtonTextResId;
-    private String tag;
+    boolean cancellable;
 
     @BindView(R.id.title) TextView title;
     @BindView(R.id.message) TextView message;
@@ -50,13 +50,9 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
 
     public PositiveNegativeButtonMessageDialog() {}
 
-    public static PositiveNegativeButtonMessageDialog newInstance(@NonNull MessageWithTitle message,
-                                                                  boolean showNeverAskAgain,
-                                                                  @StringRes int positiveButtonTextResId,
-                                                                  @StringRes int negativeButtonTextResId,
-                                                                  @NonNull String tag) {
+    public static PositiveNegativeButtonMessageDialog newInstance(@NonNull DialogInfo dialogInfo) {
         PositiveNegativeButtonMessageDialog dialog = new PositiveNegativeButtonMessageDialog();
-        dialog.setArguments(message, showNeverAskAgain, positiveButtonTextResId, negativeButtonTextResId, tag);
+        dialog.setArguments(dialogInfo);
 
         return dialog;
     }
@@ -65,17 +61,13 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
         this.listener = listener;
     }
 
-    protected void setArguments(@NonNull MessageWithTitle msg,
-                                boolean showNeverAskAgain,
-                                @StringRes int positiveButtonTextResId,
-                                @StringRes int negativeButtonTextResId,
-                                @NonNull String tag) {
+    protected void setArguments(@NonNull DialogInfo dialogInfo) {
         Bundle args = new Bundle();
-        args.putParcelable(KEY_MESSAGE, msg);
-        args.putBoolean(KEY_SHOW_NEVER_ASK_AGAIN, showNeverAskAgain);
-        args.putInt(KEY_POSITIVE_BUTTON_TEXT_RES_ID, positiveButtonTextResId);
-        args.putInt(KEY_NEGATIVE_BUTTON_TEXT_RES_ID, negativeButtonTextResId);
-        args.putString(KEY_TAG, tag);
+        args.putParcelable(KEY_MESSAGE, dialogInfo.messageWithTitle);
+        args.putBoolean(KEY_SHOW_NEVER_ASK_AGAIN, dialogInfo.showNeverAskAgain);
+        args.putInt(KEY_POSITIVE_BUTTON_LABEL_RES_ID, dialogInfo.positiveButtonLabelResId);
+        args.putInt(KEY_NEGATIVE_BUTTON_LABEL_RES_ID, dialogInfo.negativeButtonLabelResId);
+        args.putBoolean(KEY_CANCELLABLE, dialogInfo.cancellable);
 
         setArguments(args);
     }
@@ -88,17 +80,17 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
 
         if (args == null || !args.containsKey(KEY_MESSAGE) ||
                 !args.containsKey(KEY_SHOW_NEVER_ASK_AGAIN) ||
-                !args.containsKey(KEY_POSITIVE_BUTTON_TEXT_RES_ID) ||
-                !args.containsKey(KEY_NEGATIVE_BUTTON_TEXT_RES_ID) ||
-                !args.containsKey(KEY_TAG)) {
+                !args.containsKey(KEY_POSITIVE_BUTTON_LABEL_RES_ID) ||
+                !args.containsKey(KEY_NEGATIVE_BUTTON_LABEL_RES_ID) ||
+                !args.containsKey(KEY_CANCELLABLE)) {
             throw new IllegalStateException("You must call setArguments() to properly initialize a PositiveNegativeButtonMessageDialog");
         }
 
         messageWithTitle = args.getParcelable(KEY_MESSAGE);
         showNeverAskAgain = args.getBoolean(KEY_SHOW_NEVER_ASK_AGAIN);
-        positiveButtonTextResId = args.getInt(KEY_POSITIVE_BUTTON_TEXT_RES_ID);
-        negativeButtonTextResId = args.getInt(KEY_NEGATIVE_BUTTON_TEXT_RES_ID);
-        tag = args.getString(KEY_TAG);
+        positiveButtonTextResId = args.getInt(KEY_POSITIVE_BUTTON_LABEL_RES_ID);
+        negativeButtonTextResId = args.getInt(KEY_NEGATIVE_BUTTON_LABEL_RES_ID);
+        cancellable = args.getBoolean(KEY_CANCELLABLE);
 
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
     }
@@ -117,9 +109,9 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
         checkBox.setVisibility(showNeverAskAgain ? View.VISIBLE : View.GONE);
 
         negativeButton.setText(negativeButtonTextResId);
-        negativeButton.setOnClickListener(v1 -> onNegativeButtonClicked(tag));
+        negativeButton.setOnClickListener(v1 -> onNegativeButtonClicked());
         positiveButton.setText(positiveButtonTextResId);
-        positiveButton.setOnClickListener(v1 -> onPositiveButtonClicked(tag));
+        positiveButton.setOnClickListener(v1 -> onPositiveButtonClicked());
 
         negativeButton.setVisibility(View.VISIBLE);
         positiveButton.setVisibility(View.VISIBLE);
@@ -135,6 +127,7 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
 
         dialog.setOnCancelListener(this);
         dialog.setCanceledOnTouchOutside(false);
+        this.setCancelable(cancellable);
 
         return dialog;
     }
@@ -144,19 +137,76 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
         super.onCancel(dialog);
 
         if (listener != null) {
-            listener.onDialogCancelled(tag);
+            listener.onDialogCancelled();
         }
     }
 
-    void onPositiveButtonClicked(String tag) {
+    void onPositiveButtonClicked() {
         if (listener != null) {
-            listener.onPositiveButtonClicked(tag, checkBox.isChecked());
+            listener.onPositiveButtonClicked(checkBox.isChecked());
         }
     }
 
-    void onNegativeButtonClicked(String tag) {
+    void onNegativeButtonClicked() {
         if (listener != null) {
-            listener.onNegativeButtonClicked(tag, checkBox.isChecked());
+            listener.onNegativeButtonClicked(checkBox.isChecked());
+        }
+    }
+
+    public final static class DialogInfo {
+        public @NonNull final MessageWithTitle messageWithTitle;
+        public final boolean showNeverAskAgain;
+        public @StringRes final int positiveButtonLabelResId;
+        public @StringRes final int negativeButtonLabelResId;
+        public final boolean cancellable;
+
+        private DialogInfo(Builder builder) {
+            messageWithTitle = builder.messageWithTitle;
+            showNeverAskAgain = builder.showNeverAskAgain;
+            positiveButtonLabelResId = builder.positiveButtonLabelResId;
+            negativeButtonLabelResId = builder.negativeButtonLabelResId;
+            cancellable = builder.cancellable;
+        }
+
+
+        public static final class Builder {
+            private MessageWithTitle messageWithTitle;
+            private boolean showNeverAskAgain;
+            private int positiveButtonLabelResId;
+            private int negativeButtonLabelResId;
+            private boolean cancellable;
+
+            public Builder() {
+            }
+
+            public Builder withMessageWithTitle(@NonNull MessageWithTitle messageWithTitle) {
+                this.messageWithTitle = messageWithTitle;
+                return this;
+            }
+
+            public Builder withShowNeverAskAgain(boolean showNeverAskAgain) {
+                this.showNeverAskAgain = showNeverAskAgain;
+                return this;
+            }
+
+            public Builder withPositiveButtonLabelResId(@StringRes int positiveButtonLabelResId) {
+                this.positiveButtonLabelResId = positiveButtonLabelResId;
+                return this;
+            }
+
+            public Builder withNegativeButtonLabelResId(@StringRes int negativeButtonLabelResId) {
+                this.negativeButtonLabelResId = negativeButtonLabelResId;
+                return this;
+            }
+
+            public Builder withCancellable(boolean cancellable) {
+                this.cancellable = cancellable;
+                return this;
+            }
+
+            public DialogInfo build() {
+                return new DialogInfo(this);
+            }
         }
     }
 }

@@ -45,7 +45,7 @@ public class InitStorageFragmentViewModelTest {
     }
 
     @Test
-    public void storageIsAdopted_resultsInFailedStorageInitializedState() {
+    public void storageIsAdopted_resultsShowFatalMessageDialogState() {
         when(preferenceManager.getStorageDir()).thenReturn("");
 
         File storage = new File(StorageHelper.ADOPTED_STORAGE_PREFIX, "12345");
@@ -55,8 +55,7 @@ public class InitStorageFragmentViewModelTest {
         InitStorageFragmentViewModel initStorageFragmentViewModel = new InitStorageFragmentViewModel(preferenceManager, storageHelper);
         LiveData<InitStorageFragmentViewState> liveData = initStorageFragmentViewModel.getViewState();
 
-        assert(liveData.getValue() instanceof InitStorageFragmentViewState.StorageInitializedState);
-        assert(((InitStorageFragmentViewState.StorageInitializedState) liveData.getValue()).isFatal);
+        assert(liveData.getValue() instanceof InitStorageFragmentViewState.ShowFatalMessageDialogState);
     }
 
 /* TODO: Write more tests but then I'll have to use PowerMockito or convert FileUtil to not be a static utility class

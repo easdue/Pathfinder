@@ -4,7 +4,6 @@ import android.app.DownloadManager;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.support.annotation.NonNull;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
@@ -14,6 +13,7 @@ import nl.erikduisters.pathfinder.ui.BaseActivityViewState.SetOptionsMenuState;
 import nl.erikduisters.pathfinder.ui.BaseActivityViewState.ShowPositiveNegativeDialogState;
 import nl.erikduisters.pathfinder.ui.BaseActivityViewState.StartActivityState;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 
@@ -92,8 +92,15 @@ public abstract class BaseActivityViewModel extends ViewModel {
                 MessageWithTitle messageWithTitle =
                         new MessageWithTitle(R.string.map_unpack_fialed_dialog_title, R.string.map_unpack_failed_dialog_message, preferenceManager.getStorageDir());
 
+                PositiveNegativeButtonMessageDialog.DialogInfo.Builder builder = new PositiveNegativeButtonMessageDialog.DialogInfo.Builder();
+                builder.withMessageWithTitle(messageWithTitle)
+                        .withShowNeverAskAgain(false)
+                        .withPositiveButtonLabelResId(R.string.retry)
+                        .withNegativeButtonLabelResId(R.string.open_downloads_app)
+                        .withCancellable(true);
+
                 ShowPositiveNegativeDialogState state =
-                        new ShowPositiveNegativeDialogState(optionsMenu, messageWithTitle, false, R.string.retry, R.string.open_downloads_app, "");
+                        new ShowPositiveNegativeDialogState(optionsMenu, builder.build());
 
                 baseActivityViewStateObservable.setValue(state);
         }
@@ -103,21 +110,21 @@ public abstract class BaseActivityViewModel extends ViewModel {
         baseActivityViewStateObservable.setValue(new SetOptionsMenuState(optionsMenu));
     }
 
-    void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+    void onPositiveButtonClicked(boolean neverAskAgain) {
         preferenceManager.setMapsAreDownloading(true);
         baseActivityViewStateObservable.setValue(new BaseActivityViewState.RetryRetryableMapDownloadsState(optionsMenu));
     }
 
-    void onRetryingRetryableMapDownloads() {
-        baseActivityViewStateObservable.setValue(new SetOptionsMenuState(optionsMenu));
-    }
-
-    void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+    void onNegativeButtonClicked(boolean neverAskAgain) {
         preferenceManager.setMapsAreDownloading(true);
         baseActivityViewStateObservable.setValue(new StartActivityState(DownloadManager.ACTION_VIEW_DOWNLOADS));
     }
 
-    void onDialogCancelled(@NonNull String tag) {
+    void onDialogCancelled() {
+        baseActivityViewStateObservable.setValue(new SetOptionsMenuState(optionsMenu));
+    }
+
+    void onRetryingRetryableMapDownloads() {
         baseActivityViewStateObservable.setValue(new SetOptionsMenuState(optionsMenu));
     }
 }

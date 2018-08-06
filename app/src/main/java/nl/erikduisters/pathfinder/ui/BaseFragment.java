@@ -27,6 +27,7 @@ import timber.log.Timber;
  * Created by Erik Duisters on 02-06-2018.
  */
 
+//TODO: Call FirebaseAnalytics except when Fragment implements ViewPagerFragment
 public abstract class BaseFragment<VM extends ViewModel> extends Fragment implements BackPressed {
     @Nullable private Unbinder unbinder;
 

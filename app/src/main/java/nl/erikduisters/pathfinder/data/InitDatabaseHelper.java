@@ -51,6 +51,7 @@ public class InitDatabaseHelper implements InitDatabase.Callback<InitDatabase.Pr
 
     @Override
     public void onResult(@Nullable Void result) {
+        databaseInitialized = true;
         listener.onDatabaseInitializationComplete();
         listener = null;
     }

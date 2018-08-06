@@ -99,10 +99,10 @@ public class PlayServicesFragmentViewModelTest {
 
         assertTrue(viewStateObservable.getValue() instanceof AskUserToResolveUnavailabilityState);
         AskUserToResolveUnavailabilityState state = (AskUserToResolveUnavailabilityState) viewStateObservable.getValue();
-        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_DISABLED), state.messageWithTitle.titleResId);
-        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_DISABLED), state.messageWithTitle.messageResId);
-        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_DISABLED), state.positiveButtonTextResId);
-        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_DISABLED), state.negativeButtonTextResId);
+        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_DISABLED), state.dialogInfo.messageWithTitle.titleResId);
+        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_DISABLED), state.dialogInfo.messageWithTitle.messageResId);
+        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_DISABLED), state.dialogInfo.positiveButtonLabelResId);
+        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_DISABLED), state.dialogInfo.negativeButtonLabelResId);
     }
 
     @Test
@@ -123,10 +123,10 @@ public class PlayServicesFragmentViewModelTest {
 
         assertTrue(viewStateObservable.getValue() instanceof AskUserToResolveUnavailabilityState);
         AskUserToResolveUnavailabilityState state = (AskUserToResolveUnavailabilityState) viewStateObservable.getValue();
-        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_MISSING), state.messageWithTitle.titleResId);
-        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_MISSING), state.messageWithTitle.messageResId);
-        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_MISSING), state.positiveButtonTextResId);
-        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_MISSING), state.negativeButtonTextResId);
+        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_MISSING), state.dialogInfo.messageWithTitle.titleResId);
+        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_MISSING), state.dialogInfo.messageWithTitle.messageResId);
+        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_MISSING), state.dialogInfo.positiveButtonLabelResId);
+        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_MISSING), state.dialogInfo.negativeButtonLabelResId);
     }
 
     @Test
@@ -147,10 +147,10 @@ public class PlayServicesFragmentViewModelTest {
 
         assertTrue(viewStateObservable.getValue() instanceof AskUserToResolveUnavailabilityState);
         AskUserToResolveUnavailabilityState state = (AskUserToResolveUnavailabilityState) viewStateObservable.getValue();
-        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_UPDATE_REQUIRED), state.messageWithTitle.titleResId);
-        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_UPDATE_REQUIRED), state.messageWithTitle.messageResId);
-        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_UPDATE_REQUIRED), state.positiveButtonTextResId);
-        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_UPDATE_REQUIRED), state.negativeButtonTextResId);
+        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_UPDATE_REQUIRED), state.dialogInfo.messageWithTitle.titleResId);
+        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_UPDATE_REQUIRED), state.dialogInfo.messageWithTitle.messageResId);
+        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_UPDATE_REQUIRED), state.dialogInfo.positiveButtonLabelResId);
+        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_UPDATE_REQUIRED), state.dialogInfo.negativeButtonLabelResId);
     }
 
     @Test
@@ -171,10 +171,10 @@ public class PlayServicesFragmentViewModelTest {
 
         assertTrue(viewStateObservable.getValue() instanceof AskUserToResolveUnavailabilityState);
         AskUserToResolveUnavailabilityState state = (AskUserToResolveUnavailabilityState) viewStateObservable.getValue();
-        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_UPDATING), state.messageWithTitle.titleResId);
-        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_UPDATING), state.messageWithTitle.messageResId);
-        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_UPDATING), state.positiveButtonTextResId);
-        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_UPDATING), state.negativeButtonTextResId);
+        assertEquals(playServicesHelper.getDialogTitle(ServiceState.SERVICE_UPDATING), state.dialogInfo.messageWithTitle.titleResId);
+        assertEquals(playServicesHelper.getDialogMessage(ServiceState.SERVICE_UPDATING), state.dialogInfo.messageWithTitle.messageResId);
+        assertEquals(playServicesHelper.getDialogPositiveButtonText(ServiceState.SERVICE_UPDATING), state.dialogInfo.positiveButtonLabelResId);
+        assertEquals(playServicesHelper.getDialogNegativeButtonText(ServiceState.SERVICE_UPDATING), state.dialogInfo.negativeButtonLabelResId);
     }
 
     @Test

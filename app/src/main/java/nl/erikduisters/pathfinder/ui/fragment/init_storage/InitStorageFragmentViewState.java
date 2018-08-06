@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 
 /**
  * Created by Erik Duisters on 03-06-2018.
@@ -26,15 +27,23 @@ interface InitStorageFragmentViewState {
         }
     }
 
-    final class StorageInitializedState implements InitStorageFragmentViewState {}
+    final class ShowFatalMessageDialogState implements InitStorageFragmentViewState {
+        @NonNull final MessageWithTitle message;
 
-    final class StorageInitializationFailedState implements InitStorageFragmentViewState {
-        @NonNull final MessageWithTitle failureMessage;
-        final boolean isFatal;
-
-        StorageInitializationFailedState(@NonNull MessageWithTitle failureMessage, boolean isFatal) {
-            this.failureMessage = failureMessage;
-            this.isFatal = isFatal;
+        ShowFatalMessageDialogState(@NonNull MessageWithTitle messageWithTitle) {
+            this.message = messageWithTitle;
         }
     }
+
+    final class ShowPositiveNegativeButtonMessageDialogState implements InitStorageFragmentViewState {
+        @NonNull final PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo;
+
+        ShowPositiveNegativeButtonMessageDialogState(@NonNull PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo) {
+            this.dialogInfo = dialogInfo;
+        }
+    }
+
+    final class StorageInitializedState implements InitStorageFragmentViewState {}
+
+    final class StorageInitializationFailedState implements InitStorageFragmentViewState {}
 }

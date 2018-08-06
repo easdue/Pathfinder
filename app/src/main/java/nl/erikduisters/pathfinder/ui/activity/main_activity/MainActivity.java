@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -33,14 +32,12 @@ import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
 import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
@@ -62,7 +59,7 @@ import timber.log.Timber;
 public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
-                   FatalMessageDialog.FatalMessageDialogListener, RuntimePermissionFragment.RuntimePermissionFragmentListener,
+                   RuntimePermissionFragment.RuntimePermissionFragmentListener,
                    PlayServicesFragment.PlayServicesFragmentListener,
                    ViewPager.OnPageChangeListener, ViewTreeObserver.OnGlobalLayoutListener{
 
@@ -251,19 +248,11 @@ public class MainActivity
             removeFragment(TAG_PLAY_SERVICES_AVAILABIITY_FRAGMENT);
         }
 
-        if (viewState instanceof ShowMessageState) {
-            showSnackbar(((ShowMessageState) viewState).message);
-            viewModel.onMessageDismissed();
-        }
-
         if (viewState instanceof ShowFatalErrorMessageState) {
-            showFatalMessageDialog(TAG_FATAL_MESSAGE_DIALOG, ((ShowFatalErrorMessageState) viewState).message);
+            ShowFatalErrorMessageState state = (ShowFatalErrorMessageState) viewState;
+            showFatalMessageDialog(TAG_FATAL_MESSAGE_DIALOG, state.message, state.finishOnDismiss);
         } else {
             dismissDialogFragment(TAG_FATAL_MESSAGE_DIALOG);
-        }
-
-        if (viewState instanceof FinishState) {
-            finish();
         }
 
         if (viewState instanceof AskUserToEnableGpsState) {
@@ -389,14 +378,11 @@ public class MainActivity
     }
 
     @Override
-    public void onStorageInitializationFailed(MessageWithTitle message, boolean isFatal) {
-        if (isFatal)
-            viewModel.handleFatalError(message, null);
-        else
-            viewModel.handleMessage(message);
+    public void onStorageInitializationFailed() {
+        viewModel.onStorageInitializationFailed();
     }
 
-    private void showFatalMessageDialog(String tag, MessageWithTitle message) {
+    private void showFatalMessageDialog(String tag, MessageWithTitle message, boolean finishOnDismiss) {
         FatalMessageDialog dialog = findFragment(tag);
 
         if (dialog == null) {
@@ -405,54 +391,40 @@ public class MainActivity
             show(dialog, tag);
         }
 
-        dialog.setListener(this);
+        dialog.setListener(() -> {
+            if (finishOnDismiss) {
+                finish();
+            }
+
+            viewModel.onFatalErrorMessageDismissed();
+        });
     }
 
     private void showAskUserToEnableGpsDialog(AskUserToEnableGpsState state, String tag) {
         PositiveNegativeButtonMessageDialog dialog = findFragment(tag);
 
         if (dialog == null) {
-            dialog = PositiveNegativeButtonMessageDialog.newInstance(state.message, state.showNeverAskAgain, state.positiveButtonTextResId, state.negativeButtonTextResId, tag);
+            dialog = PositiveNegativeButtonMessageDialog.newInstance(state.dialogInfo);
 
             show(dialog, tag);
         }
 
         dialog.setListener(new PositiveNegativeButtonMessageDialog.Listener() {
             @Override
-            public void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+            public void onPositiveButtonClicked(boolean neverAskAgain) {
                 viewModel.onUserWantsToEnableGps(neverAskAgain);
             }
 
             @Override
-            public void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain) {
+            public void onNegativeButtonClicked(boolean neverAskAgain) {
                 viewModel.onUserDoesNotWantToEnableGps(neverAskAgain);
             }
 
             @Override
-            public void onDialogCancelled(@NonNull String tag) {
+            public void onDialogCancelled() {
                 viewModel.onUserDoesNotWantToEnableGps(false);
             }
         });
-    }
-
-    @Override
-    public void onFatalMessageDialogDismissed() {
-        viewModel.onFatalErrorMessageDismissed();
-    }
-
-    private void showSnackbar(MessageWithTitle message) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(getString(message.titleResId));
-
-        String msg =  message.getMessage(this);
-
-        if (!msg.isEmpty()) {
-            sb.append("\n");
-            sb.append(msg);
-        }
-
-        Snackbar.make(viewPager, sb.toString(), Snackbar.LENGTH_LONG).show();
     }
 
     @Override

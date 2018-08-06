@@ -14,17 +14,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <!-- Weird things happen when I have this group defined (eg. the group become visibles sometimes?)
     <android.support.constraint.Group
         android:id="@+id/progressGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="scrimm,progressBar,progressMessage"/>
+    -->
 
     <View
         android:id="@+id/scrimm"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/map_scrimm"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,6 +38,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/mapView"
         app:layout_constraintEnd_toStartOf="@+id/progressMessage"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -48,6 +52,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/progressBar"

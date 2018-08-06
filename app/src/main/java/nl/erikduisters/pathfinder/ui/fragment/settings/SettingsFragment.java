@@ -39,6 +39,8 @@ import timber.log.Timber;
 /**
  * Created by Erik Duisters on 18-07-2018.
  */
+
+//TODO: Call FirebaseAnalytics SetCurrentScreen
 public class SettingsFragment
         extends XpPreferenceFragment
         implements SharedPreferences.OnSharedPreferenceChangeListener, ListPreferenceWithButtonDialogFragment.ButtonClickListener {

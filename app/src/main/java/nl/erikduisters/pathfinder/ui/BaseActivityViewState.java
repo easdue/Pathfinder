@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import javax.annotation.Nullable;
 
-import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 
 /**
@@ -70,25 +70,13 @@ public interface BaseActivityViewState {
     }
 
     class ShowPositiveNegativeDialogState extends SetOptionsMenuState {
-        final @NonNull MessageWithTitle messageWithTitle;
-        final boolean showNeverAskAgain;
-        final @StringRes int positiveButtonTextResId;
-        final @StringRes int negativeButtonTextResId;
-        final @NonNull String tag;
+        final @NonNull PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo;
 
         ShowPositiveNegativeDialogState(@NonNull MyMenu optionsMenu,
-                                        @NonNull MessageWithTitle messageWithTitle,
-                                        boolean showNeverAskAgain,
-                                        @StringRes int positiveBottonTextResId,
-                                        @StringRes int negativeBottonTextResId,
-                                        @NonNull String tag) {
+                                        @NonNull PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo) {
             super(optionsMenu);
 
-            this.messageWithTitle = messageWithTitle;
-            this.showNeverAskAgain = showNeverAskAgain;
-            this.positiveButtonTextResId = positiveBottonTextResId;
-            this.negativeButtonTextResId = negativeBottonTextResId;
-            this.tag = tag;
+            this.dialogInfo = dialogInfo;
         }
     }
 

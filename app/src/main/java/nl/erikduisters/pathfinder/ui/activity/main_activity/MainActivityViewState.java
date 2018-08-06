@@ -2,10 +2,10 @@ package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
 
@@ -40,42 +40,36 @@ interface MainActivityViewState {
     class CheckPlayServicesAvailabilityState implements MainActivityViewState {
     }
 
-    //TODO: Think of a better way to handle these type of "snackbar" messages. Maybe move to MainActivityViewState
-    class ShowMessageState implements MainActivityViewState {
-        @NonNull final MessageWithTitle message;
-        //TODO: This needs to become nextState;
-        @Nullable MainActivityViewState prevState;
-
-        ShowMessageState(@NonNull MessageWithTitle message, @Nullable MainActivityViewState prevState) {
-            this.message = message;
-            this.prevState = prevState;
-        }
-    }
-
     class ShowFatalErrorMessageState implements MainActivityViewState {
         @NonNull final MessageWithTitle message;
-        @Nullable Throwable throwable;
+        final boolean finishOnDismiss;
+        /**
+         * For ViewModel internal use
+         */
+        @Nullable final Throwable throwable;
+        /**
+         * For ViewModel internal use
+         */
 
-        ShowFatalErrorMessageState(@NonNull MessageWithTitle message, @Nullable Throwable throwable) {
-            this.message = message;
-            this.throwable = throwable;
+        @Nullable final MainActivityViewState nextState;
+
+        ShowFatalErrorMessageState(@NonNull MessageWithTitle message, boolean finishOnDismiss, @Nullable Throwable throwable) {
+            this(message, finishOnDismiss, throwable, null);
         }
-    }
 
-    class FinishState implements MainActivityViewState {
+        public ShowFatalErrorMessageState(@NonNull MessageWithTitle message, boolean finishOnDismiss, @NonNull Throwable throwable, MainActivityViewState nextState) {
+            this.message = message;
+            this.finishOnDismiss = finishOnDismiss;
+            this.throwable = throwable;
+            this.nextState = nextState;
+        }
     }
 
     class AskUserToEnableGpsState implements MainActivityViewState {
-        final @NonNull MessageWithTitle message;
-        final boolean showNeverAskAgain;
-        final @StringRes int positiveButtonTextResId;
-        final @StringRes int negativeButtonTextResId;
+        @NonNull PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo;
 
-        AskUserToEnableGpsState(@NonNull MessageWithTitle message, boolean showNeverAskAgain, @StringRes int positiveButtonTextResId, @StringRes int negativeButtonTextResId) {
-            this.message = message;
-            this.showNeverAskAgain = showNeverAskAgain;
-            this.positiveButtonTextResId = positiveButtonTextResId;
-            this.negativeButtonTextResId = negativeButtonTextResId;
+        AskUserToEnableGpsState(@NonNull PositiveNegativeButtonMessageDialog.DialogInfo dialogInfo) {
+            this.dialogInfo = dialogInfo;
         }
     }
 

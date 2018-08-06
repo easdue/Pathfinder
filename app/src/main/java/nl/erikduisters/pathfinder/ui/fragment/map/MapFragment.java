@@ -60,6 +60,7 @@ import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInit
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializingState;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
+import timber.log.Timber;
 
 import static android.view.View.VISIBLE;
 
@@ -71,7 +72,7 @@ public class MapFragment
         extends BaseFragment<MapFragmentViewModel>
         implements Map.UpdateListener, ViewPagerFragment {
     @BindView(R.id.mapView) MapView mapView;
-    @BindView(R.id.progressGroup) View progressGroup;
+    //@BindView(R.id.progressGroup) View progressGroup;
     @BindView(R.id.scrimm) View  scrimm;
     @BindView(R.id.progressBar) ProgressBar progressBar;
     @BindView(R.id.progressMessage) TextView progressMessage;
@@ -215,6 +216,7 @@ public class MapFragment
     }
 
     private void showProgress(@StringRes int progressMessageResId) {
+        Timber.e("showProgress()");
         //progressGroup.setVisibility(VISIBLE);     //I've seen it happen especially when debugging that setting group visibility to VISIBLE/GONE does not work
         scrimm.setVisibility(VISIBLE);
         progressBar.setVisibility(VISIBLE);
@@ -223,6 +225,7 @@ public class MapFragment
     }
 
     private void showMap() {
+        Timber.e("showMap()");
         //progressGroup.setVisibility(View.GONE);
         scrimm.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.INVISIBLE);

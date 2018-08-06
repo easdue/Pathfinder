@@ -430,26 +430,25 @@ public abstract class BaseActivity<VM extends BaseActivityViewModel>
 
         if (dialog == null) {
             dialog = PositiveNegativeButtonMessageDialog
-                    .newInstance(state.messageWithTitle, state.showNeverAskAgain, state.positiveButtonTextResId,
-                            state.negativeButtonTextResId, state.tag);
+                    .newInstance(state.dialogInfo);
 
             dialog.show(getSupportFragmentManager(), tag);
         }
 
         dialog.setListener(new PositiveNegativeButtonMessageDialog.Listener() {
             @Override
-            public void onPositiveButtonClicked(@NonNull String tag, boolean neverAskAgain) {
-                viewModel.onPositiveButtonClicked(tag, neverAskAgain);
+            public void onPositiveButtonClicked(boolean neverAskAgain) {
+                viewModel.onPositiveButtonClicked(neverAskAgain);
             }
 
             @Override
-            public void onNegativeButtonClicked(@NonNull String tag, boolean neverAskAgain) {
-                viewModel.onNegativeButtonClicked(tag, neverAskAgain);
+            public void onNegativeButtonClicked(boolean neverAskAgain) {
+                viewModel.onNegativeButtonClicked(neverAskAgain);
             }
 
             @Override
-            public void onDialogCancelled(@NonNull String tag) {
-                viewModel.onDialogCancelled(tag);
+            public void onDialogCancelled() {
+                viewModel.onDialogCancelled();
             }
         });
     }

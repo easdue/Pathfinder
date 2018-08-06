@@ -4,7 +4,6 @@ import android.Manifest;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,17 +17,16 @@ import nl.erikduisters.pathfinder.ui.BaseActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.FinishState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
 import nl.erikduisters.pathfinder.ui.activity.settings.SettingsActivity;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
 import nl.erikduisters.pathfinder.util.DrawableProvider;
@@ -40,6 +38,7 @@ import timber.log.Timber;
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
 //TODO: Enable/Disable navigation view menu items
 //TODO: Add a navigation options menu item allowing the user to manage external maps (eg. delete)
+//TODO: Allow the user to move storage from internal to external or visa versa
 /**
  * Created by Erik Duisters on 03-06-2018.
  */
@@ -68,6 +67,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     }
 
     LiveData<MainActivityViewState> getMainActivityViewStateObservable() {
+        //TODO: Always check storage?
         if (mainActivityViewStateObservable.getValue() == null) {
             initDatabase();
         }
@@ -109,7 +109,8 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     @Override
     public void onDatabaseInitializationError(@NonNull Throwable error) {
         MessageWithTitle message = new MessageWithTitle(R.string.fatal_error, R.string.init_database_failed);
-        handleFatalError(message, error);
+
+        mainActivityViewStateObservable.setValue(new ShowFatalErrorMessageState(message, true, error));
     }
 
     void onStorageInitialized() {
@@ -122,28 +123,8 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         mainActivityViewStateObservable.setValue(new RequestRuntimePermissionState(request));
     }
 
-    void handleMessage(@NonNull MessageWithTitle message) {
-        mainActivityViewStateObservable.setValue(new ShowMessageState(message, mainActivityViewStateObservable.getValue()));
-    }
-
-    void onMessageDismissed() {
-        ShowMessageState state = (ShowMessageState) mainActivityViewStateObservable.getValue();
-
-        mainActivityViewStateObservable.setValue(state.prevState);
-    }
-
-    void handleFatalError(@NonNull MessageWithTitle message, @Nullable Throwable throwable) {
-        mainActivityViewStateObservable.setValue(new ShowFatalErrorMessageState(message, throwable));
-    }
-
-    void onFatalErrorMessageDismissed() {
-        ShowFatalErrorMessageState state = (ShowFatalErrorMessageState) mainActivityViewStateObservable.getValue();
-
-        if (state.throwable != null) {
-            throw new RuntimeException(state.throwable);
-        } else {
-            mainActivityViewStateObservable.setValue(new FinishState());
-        }
+    void onStorageInitializationFailed() {
+        //Do nothing, next time app resumes/restarts without being killed InitStorageViewState is still the current viewState
     }
 
     void onPermissionGranted(String permission) {
@@ -158,7 +139,8 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
             MessageWithTitle message = new MessageWithTitle(R.string.fatal_error,
                     R.string.location_permission_is_required);
 
-            handleFatalError(message, null);
+            mainActivityViewStateObservable.setValue(new ShowFatalErrorMessageState(message, false, null,
+                    mainActivityViewStateObservable.getValue()));
         }
     }
 
@@ -173,7 +155,15 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
 
         if (askToEnableGps && gpsManager.hasGps() && !gpsManager.isGpsEnabled()) {
             MessageWithTitle message = new MessageWithTitle(R.string.enable_gps, R.string.enable_gps_message);
-            mainActivityViewStateObservable.setValue(new AskUserToEnableGpsState(message, true, R.string.yes, R.string.no));
+
+            PositiveNegativeButtonMessageDialog.DialogInfo.Builder builder = new PositiveNegativeButtonMessageDialog.DialogInfo.Builder();
+            builder.withMessageWithTitle(message)
+                    .withShowNeverAskAgain(true)
+                    .withPositiveButtonLabelResId(R.string.yes)
+                    .withNegativeButtonLabelResId(R.string.no)
+                    .withCancellable(true);
+
+            mainActivityViewStateObservable.setValue(new AskUserToEnableGpsState(builder.build()));
         } else {
             //TODO: Show a snackbar informing the user that the gps is not enabled
             setInitializedState();
@@ -257,5 +247,21 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
 
     void onActivityStarted() {
         startActivityViewStateObservable.setValue(null);
+    }
+
+    void onFatalErrorMessageDismissed() {
+        ShowFatalErrorMessageState showFatalErrorMessagestate = (ShowFatalErrorMessageState) mainActivityViewStateObservable.getValue();
+
+        if (showFatalErrorMessagestate == null) {
+            throw new IllegalStateException("onFatalErrorMessageDismissed called but current state is not ShowFatalErrorMessageState");
+        }
+
+        if (showFatalErrorMessagestate.throwable != null) {
+            throw new RuntimeException(showFatalErrorMessagestate.throwable);
+        } else {
+            if (showFatalErrorMessagestate.nextState != null) {
+                mainActivityViewStateObservable.setValue(showFatalErrorMessagestate.nextState);
+            }
+        }
     }
 }
