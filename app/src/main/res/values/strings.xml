@@ -62,6 +62,10 @@
     <string name="key_map_bearing" translatable="false">map_bearing</string>
     <string name="key_map_scale_bar_type" translatable="false">map_scale_bar_type</string>
     <string name="key_map_display_north_up" translatable="false">map_display_north_up</string>
+    <string name="key_map_bounding_box_min_latitude" translatable="false">map_bounding_box_min_latitude</string>
+    <string name="key_map_bounding_box_min_longitude" translatable="false">map_bounding_box_min_longitude</string>
+    <string name="key_map_bounding_box_max_latitude" translatable="false">map_bounding_box_max_latitude</string>
+    <string name="key_map_bounding_box_max_longitude" translatable="false">map_bounding_box_max_longitude</string>
     <string name="key_use_true_north" translatable="false">use_true_north</string>
     <string name="key_use_gps_bearing" translatable="false">use_gps_bearing</string>
     <string name="key_gps_bearing_speed" translatable="false">gps_bearing_speed</string>
@@ -255,4 +259,52 @@
     <string name="channel_extracting_maps_description">Used to show map extraction notification</string>
     <string name="channel_available_maps">Available maps</string>
     <string name="channel_available_maps_description">Used to show new map availability notification</string>
+
+    <!-- Import Settings -->
+    <string name="import_settings_dialog_title">Import settings</string>
+    <string name="menu_import">IMPORT</string>
+    <string name="menu_search">SEARCH</string>
+    <string name="search_tracks_on_gpsies">Search tracks on GPSies.com</string>
+    <string name="import_from_import_directory">Import from Import directory</string>
+    <string name="track_search_type">Search type</string>
+    <string name="track_search_type_center_with_radius">Center with radius</string>
+    <string name="track_search_type_map_viewport">Map viewport</string>
+    <string name="track_search_center">Center</string>
+    <string name="track_search_center_gps">Gps</string>
+    <string name="track_search_center_map">Map</string>
+    <string name="track_search_radius">Search radius</string>
+    <string name="seekbar_value">%d</string>
+    <string name="seekbar_value_km">%d km</string>
+    <string name="seekbar_value_mi">%d mi</string>
+    <string name="track_activity_types_to_include">Track activity types to include</string>
+    <string name="track_type">Track type</string>
+    <string name="max_tracks_to_search_for">Max. tracks to search for</string>
+    <string name="track_length">Track length</string>
+    <string name="track_length_minimum">Min</string>
+    <string name="track_length_maximum">Max</string>
+    <string name="track_type_round_trip">Round trip</string>
+    <string name="track_type_one_way">One way</string>
+
+    <!-- TrackType -->
+    <string name="trekking">Trekking</string>
+    <string name="walking">Walking</string>
+    <string name="jogging">Jogging</string>
+    <string name="climbing">Climbing</string>
+    <string name="biking">Biking</string>
+    <string name="racingbike">Cycle racing</string>
+    <string name="mountainbiking">Mountain biking</string>
+    <string name="pedelec">Pedelec</string>
+    <string name="skating">Skating</string>
+    <string name="crossskating">Cross skating</string>
+    <string name="handcycle">Hand cycling</string>
+    <string name="motorbiking">Motorcycling</string>
+    <string name="motocross">Motocross</string>
+    <string name="motorhome">Motorhome</string>
+    <string name="cabriolet">Cabriolet</string>
+    <string name="car">Car</string>
+    <string name="riding">Riding</string>
+    <string name="coach">Coach</string>
+    <string name="sailing">Sailing</string>
+    <string name="boating">Boating</string>
+    <string name="motorboat">Motorboat</string>
 </resources>

@@ -48,7 +48,8 @@ import timber.log.Timber;
  * and the old file is deleted (why?) but its record is unmodified
  */
 
-//TODO: create animating notification icon like android.R.drawable.stat_sys_download
+//TODO: Create animating notification icon like android.R.drawable.stat_sys_download
+//TODO: Take user to map settings fragment when user clicks on available maps notification (eg. start SettingsActivity, add main SettingsFragment, add mapSettingsFragment to create proper backstack (MainActivity->SettingsActivity->SettingsFragment->SettingsFragment) and don't forget to call MapDownloadService.cleanupMapAvailableNotification)
 public class MapDownloadService extends Service {
     @Inject PreferenceManager preferenceManager;
     @Inject BackgroundJobHandler backgroundJobHandler;

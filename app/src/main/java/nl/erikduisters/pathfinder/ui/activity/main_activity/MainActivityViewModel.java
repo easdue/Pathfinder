@@ -20,9 +20,13 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.NavigationViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState.ShowImportSettingsDialogState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.StartActivityViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
 import nl.erikduisters.pathfinder.ui.activity.settings.SettingsActivity;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
@@ -48,6 +52,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     private MutableLiveData<NavigationViewState> navigationViewStateObservable;
     private MutableLiveData<StartActivityViewState> startActivityViewStateObservable;
     private MutableLiveData<MyMenu> optionsMenuObservable;
+    private MutableLiveData<ShowDialogViewState> showDialogViewStateObservable;
 
     private final GpsManager gpsManager;
     private final InitDatabaseHelper initDatabaseHelper;
@@ -61,6 +66,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         navigationViewStateObservable = new MutableLiveData<>();
         startActivityViewStateObservable = new MutableLiveData<>();
         optionsMenuObservable = new MutableLiveData<>();
+        showDialogViewStateObservable = new MutableLiveData<>();
 
         this.gpsManager = gpsManager;
         this.initDatabaseHelper = initDatabaseHelper;
@@ -78,6 +84,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     LiveData<NavigationViewState> getNavigationViewStateObservable() { return navigationViewStateObservable; }
     LiveData<StartActivityViewState> getStartActivityViewStateObservable() { return startActivityViewStateObservable; }
     LiveData<MyMenu> getOptionsMenuObservable() { return optionsMenuObservable; }
+    LiveData<ShowDialogViewState> getShowDialogViewStateObservable() { return showDialogViewStateObservable; }
 
     private void initDatabase() {
         ProgressDialog.Properties properties =
@@ -229,7 +236,8 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     void onNavigationMenuItemSelected(MyMenuItem menuItem) {
         switch (menuItem.getId()) {
             case R.id.nav_import:
-                //TODO
+                //TODO: get map bounding box and pass that to ImportSettingsDialog
+                showDialogViewStateObservable.setValue(new ShowImportSettingsDialogState());
                 break;
             case R.id.nav_login_register:
                 //TODO

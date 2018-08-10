@@ -68,6 +68,7 @@ import static android.view.View.VISIBLE;
  * Created by Erik Duisters on 28-06-2018.
  */
 
+//TODO: Persist Cookies https://gist.github.com/atoennis/c12c56a61f0a284cbaa5
 public class MapFragment
         extends BaseFragment<MapFragmentViewModel>
         implements Map.UpdateListener, ViewPagerFragment {
@@ -109,7 +110,7 @@ public class MapFragment
         map.getEventLayer().setFixOnCenter(true);
         map.events.bind(this);
 
-        viewModel.onMapViewReady();
+        viewModel.onMapViewReady(map.viewport());
         viewModel.getMapInitializationStateObservable().observe(this, this::render);
         viewModel.getMapFragmentViewStateObservable().observe(this, this::render);
 
@@ -118,6 +119,8 @@ public class MapFragment
 
     @Override
     public void onDestroyView() {
+        viewModel.releaseViewPort();
+
         map.events.unbind(this);
 
         //If I don't call this MainActivity is sometimes leaked
@@ -154,6 +157,8 @@ public class MapFragment
 
         viewModel.onSaveState();
     }
+
+    public void onSaveInstanceState() { viewModel.onSaveState(); }
 
     @Override
     protected int getLayoutResId() {

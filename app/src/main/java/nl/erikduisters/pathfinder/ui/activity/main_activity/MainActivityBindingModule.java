@@ -7,6 +7,7 @@ import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 import nl.erikduisters.pathfinder.di.ActivityContext;
 import nl.erikduisters.pathfinder.di.FragmentScope;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialog;
 import nl.erikduisters.pathfinder.ui.fragment.compass.CompassFragment;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapFragment;
@@ -42,6 +43,10 @@ public abstract class MainActivityBindingModule {
     @FragmentScope
     @ContributesAndroidInjector
     abstract CompassFragment contributeCompassFragmentInjector();
+
+    @FragmentScope
+    @ContributesAndroidInjector
+    abstract ImportSettingsDialog contributeImportSettingsDialog();
 
     @Provides
     @ActivityContext

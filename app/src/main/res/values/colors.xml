@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="black">#000000</color>
     <color name="map_scrimm">#d8ebf4f9</color>
+    <color name="transparent">#00FFFFFF</color>
 </resources>

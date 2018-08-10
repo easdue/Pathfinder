@@ -36,6 +36,8 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState.ShowImportSettingsDialogState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
@@ -43,7 +45,9 @@ import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialog;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
+import nl.erikduisters.pathfinder.ui.fragment.map.MapFragment;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewModel;
@@ -55,7 +59,8 @@ import timber.log.Timber;
 //TODO: Bottom navigation instead of tabs?
 //TODO: Remind users to install an offline map
 //TODO: After setting finish state the viewState must be set to null or something else otherwise the app cannot be started again
-//TODO: Allow user to configure a new storage location (clear storagedir/cachedir and storageUUID
+//TODO: Save/Restore state and ViewState
+//TODO: All dialogs must be dismissible using the back button
 public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
@@ -69,6 +74,7 @@ public class MainActivity
     private static final String TAG_FATAL_MESSAGE_DIALOG = "FatalMessageDialog";
     private static final String TAG_INIT_DATABASE_PROGRESS_DIALOG = "InitDatabaseProgressDialog";
     private static final String TAG_ASK_USER_TO_ENABLE_GPS_DIALOG = "AskUserToEnableGpsDialog";
+    private static final String TAG_IMPORT_SETTINGS_DIALOG = "ImportSettingsDialog";
 
     private static final String KEY_CURRENT_VIEWPAGER_POSITION = "CurrentViewpagerPosition";
 
@@ -115,6 +121,7 @@ public class MainActivity
         viewModel.getNavigationViewStateObservable().observe(this, this::render);
         viewModel.getStartActivityViewStateObservable().observe(this, this::render);
         viewModel.getOptionsMenuObservable().observe(this, this::render);
+        viewModel.getShowDialogViewStateObservable().observe(this, this::render);
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(fragmentAdapter);
@@ -203,7 +210,7 @@ public class MainActivity
         return false;
     }
 
-    void render(@Nullable NavigationViewState viewState) {
+    void render(@Nullable MainActivityViewState.NavigationViewState viewState) {
         Timber.d("render(NavigationViewState == %s", viewState == null ? "null" : viewState.getClass().getSimpleName());
 
         if (viewState == null) {
@@ -217,6 +224,7 @@ public class MainActivity
         navigationMenu.updateAndroidMenu(navigationView.getMenu(), this);
     }
 
+    //TODO: rename MainActivityViewState to MainActivityViewState.InitializationState
     void render(@Nullable MainActivityViewState viewState) {
         Timber.e("render(viewState == %s)", viewState == null ? "null" : viewState.getClass().getSimpleName());
 
@@ -288,7 +296,7 @@ public class MainActivity
         }
     }
 
-    private void render(@Nullable StartActivityViewState state) {
+    private void render(@Nullable MainActivityViewState.StartActivityViewState state) {
         if (state == null) {
             return;
         }
@@ -306,6 +314,14 @@ public class MainActivity
         if (optionsMenu != this.optionsMenu) {
             this.optionsMenu = optionsMenu;
             invalidateOptionsMenu();
+        }
+    }
+
+    private void render(@Nullable ShowDialogViewState viewState) {
+        if (viewState instanceof ShowImportSettingsDialogState) {
+            showImportSettingsDialog(TAG_IMPORT_SETTINGS_DIALOG);
+        } else {
+            dismissDialogFragment(TAG_IMPORT_SETTINGS_DIALOG);
         }
     }
 
@@ -445,6 +461,25 @@ public class MainActivity
     @Override
     public void onPlayServicesUnavailable() {
         viewModel.onPlayServicesUnavailable();
+    }
+
+    private void showImportSettingsDialog(String tag) {
+        ImportSettingsDialog dialog = findFragment(tag);
+
+        if (dialog == null) {
+            MapFragment mapFragment = fragmentAdapter.getFragment(MainActivityFragmentProvider.MAP_FRAGMENT);
+
+            if (mapFragment == null) {
+                throw new IllegalStateException("Cannot show ImportSettingsDialog when MapFragment is not around yet");
+            }
+
+            mapFragment.onSaveInstanceState();
+
+            dialog = ImportSettingsDialog.newInstance();
+            show(dialog, tag);
+        }
+
+        //TODO: Set dialogs listener
     }
 
     @Override

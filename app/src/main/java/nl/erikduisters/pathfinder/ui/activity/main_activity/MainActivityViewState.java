@@ -1,5 +1,7 @@
 package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -8,6 +10,9 @@ import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionRequest;
+import nl.erikduisters.pathfinder.util.DrawableProvider;
+import nl.erikduisters.pathfinder.util.StringProvider;
+import nl.erikduisters.pathfinder.util.menu.MyMenu;
 
 /**
  * Created by Erik Duisters on 03-06-2018.
@@ -77,4 +82,36 @@ interface MainActivityViewState {
     class WaitingForGpsToBeEnabledState implements MainActivityViewState {}
 
     class InitializedState implements MainActivityViewState { }
+
+    class NavigationViewState {
+        @NonNull final DrawableProvider avatar;
+        @NonNull final StringProvider userName;
+        @NonNull final MyMenu navigationMenu;
+
+        NavigationViewState(@NonNull DrawableProvider avatar,
+                            @NonNull StringProvider userName,
+                            @NonNull MyMenu navigationMenu) {
+            this.avatar = avatar;
+            this.userName = userName;
+            this.navigationMenu = navigationMenu;
+        }
+    }
+
+    class StartActivityViewState {
+        @NonNull private final Class<?> activityClass;
+
+        StartActivityViewState(@NonNull Class activityClass) {
+            this.activityClass = activityClass;
+        }
+
+        Intent getIntent(Context context) {
+            return new Intent(context, activityClass);
+        }
+    }
+
+    interface ShowDialogViewState {
+        final class ShowImportSettingsDialogState implements ShowDialogViewState {}
+    }
+
+
 }

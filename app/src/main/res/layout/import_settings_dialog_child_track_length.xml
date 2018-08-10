@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:paddingBottom="8dp"
+    android:paddingEnd="16dp"
+    android:paddingStart="32dp">
+
+    <TextView
+        android:id="@+id/label"
+        style="@style/TextAppearance.Design.Hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="4dp"
+        android:paddingTop="8dp"
+        android:text="@string/track_length"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorHint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/minLabel"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:text="@string/track_length_minimum"
+        app:layout_constraintStart_toStartOf="@+id/label"
+        app:layout_constraintTop_toBottomOf="@+id/label"/>
+
+    <TextView
+        android:id="@+id/maxLabel"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:text="@string/track_length_maximum"
+        app:layout_constraintStart_toStartOf="@id/label"
+        app:layout_constraintTop_toBottomOf="@+id/minLabel"/>
+
+    <SeekBar
+        android:id="@+id/minSeekBar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:focusableInTouchMode="false"
+        android:max="100"
+        android:progress="0"
+        app:layout_constraintBottom_toBottomOf="@id/minLabel"
+        app:layout_constraintEnd_toStartOf="@id/seekBarValueAligner"
+        app:layout_constraintStart_toEndOf="@id/minMaxLabelBarrier"
+        app:layout_constraintTop_toTopOf="@id/minLabel"/>
+
+    <SeekBar
+        android:id="@+id/maxSeekBar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:focusableInTouchMode="false"
+        android:max="100"
+        android:progress="0"
+        app:layout_constraintBottom_toBottomOf="@id/maxLabel"
+        app:layout_constraintEnd_toStartOf="@id/seekBarValueAligner"
+        app:layout_constraintStart_toEndOf="@id/minMaxLabelBarrier"
+        app:layout_constraintTop_toTopOf="@id/maxLabel"/>
+
+    <android.support.constraint.Barrier
+        android:id="@+id/minMaxLabelBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="end"
+        app:constraint_referenced_ids="minLabel,maxLabel"
+        tools:layout_editor_absoluteX="79dp"/>
+
+    <TextView
+        android:id="@+id/seekBarValueAligner"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:textAlignment="textEnd"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/minLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/minSeekBar"
+        app:layout_constraintTop_toTopOf="@+id/minLabel"
+        tools:text="1000"/>
+
+    <TextView
+        android:id="@+id/minSeekBarValue"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:textAlignment="textEnd"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/minLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/seekBarValueAligner"
+        app:layout_constraintTop_toTopOf="@+id/minLabel"
+        tools:text="0"/>
+
+    <TextView
+        android:id="@+id/maxSeekBarValue"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:textAlignment="textEnd"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/maxLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/seekBarValueAligner"
+        app:layout_constraintTop_toTopOf="@+id/maxLabel"
+        tools:text="40"/>
+
+</android.support.constraint.ConstraintLayout>

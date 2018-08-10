@@ -87,8 +87,20 @@ public class FragmentAdapter extends FragmentPagerAdapter {
     }
     */
 
-    public @Nullable
-    ViewPagerFragment getFragment(int index) {
+    @Nullable
+    public ViewPagerFragment getFragment(int index) {
         return index >= tabList.size() ? null : tabList.get(index).fragment;
+    }
+
+    @Nullable
+    public <T extends ViewPagerFragment> T getFragment(FragmentProvider provider) {
+        for (TabItem tabItem : tabList) {
+            if (tabItem.fragmentProvider == provider) {
+                //noinspection unchecked
+                return (T) tabItem.fragment;
+            }
+        }
+
+        return null;
     }
 }

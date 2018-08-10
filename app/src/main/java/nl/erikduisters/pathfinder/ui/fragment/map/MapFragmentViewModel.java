@@ -10,7 +10,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.os.LocaleListCompat;
 import android.view.Menu;
 
+import org.oscim.core.Box;
 import org.oscim.core.MapPosition;
+import org.oscim.map.Viewport;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeFile;
 import org.oscim.theme.XmlRenderThemeStyleLayer;
@@ -38,6 +40,7 @@ import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.data.usecase.LoadRenderTheme;
 import nl.erikduisters.pathfinder.data.usecase.UseCase;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializedState;
+import nl.erikduisters.pathfinder.util.BoundingBox;
 import nl.erikduisters.pathfinder.util.IntegerDegrees;
 import nl.erikduisters.pathfinder.util.StringProvider;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
@@ -71,6 +74,7 @@ public class MapFragmentViewModel
     private MapFragmentViewState.Builder mapFragmentViewStateBuilder;
 
     private UseCaseJob renderThemeJob;
+    @Nullable private Viewport viewport;
 
     @Inject
     MapFragmentViewModel(PreferenceManager preferenceManager,
@@ -223,8 +227,13 @@ public class MapFragmentViewModel
         }
     }
 
-    void onMapViewReady() {
+    void onMapViewReady(Viewport viewport) {
+        this.viewport = viewport;
         loadRenderTheme();
+    }
+
+    void releaseViewPort() {
+        this.viewport = null;
     }
 
     private void loadRenderTheme() {
@@ -483,6 +492,11 @@ public class MapFragmentViewModel
         Timber.e("onSaveState()");
 
         preferenceManager.setMapPosition(mapFragmentViewStateBuilder.getMapPosition());
+        if (viewport != null) {
+            Box box = viewport.getBBox(null, 0);
+
+            preferenceManager.setMapBoundingBox(new BoundingBox(box));
+        }
     }
 
     private void onLocationChanged(Location location) {

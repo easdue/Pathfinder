@@ -25,6 +25,7 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.di.ApplicationContext;
+import nl.erikduisters.pathfinder.util.BoundingBox;
 import nl.erikduisters.pathfinder.util.Coordinate;
 import nl.erikduisters.pathfinder.util.Distance;
 import nl.erikduisters.pathfinder.util.FileUtil;
@@ -61,15 +62,19 @@ public class PreferenceManager {
     public  final String KEY_USE_INTERNAL_RENDER_THEME;
     public  final String KEY_INTERNAL_RENDER_THEME;
     public  final String KEY_EXTERNAL_RENDER_THEME;
-    private  final String KEY_RENDER_THEME_STYLE;
+    private final String KEY_RENDER_THEME_STYLE;
     private final String KEY_MAP_FOLLOWS_GPS;
     private final String KEY_MAP_LATITUDE;
     private final String KEY_MAP_LONGITUDE;
     private final String KEY_MAP_ZOOM_LEVEL;
     private final String KEY_MAP_TILT;
     private final String KEY_MAP_BEARING;
-    public final String KEY_MAP_SCALE_BAR_TYPE;
-    public final String KEY_MAP_DISPLAY_NORTH_UP;
+    public  final String KEY_MAP_SCALE_BAR_TYPE;
+    public  final String KEY_MAP_DISPLAY_NORTH_UP;
+    private final String KEY_MAP_BOUNDING_BOX_MIN_LATITUDE;
+    private final String KEY_MAP_BOUNDING_BOX_MIN_LONGITUDE;
+    private final String KEY_MAP_BOUNDING_BOX_MAX_LATITUDE;
+    private final String KEY_MAP_BOUNDING_BOX_MAX_LONGITUDE;
     private final String KEY_USE_TRUE_NORTH;
     private final String KEY_USE_GPS_BEARING;
     private final String KEY_USE_GPS_BEARING_SPEED;
@@ -118,6 +123,10 @@ public class PreferenceManager {
         KEY_MAP_BEARING = context.getString(R.string.key_map_bearing);
         KEY_MAP_SCALE_BAR_TYPE = context.getString(R.string.key_map_scale_bar_type);
         KEY_MAP_DISPLAY_NORTH_UP = context.getString(R.string.key_map_display_north_up);
+        KEY_MAP_BOUNDING_BOX_MIN_LATITUDE = context.getString(R.string.key_map_bounding_box_min_latitude);
+        KEY_MAP_BOUNDING_BOX_MIN_LONGITUDE = context.getString(R.string.key_map_bounding_box_min_longitude);
+        KEY_MAP_BOUNDING_BOX_MAX_LATITUDE = context.getString(R.string.key_map_bounding_box_max_latitude);
+        KEY_MAP_BOUNDING_BOX_MAX_LONGITUDE = context.getString(R.string.key_map_bounding_box_max_longitude);
         KEY_USE_TRUE_NORTH = context.getString(R.string.key_use_true_north);
         KEY_USE_GPS_BEARING = context.getString(R.string.key_use_gps_bearing);
         KEY_USE_GPS_BEARING_SPEED = context.getString(R.string.key_gps_bearing_speed);
@@ -381,6 +390,26 @@ public class PreferenceManager {
 
     public synchronized boolean mapDisplaysNorthUp() {
         return preferences.getBoolean(KEY_MAP_DISPLAY_NORTH_UP, false);
+    }
+
+    public synchronized void setMapBoundingBox(BoundingBox boundingBox) {
+        preferences.edit()
+                .putString(KEY_MAP_BOUNDING_BOX_MIN_LATITUDE, String.valueOf(boundingBox.minLatitude))
+                .putString(KEY_MAP_BOUNDING_BOX_MIN_LONGITUDE, String.valueOf(boundingBox.minLongitude))
+                .putString(KEY_MAP_BOUNDING_BOX_MAX_LATITUDE, String.valueOf(boundingBox.maxLatitude))
+                .putString(KEY_MAP_BOUNDING_BOX_MAX_LONGITUDE, String.valueOf(boundingBox.maxLongitude))
+                .apply();
+    }
+
+    public synchronized BoundingBox getMapBoundingBox() {
+        Double minLat, minLon, maxLat, maxLon;
+
+        minLat = Double.parseDouble(preferences.getString(KEY_MAP_BOUNDING_BOX_MIN_LATITUDE, DEFAULT_LATITUDE));
+        minLon = Double.parseDouble(preferences.getString(KEY_MAP_BOUNDING_BOX_MIN_LONGITUDE, DEFAULT_LONGITUDE));
+        maxLat = Double.parseDouble(preferences.getString(KEY_MAP_BOUNDING_BOX_MAX_LATITUDE, DEFAULT_LATITUDE));
+        maxLon = Double.parseDouble(preferences.getString(KEY_MAP_BOUNDING_BOX_MAX_LONGITUDE, DEFAULT_LONGITUDE));
+
+        return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
     public synchronized ScaleBarType getScaleBarType() {

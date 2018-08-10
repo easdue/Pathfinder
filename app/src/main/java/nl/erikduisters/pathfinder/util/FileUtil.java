@@ -25,24 +25,6 @@ public class FileUtil {
         }
     }
 
-    /**
-     * Creates the requested directory recursively if necessary
-     *
-     * @param folder the directory to create
-     * @return true if the directory('s) were created successfully
-     */
-    public static boolean createDirectory(String folder) {
-        File f = new File(folder);
-
-        return createDirectory(f);
-    }
-
-    public static boolean createDirectory(String parent, String child) {
-        File f = new File(parent, child);
-
-        return createDirectory(f);
-    }
-
     public static boolean createDirectory(File file) {
         return file.isDirectory() || file.mkdirs();
     }
@@ -75,12 +57,24 @@ public class FileUtil {
         return files;
     }
 
-    public static String ensureEndsWithSeparator(String path) {
-        if (!path.endsWith(File.separator)) {
-            return path + File.separator;
+    public static List<File> getFilesByExtension(File directory, boolean recursive, String extension) {
+        List<File> files = new ArrayList<>();
+
+        for (File f : directory.listFiles()) {
+            if (f.isDirectory()) {
+                if (!recursive) {
+                    continue;
+                } else {
+                    files.addAll(getFilesByExtension(f, recursive, extension));
+                }
+            }
+
+            if (f.getName().toLowerCase().endsWith(extension.toLowerCase())) {
+                files.add(f);
+            }
         }
 
-        return path;
+        return files;
     }
 
     public static String removeEndSeparator(String path) {

@@ -8,6 +8,7 @@ import dagger.multibindings.IntoMap;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.map_download.MapDownloadActivityViewModel;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.compass.CompassFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.gps_status.GpsStatusFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewModel;
@@ -83,4 +84,9 @@ abstract class ViewModelBindingModule {
     @IntoMap
     @ViewModelKey(MapDownloadFragmentViewModel.class)
     abstract ViewModel bindMapDownloadFragmentViewModel(MapDownloadFragmentViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ImportSettingsDialogViewModel.class)
+    abstract ViewModel binImportSettingsDialogViewModel(ImportSettingsDialogViewModel viewModel);
 }

@@ -22,8 +22,8 @@ import nl.erikduisters.pathfinder.R;
 /**
  * Created by Erik Duisters on 20-07-2018.
  *
- * Copy of net.xpece.android.support.preference.PreferenceDividerDecoration but this one also
- * draws a divider between a PreferenceCategory and a non PreferenceCategory item
+ * Copy of https://github.com/consp1racy/android-support-preference/tree/2.x/support-preference/src/main/java/net/xpece/android/support/preference/PreferenceDividerDecoration
+ * but this one also draws a divider between a PreferenceCategory and a non PreferenceCategory item
  */
 public class PreferenceItemDecoration extends RecyclerView.ItemDecoration {
     private boolean mDrawTop = false;
@@ -145,6 +145,11 @@ public class PreferenceItemDecoration extends RecyclerView.ItemDecoration {
         int paddingPx = (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, paddingDp, context.getResources().getDisplayMetrics());
         return padding(paddingPx);
+    }
+
+    @Override
+    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        super.onDraw(c, parent, state);
     }
 
     @SuppressWarnings("RestrictedApi")

@@ -58,4 +58,8 @@
     <style name="MyPreferenceCategoryStyle" parent="Preference.Material.Category">
         <item name="android:layout">@layout/my_preference_category</item>
     </style>
+
+    <style name="MyRecyclerViewRow">
+        <item name="android:background">@drawable/list_selector</item>
+    </style>
 </resources>

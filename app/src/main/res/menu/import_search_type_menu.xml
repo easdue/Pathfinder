@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_import_search_type_center_with_radius"
+        android:title="@string/track_search_type_center_with_radius"/>
+    <item
+        android:id="@+id/menu_import_search_type_map_viewport"
+        android:title="@string/track_search_type_map_viewport"/>
+</menu>

@@ -7,4 +7,9 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="location_marker_width">32dp</dimen>
     <dimen name="location_marker_height">42dp</dimen>
+    <dimen name="small_button_height">32dp</dimen>
+    <dimen name="small_button_width">32dp</dimen>
+    <dimen name="track_activity_type_image_height">32dp</dimen>
+    <dimen name="track_activity_type_image_width">32dp</dimen>
+    <dimen name="track_activity_type_image_padding">0dp</dimen>
 </resources>
