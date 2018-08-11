@@ -568,6 +568,8 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
             roundTrip.setEnabled(entry.isEnabled);
             oneWay.setChecked(entry.oneWayChecked);
             oneWay.setEnabled(entry.isEnabled);
+
+            setClickable(entry);
         }
 
         @Override
@@ -582,8 +584,20 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
                 entry.oneWayChecked = isChecked;
             }
 
+            setClickable(entry);
+
             if (entry.shouldReportChange() && onChangedListener != null) {
                 onChangedListener.onChanged(entry);
+            }
+        }
+
+        private void setClickable(ImportSettingsAdapterData.GroupEntryTrackType entry) {
+            if (entry.roundTripChecked) {
+                roundTrip.setClickable(entry.oneWayChecked);
+            }
+
+            if (entry.oneWayChecked) {
+                oneWay.setClickable(entry.roundTripChecked);
             }
         }
     }

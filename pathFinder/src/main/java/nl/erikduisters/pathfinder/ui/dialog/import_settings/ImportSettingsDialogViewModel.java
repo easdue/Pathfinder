@@ -65,6 +65,7 @@ public class ImportSettingsDialogViewModel extends ViewModel {
     }
 
     private Group createSearchTracksOnGpsiesGroup() {
+        preferenceManager.setUnits(Units.IMPERIAL);
         SearchTracksOnGpsiesGroup group = new SearchTracksOnGpsiesGroup(R.string.search_tracks_on_gpsies, true);
 
         MyMenu menu = new MyMenu();
@@ -82,7 +83,8 @@ public class ImportSettingsDialogViewModel extends ViewModel {
         //TODO: Maybe make these dependent on the track activity types included
         //TODO: Maybe make step, min and max configurable in settings
         @StringRes int valueResId = preferenceManager.getUnits() == Units.METRIC ? R.string.seekbar_value_km : R.string.seekbar_value_mi;
-        group.addChild(new ImportSettingsAdapterData.GroupEntryTrackLength(R.string.track_length, R.string.track_length_minimum, R.string.track_length_maximum, 1, 1, 500, valueResId));
+        int max = preferenceManager.getUnits() == Units.METRIC ? 500 : (int) UnitsUtil.kilometers2Miles(500);
+        group.addChild(new ImportSettingsAdapterData.GroupEntryTrackLength(R.string.track_length, R.string.track_length_minimum, R.string.track_length_maximum, 1, 1, max, valueResId));
 
         group.setCanExpand(true);
 
@@ -94,15 +96,17 @@ public class ImportSettingsDialogViewModel extends ViewModel {
         group.addChild(1, new ImportSettingsAdapterData.GroupEntryRadiogroup(R.string.track_search_center, R.string.track_search_center_gps,
                 R.string.track_search_center_map, 1, false, false, enabled));
 
+        int min = 5;
         int max = 50;
         @StringRes int unitResId = R.string.seekbar_value_km;
 
         if (preferenceManager.getUnits() == Units.IMPERIAL) {
+            min = (int) UnitsUtil.kilometers2Miles(min);
             max = (int) UnitsUtil.kilometers2Miles(max);
             unitResId = R.string.seekbar_value_mi;
         }
 
-        group.addChild(2, new ImportSettingsAdapterData.GroupEntrySeekbar(R.string.track_search_radius, 0, 1, 5, max, unitResId));
+        group.addChild(2, new ImportSettingsAdapterData.GroupEntrySeekbar(R.string.track_search_radius, 0, 1, min, max, unitResId));
 
     }
 
