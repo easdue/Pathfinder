@@ -292,16 +292,20 @@ public class ImportSettingsDialogViewModel extends ViewModel {
             GPSiesService extents IntentService
                Job
                  SearchTracks
+                    The user is waiting so start a dialog, bind to the service and show progress
+                    Wait for GPS Fix if necessary
+                    Perform search (no network is show error/retry)
                  DownloadTracks
+                    This can be done entirely in the background using a notification for progress
 
             ImportService extends Service
                 ImportGpxFiles
+                    This can be done entirely in the background. Tracks will show up in the tracklist automatically using room LiveData
      */
     void onMenuItemSelected(MyMenuItem menuItem) {
         switch (menuItem.getId()) {
             case R.id.menu_search:
                 //TODO: Implement
-                //TODO: Wait for GPS fix
                 break;
         }
     }

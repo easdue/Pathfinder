@@ -4,8 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Pathfinder.iml" filepath="$PROJECT_DIR$/Pathfinder.iml" />
       <module fileurl="file://$PROJECT_DIR$/androidSVG/androidSVG.iml" filepath="$PROJECT_DIR$/androidSVG/androidSVG.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/gpx/gpx.iml" filepath="$PROJECT_DIR$/gpx/gpx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pathFinder/pathFinder.iml" filepath="$PROJECT_DIR$/pathFinder/pathFinder.iml" />
     </modules>
   </component>
 </project>
