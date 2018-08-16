@@ -634,14 +634,13 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
             minLabel.setText(entry.minLabelResId);
             maxLabel.setText(entry.maxLabelResId);
 
-            //TODO: Prevent min > max and max < min
             minSeekBar.setMax(entry.maxProgress());
-            minSeekBar.setProgress(entry.position(entry.INDEX_MIN));
+            minSeekBar.setProgress(entry.getMinPosition());
             minSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    entry.setPosition(entry.INDEX_MIN, progress);
-                    minSeekBarValue.setText(minSeekBarValue.getContext().getString(entry.valueResId(), entry.getValue(entry.INDEX_MIN)));
+                    entry.setMinPosition(progress);
+                    minSeekBarValue.setText(minSeekBarValue.getContext().getString(entry.valueResId(), entry.getMinValue()));
 
                     if (entry.shouldReportChange() && onChangedListener != null) {
                         onChangedListener.onChanged(entry);
@@ -660,16 +659,16 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
             });
             minSeekBar.setEnabled(entry.isEnabled());
             minSeekBar.setOnTouchListener(this);
-            minSeekBarValue.setText(minSeekBarValue.getContext().getString(entry.valueResId(), entry.getValue(entry.INDEX_MIN)));
+            minSeekBarValue.setText(minSeekBarValue.getContext().getString(entry.valueResId(), entry.getMinValue()));
 
             maxSeekBar.setMax(entry.maxProgress());
-            maxSeekBar.setProgress(entry.position(entry.INDEX_MAX));
+            maxSeekBar.setProgress(entry.getMaxPosition());
             maxSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    entry.setPosition(entry.INDEX_MAX, progress);
+                    entry.setMaxPosition(progress);
 
-                    String max =  maxSeekBar.getContext().getString(entry.valueResId(), entry.getValue(entry.INDEX_MAX));
+                    String max =  maxSeekBar.getContext().getString(entry.valueResId(), entry.getMaxValue());
 
                     seekBarValueAligner.setText(max);
                     maxSeekBarValue.setText(max);
@@ -683,7 +682,7 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
             maxSeekBar.setEnabled(entry.isEnabled());
             maxSeekBar.setOnTouchListener(this);
 
-            String max =  maxSeekBar.getContext().getString(entry.valueResId(), entry.getValue(entry.INDEX_MAX));
+            String max =  maxSeekBar.getContext().getString(entry.valueResId(), entry.getMaxValue());
 
             seekBarValueAligner.setText(max);
             maxSeekBarValue.setText(max);

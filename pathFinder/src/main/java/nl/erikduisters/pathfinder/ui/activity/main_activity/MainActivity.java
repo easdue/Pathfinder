@@ -22,10 +22,13 @@ import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import java.util.List;
+
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.service.MapDownloadService;
+import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
@@ -35,9 +38,9 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState.ShowDialogViewState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState.ShowDialogViewState.SelectTracksToImportDialogState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState.ShowImportSettingsDialogState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
@@ -46,6 +49,7 @@ import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialog;
+import nl.erikduisters.pathfinder.ui.dialog.select_tracks_to_import.SelectTracksToImportDialog;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapFragment;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment;
@@ -58,9 +62,8 @@ import timber.log.Timber;
 //TODO: Remove fragment listeners
 //TODO: Bottom navigation instead of tabs?
 //TODO: Remind users to install an offline map
-//TODO: After setting finish state the viewState must be set to null or something else otherwise the app cannot be started again
-//TODO: Save/Restore state and ViewState
 //TODO: All dialogs must be dismissible using the back button
+//TODO: Add "Download offline map" to navigation menu
 public class MainActivity
         extends BaseActivity<MainActivityViewModel>
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
@@ -75,8 +78,10 @@ public class MainActivity
     private static final String TAG_INIT_DATABASE_PROGRESS_DIALOG = "InitDatabaseProgressDialog";
     private static final String TAG_ASK_USER_TO_ENABLE_GPS_DIALOG = "AskUserToEnableGpsDialog";
     private static final String TAG_IMPORT_SETTINGS_DIALOG = "ImportSettingsDialog";
+    private static final String TAG_SELECT_TRACKS_TO_IMPORT_DIALOG = "SelectTrackToImportDialog";
 
     private static final String KEY_CURRENT_VIEWPAGER_POSITION = "CurrentViewpagerPosition";
+    private static final String KEY_VIEW_MODEL_STATE = "ViewModelState";
 
     public static final String INTENT_EXTRA_STARTED_FROM_MAP_AVAILABLE_NOTIFICATION = "nl.erikduisters.pathfinder.StartedFromMapAvailableNotification";
 
@@ -104,6 +109,13 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        currentViewPagerPosition = -1;
+
+        if (savedInstanceState != null) {
+            currentViewPagerPosition = savedInstanceState.getInt(KEY_CURRENT_VIEWPAGER_POSITION);
+            viewModel.onRestoreInstanceState(savedInstanceState.getParcelable(KEY_VIEW_MODEL_STATE));
+        }
+
         setSupportActionBar(toolbar);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -118,18 +130,13 @@ public class MainActivity
         username = headerView.findViewById(R.id.gpsies_username);
 
         viewModel.getMainActivityViewStateObservable().observe(this, this::render);
-        viewModel.getNavigationViewStateObservable().observe(this, this::render);
         viewModel.getStartActivityViewStateObservable().observe(this, this::render);
-        viewModel.getOptionsMenuObservable().observe(this, this::render);
-        viewModel.getShowDialogViewStateObservable().observe(this, this::render);
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(fragmentAdapter);
         viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(this);
         tabLayout.setupWithViewPager(viewPager);
-
-        currentViewPagerPosition = -1;
 
         onNewIntent(getIntent());
     }
@@ -186,11 +193,6 @@ public class MainActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -210,21 +212,6 @@ public class MainActivity
         return false;
     }
 
-    void render(@Nullable MainActivityViewState.NavigationViewState viewState) {
-        Timber.d("render(NavigationViewState == %s", viewState == null ? "null" : viewState.getClass().getSimpleName());
-
-        if (viewState == null) {
-            return;
-        }
-
-        avatar.setImageDrawable(viewState.avatar.getDrawable(this));
-        username.setText(viewState.userName.getString(this));
-
-        navigationMenu = viewState.navigationMenu;
-        navigationMenu.updateAndroidMenu(navigationView.getMenu(), this);
-    }
-
-    //TODO: rename MainActivityViewState to MainActivityViewState.InitializationState
     void render(@Nullable MainActivityViewState viewState) {
         Timber.e("render(viewState == %s)", viewState == null ? "null" : viewState.getClass().getSimpleName());
 
@@ -294,6 +281,27 @@ public class MainActivity
 
             viewPager.post(this::initViewPager);
         }
+
+        render(state.navigationViewState);
+        render(state.optionsMenu);
+        render(state.showDialogViewState);
+    }
+
+    void render(@NonNull InitializedState.NavigationViewState viewState) {
+        avatar.setImageDrawable(viewState.avatar.getDrawable(this));
+        username.setText(viewState.userName.getString(this));
+
+        if (navigationMenu != viewState.navigationMenu) {
+            navigationMenu = viewState.navigationMenu;
+            navigationMenu.updateAndroidMenu(navigationView.getMenu(), this);
+        }
+    }
+
+    private void render(@NonNull MyMenu optionsMenu) {
+        if (optionsMenu != this.optionsMenu) {
+            this.optionsMenu = optionsMenu;
+            invalidateOptionsMenu();
+        }
     }
 
     private void render(@Nullable MainActivityViewState.StartActivityViewState state) {
@@ -306,22 +314,17 @@ public class MainActivity
         viewModel.onActivityStarted();
     }
 
-    private void render(@Nullable MyMenu optionsMenu) {
-        if (optionsMenu == null) {
-            return;
-        }
-
-        if (optionsMenu != this.optionsMenu) {
-            this.optionsMenu = optionsMenu;
-            invalidateOptionsMenu();
-        }
-    }
-
     private void render(@Nullable ShowDialogViewState viewState) {
-        if (viewState instanceof ShowImportSettingsDialogState) {
+        if (viewState instanceof ShowDialogViewState.ShowImportSettingsDialogState) {
             showImportSettingsDialog(TAG_IMPORT_SETTINGS_DIALOG);
         } else {
             dismissDialogFragment(TAG_IMPORT_SETTINGS_DIALOG);
+        }
+
+        if (viewState instanceof SelectTracksToImportDialogState) {
+            showSelectTracksToImportDialog((SelectTracksToImportDialogState) viewState, TAG_SELECT_TRACKS_TO_IMPORT_DIALOG);
+        } else {
+            dismissDialogFragment(TAG_SELECT_TRACKS_TO_IMPORT_DIALOG);
         }
     }
 
@@ -473,13 +476,52 @@ public class MainActivity
                 throw new IllegalStateException("Cannot show ImportSettingsDialog when MapFragment is not around yet");
             }
 
-            mapFragment.onSaveInstanceState();
+            mapFragment.onSaveInstanceState();  //Make sure map bounding box is available in shared preferences
 
             dialog = ImportSettingsDialog.newInstance();
             show(dialog, tag);
         }
 
-        //TODO: Set dialogs listener
+        dialog.setListener(new ImportSettingsDialog.Listener() {
+            @Override
+            public void onImportSettingsDialogDismissed(SearchTracks.JobInfo jobInfo) {
+                viewModel.onImportSettingsDialogDismissed(jobInfo);
+            }
+
+            /* TODO
+            @Override
+            public void onImportSettingsDialogDismissed(TrackImportService.Job) {
+                viewModel.onImportSettingsDialogDismissed(xx);
+            }
+            */
+
+            @Override
+            public void onImportSettingsDialogCancelled() {
+                viewModel.onImportSettingsDialogCancelled();
+            }
+        });
+    }
+
+    private void showSelectTracksToImportDialog(SelectTracksToImportDialogState viewState, String tag) {
+        SelectTracksToImportDialog dialog = findFragment(tag);
+
+        if (dialog == null) {
+            dialog = SelectTracksToImportDialog.newInstance(viewState.jobInfo);
+
+            show(dialog, tag);
+        }
+
+        dialog.setListener(new SelectTracksToImportDialog.Listener() {
+            @Override
+            public void onSelectTracksToImportDialogDismissed(List<String> trackFileIds) {
+                viewModel.onSelectTracksToImportDialogDismissed(trackFileIds);
+            }
+
+            @Override
+            public void onSelectTracksToImportDialogCancelled() {
+                viewModel.onSelectTracksToImportDialogCancelled();
+            }
+        });
     }
 
     @Override
@@ -567,13 +609,7 @@ public class MainActivity
         super.onSaveInstanceState(outState);
 
         outState.putInt(KEY_CURRENT_VIEWPAGER_POSITION, currentViewPagerPosition);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        currentViewPagerPosition = savedInstanceState.getInt(KEY_CURRENT_VIEWPAGER_POSITION);
+        outState.putParcelable(KEY_VIEW_MODEL_STATE, viewModel.onSaveInstanceState());
     }
 
     @SuppressWarnings("deprecation")

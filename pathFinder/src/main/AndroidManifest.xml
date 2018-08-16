@@ -60,7 +60,11 @@
         <service
             android:name=".service.MapDownloadService"
             android:exported="false"/>
-        
+
+        <service
+            android:name=".service.gpsies_service.GPSiesService"
+            android:exported="false"/>
+
         <receiver
             android:name="nl.erikduisters.pathfinder.DownloadCompleteBroadcastReceiver"
             android:exported="true">

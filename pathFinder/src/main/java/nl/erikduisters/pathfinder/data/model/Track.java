@@ -19,8 +19,8 @@ public class Track {
     @IntDef({Type.ROUND_TRIP, Type.ONE_WAY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {
-        int ROUND_TRIP = 0;
-        int ONE_WAY = 1;
+        int ROUND_TRIP = 1;
+        int ONE_WAY = 2;
     }
 
     @PrimaryKey(autoGenerate = true)
@@ -30,7 +30,7 @@ public class Track {
     public String description;
     public String author;
     @ColumnInfo(name = "gpsies_id")
-    public String gpsiesId;
+    public String gpsiesFileId;
     @ColumnInfo(name ="data_created")
     public Date dateCreated;
     public @Type int type;

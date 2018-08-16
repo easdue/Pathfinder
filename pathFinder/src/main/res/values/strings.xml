@@ -260,7 +260,7 @@
     <string name="channel_available_maps">Available maps</string>
     <string name="channel_available_maps_description">Used to show new map availability notification</string>
 
-    <!-- Import Settings -->
+    <!-- Import Settings Dialog -->
     <string name="import_settings_dialog_title">Import settings</string>
     <string name="menu_import">IMPORT</string>
     <string name="menu_search">SEARCH</string>
@@ -278,12 +278,24 @@
     <string name="seekbar_value_mi">%d mi</string>
     <string name="track_activity_types_to_include">Track activity types to include</string>
     <string name="track_type">Track type</string>
-    <string name="max_tracks_to_search_for">Max. tracks to search for</string>
+    <!-- <string name="max_tracks_to_search_for">Max. tracks to search for</string> -->
     <string name="track_length">Track length</string>
     <string name="track_length_minimum">Min</string>
     <string name="track_length_maximum">Max</string>
     <string name="track_type_round_trip">Round trip</string>
     <string name="track_type_one_way">One way</string>
+    <string name="no_gps_fix_dialog_title">No GPS fix available</string>
+    <string name="no_gps_fix_dialog_message">Waiting for GPS to acquire your current location</string>
+
+    <!-- Select Track To Import Dialog -->
+    <string name="select_tracks_to_import_dialog_title">Select tracks to import</string>
+    <string name="searching_for_tracks">Searching for tracks</string>
+    <string name="max_search_results_reached">Max search results reached\nOnly the %d newest tracks are listed</string>
+    <string name="no_network_available">No network available</string>
+    <string name="no_tracks_found">No tracks found</string>
+    <string name="connecting_to_gpsies_failed">Connecting to GPSies.com failed: %s</string>
+    <string name="gpsies_returned">GPSies.com returned: %d - %s</string>
+    <string name="cannot_parse_response_from_gpsies">Cannot parse response from GPSies.com</string>
 
     <!-- TrackType -->
     <string name="trekking">Trekking</string>
@@ -307,4 +319,9 @@
     <string name="sailing">Sailing</string>
     <string name="boating">Boating</string>
     <string name="motorboat">Motorboat</string>
+
+    <!-- Track/Marker -->
+    <string name="length_label">Length:</string>
+    <string name="total_ascent_label">Total ascent:</string>
+    <string name="total_descent_label">Total descent:</string>
 </resources>

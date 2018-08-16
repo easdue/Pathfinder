@@ -58,6 +58,7 @@ public enum TrackActivityType {
     }
 
     public int getCode() { return code; }
+    public String getGPSiesName() { return gpsiesName; }
     public @StringRes int getNameResId() { return nameResId; }
     public @DrawableRes int getDrawableResId() { return drawableResId; }
 }

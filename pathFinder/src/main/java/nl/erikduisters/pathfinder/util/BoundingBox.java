@@ -9,6 +9,8 @@ import org.oscim.core.Box;
  * Created by Erik Duisters on 10-08-2018.
  */
 public class BoundingBox implements Parcelable {
+    private static final double majorEarthRadiusMeters = 6378137d;
+
     public final double minLatitude;
     public final double minLongitude;
     public final double maxLatitude;
@@ -28,6 +30,47 @@ public class BoundingBox implements Parcelable {
         minLongitude = box.xmin;
         maxLatitude = box.ymax;
         maxLongitude = box.xmax;
+    }
+
+    /**
+     * @param center The center point of the bounding box
+     * @param radius The radius from the center point the bounding box must enclose in meters
+     */
+    public BoundingBox(Coordinate center, int radius) {
+        /*
+         * Based on http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates
+         */
+
+        if (radius < 0d)
+            throw new IllegalArgumentException();
+
+        // angular distance in radians on a great circle
+        double distRad = radius / majorEarthRadiusMeters;
+        double latRad = Math.toRadians(center.getLatitude());
+        double longRad = Math.toRadians(center.getLongitude());
+
+        double minLatRad = latRad - distRad;
+        double maxLatRad = latRad + distRad;
+
+        double minLonRad, maxLonRad;
+        if (minLatRad > Math.toRadians(-90d) && maxLatRad < Math.toRadians(90d)) {
+            double deltaLonRad = Math.asin(Math.sin(distRad) / Math.cos(latRad));
+            minLonRad = longRad - deltaLonRad;
+            if (minLonRad < Math.toRadians(-180d)) minLonRad += 2d * Math.PI;
+            maxLonRad = longRad + deltaLonRad;
+            if (maxLonRad > Math.toRadians(180d)) maxLonRad -= 2d * Math.PI;
+        } else {
+            // a pole is within the distance
+            minLatRad = Math.max(minLatRad, Math.toRadians(-90d));
+            maxLatRad = Math.min(maxLatRad, Math.toRadians(90d));
+            minLonRad = Math.toRadians(-180d);
+            maxLonRad = Math.toRadians(180d);
+        }
+
+        this.minLatitude = Math.toDegrees(minLatRad);
+        this.minLongitude = Math.toDegrees(minLonRad);
+        this.maxLatitude = Math.toDegrees(maxLatRad);
+        this.maxLongitude = Math.toDegrees(maxLonRad);
     }
 
     @Override

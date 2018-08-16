@@ -447,6 +447,11 @@ public class PreferenceManager {
     public synchronized @Units int getUnits() {
         return preferences.getInt(KEY_UNIT, Units.METRIC);
     }
+    public synchronized void setUnits(@Units int units) {
+        preferences.edit()
+                .putInt(KEY_UNIT, units)
+                .apply();
+    }
 
     //TODO: add to preferences.xml and handle
     public synchronized @Coordinate.DisplayFormat int getCoordinateDisplayFormat() {

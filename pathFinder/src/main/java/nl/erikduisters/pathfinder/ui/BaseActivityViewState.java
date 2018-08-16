@@ -26,6 +26,7 @@ public interface BaseActivityViewState {
         }
     }
 
+    //TODO: Make this a common class that can be used by all activities/fragments
     class DisplayMessageState implements BaseActivityViewState {
         @IntDef({DisplayDuration.SHORT, DisplayDuration.LONG})
         @Retention(RetentionPolicy.SOURCE)

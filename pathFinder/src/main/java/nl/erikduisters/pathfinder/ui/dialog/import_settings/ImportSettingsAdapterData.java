@@ -8,7 +8,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.MenuRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
 import java.io.File;
@@ -99,14 +98,6 @@ class ImportSettingsAdapterData {
         protected final boolean isEnabled;
         private final boolean reportChange;
 
-        GroupEntry(@StringRes int labelResId) {
-            this(labelResId, false, true);
-        }
-
-        GroupEntry(@StringRes int labelResId, boolean reportChange) {
-            this(labelResId, reportChange, true);
-        }
-
         GroupEntry(@StringRes int labelResId, boolean reportChange, boolean isEnabled) {
             super(ItemType.GROUP_ENTRY);
 
@@ -196,10 +187,6 @@ class ImportSettingsAdapterData {
         private boolean isChecked;
         private @StringRes int subLabelResId;
         private Object[] subLabelArgs;
-
-        GroupEntryCheckbox(@StringRes int labelResId, boolean isChecked) {
-            this(labelResId, isChecked, false);
-        }
 
         GroupEntryCheckbox(@StringRes int labelResId, boolean isChecked, boolean reportChange) {
             this(labelResId, isChecked, reportChange, true);
@@ -331,10 +318,6 @@ class ImportSettingsAdapterData {
         @NonNull
         private final File file;
 
-        GroupEntryFile(int sequenceNumber, @NonNull File file, boolean selected) {
-            this(sequenceNumber, file, selected, false);
-        }
-
         GroupEntryFile(int sequenceNumber, @NonNull File file, boolean selected, boolean reportChange) {
             this(sequenceNumber, file, selected, reportChange, true);
         }
@@ -446,38 +429,11 @@ class ImportSettingsAdapterData {
             position = pos;
         }
 
-        void setPositionForValue(int value) {
-            if (value < min) value = min;
-            else if (value > max) value = max;
-
-            if (value % step > 0) {
-                throw new IllegalArgumentException("value must be a multiple of step");
-            }
-
-            position = (value - min) / step;
-        }
-
-        int step() {
-            return step;
-        }
-
-        void setStep(int step) {
-            this.step = step;
-        }
-
-        int min() {
-            return min;
-        }
-
         void setMin(int min) {
             if (min % step > 0) {
                 throw new IllegalArgumentException("min must be a multiple of step or 0");
             }
             this.min = min;
-        }
-
-        int max() {
-            return max;
         }
 
         void setMax(int max) {
@@ -617,10 +573,6 @@ class ImportSettingsAdapterData {
         private int selectedButton;
         private boolean tristate;
 
-        GroupEntryRadiogroup(int labelResId, @StringRes int button1LabelResId, @StringRes int button2LabelResId, int selectedButton, boolean tristate) {
-            this(labelResId, button1LabelResId, button2LabelResId, selectedButton, tristate, false);
-        }
-
         GroupEntryRadiogroup(int labelResId, @StringRes int button1LabelResId, @StringRes int button2LabelResId, int selectedButton, boolean tristate, boolean reportChange) {
             this(labelResId, button1LabelResId, button2LabelResId, selectedButton, tristate, reportChange, true);
         }
@@ -646,14 +598,6 @@ class ImportSettingsAdapterData {
         @Override
         int getGroupEntryType() {
             return GroupEntryType.TYPE_RADIOGROUP;
-        }
-
-        void setTristate(boolean tristate) {
-            this.tristate = tristate;
-        }
-
-        boolean tristate() {
-            return tristate;
         }
 
         int selectedButton() {
@@ -778,10 +722,6 @@ class ImportSettingsAdapterData {
         @NonNull
         private MyMenu menu;
         private @IdRes int selectedMenuItemId;
-
-        GroupEntrySpinner(@StringRes int labelResId, @MenuRes int menuResId, @NonNull MyMenu menu, @IdRes int selectedMenuItemId) {
-            this(labelResId, menuResId, menu, selectedMenuItemId, false);
-        }
 
         GroupEntrySpinner(@StringRes int labelResId, @MenuRes int menuResId, @NonNull MyMenu menu, @IdRes int selectedMenuItemId, boolean reportChange) {
             this(labelResId, menuResId, menu, selectedMenuItemId, reportChange, true);
@@ -913,10 +853,6 @@ class ImportSettingsAdapterData {
     static class GroupEntryTrackActivityTypes extends GroupEntry {
         private boolean[] trackActivityTypeIncluded;
 
-        GroupEntryTrackActivityTypes(int labelResId) {
-            this(labelResId, false);
-        }
-
         GroupEntryTrackActivityTypes(int labelResId, boolean reportChange) {
             this(labelResId, reportChange, true);
         }
@@ -952,28 +888,6 @@ class ImportSettingsAdapterData {
             return trackActivityTypeIncluded[trackActivityType.getCode()];
         }
 
-        void includeAll() {
-            for (TrackActivityType trackActivityType : TrackActivityType.values()) {
-                trackActivityTypeIncluded[trackActivityType.getCode()] = true;
-            }
-        }
-
-        void excludeAll() {
-            for (TrackActivityType trackActivityType : TrackActivityType.values()) {
-                trackActivityTypeIncluded[trackActivityType.getCode()] = false;
-            }
-        }
-
-        boolean areAllTrackActivityTypesIncluded() {
-            for (int i = 0; i < trackActivityTypeIncluded.length; i++) {
-                if (!trackActivityTypeIncluded[i]) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         boolean areAllTrackActivityTypesExcluded() {
             for (int i = 0; i < trackActivityTypeIncluded.length; i++) {
                 if (trackActivityTypeIncluded[i]) {
@@ -982,6 +896,18 @@ class ImportSettingsAdapterData {
             }
 
             return true;
+        }
+
+        List<TrackActivityType> getIncludedTrackActivityTypes() {
+            List<TrackActivityType> includedTrackActivityTypes = new ArrayList<>();
+
+            for (TrackActivityType activityType : TrackActivityType.values()) {
+                if (trackActivityTypeIncluded[activityType.getCode()]) {
+                    includedTrackActivityTypes.add(activityType);
+                }
+            }
+
+            return includedTrackActivityTypes;
         }
 
         @Override
@@ -1098,9 +1024,6 @@ class ImportSettingsAdapterData {
         boolean isRoundTripChecked() { return roundTripChecked; }
         boolean isOneWayChecked() { return oneWayChecked; }
 
-        void toggleRoundTrip() { roundTripChecked = !roundTripChecked; }
-        void toggleOneWayChecked() { oneWayChecked = !oneWayChecked; }
-
         @Override
         public int getViewType() {
             return Item.VIEW_TYPE_TRACK_TYPE;
@@ -1189,8 +1112,8 @@ class ImportSettingsAdapterData {
     }
 
     static class GroupEntryTrackLength extends GroupEntry {
-        public final int INDEX_MIN = 0;
-        public final int INDEX_MAX = 1;
+        private final int INDEX_MIN = 0;
+        private final int INDEX_MAX = 1;
 
         @StringRes int minLabelResId;
         @StringRes int maxLabelResId;
@@ -1263,13 +1186,17 @@ class ImportSettingsAdapterData {
             return GroupEntryType.TYPE_TRACK_LENGTH;
         }
 
-        int position(int index) {
+        private int getPosition(int index) {
             return positions[index];
         }
+        public int getMinPosition() { return getPosition(INDEX_MIN); }
+        public int getMaxPosition() { return getPosition(INDEX_MAX); }
 
-        void setPosition(int index, int pos) {
+        private void setPosition(int index, int pos) {
             positions[index] = pos;
         }
+        public void setMinPosition(int pos) { setPosition(INDEX_MIN, pos); }
+        public void setMaxPosition(int pos) { setPosition(INDEX_MAX, pos); }
 
         void setPositionForValue(int index, int value) {
             if (value < min) value = min;
@@ -1282,27 +1209,11 @@ class ImportSettingsAdapterData {
             positions[index] = (value - min) / step;
         }
 
-        int step() {
-            return step;
-        }
-
-        void setStep(int step) {
-            this.step = step;
-        }
-
-        int min() {
-            return min;
-        }
-
         void setMin(int min) {
             if (min % step > 0) {
                 throw new IllegalArgumentException("min must be a multiple of step or 0");
             }
             this.min = min;
-        }
-
-        int max() {
-            return max;
         }
 
         void setMax(int max) {
@@ -1338,7 +1249,7 @@ class ImportSettingsAdapterData {
          *
          * @return The value this seekbar represents
          */
-        int getValue(int index) {
+        private int getValue(int index) {
             int value = min + (positions[index] * step);
 
             if (value > max) {
@@ -1347,6 +1258,9 @@ class ImportSettingsAdapterData {
 
             return value;
         }
+
+        int getMinValue() { return getValue(INDEX_MIN); }
+        int getMaxValue() { return getValue(INDEX_MAX); }
 
         @Override
         public int getViewType() {
@@ -1483,7 +1397,7 @@ class ImportSettingsAdapterData {
             this.isEnabled = isEnabled;
         }
 
-        @Nullable
+        @NonNull
         <T extends GroupEntry> T findGroupEntryByLabel(@StringRes int labelResId) {
             for (Item item : getChildren()) {
                 GroupEntry groupEntry = (GroupEntry) item;
@@ -1492,7 +1406,7 @@ class ImportSettingsAdapterData {
                 }
             }
 
-            return null;
+            throw new IllegalStateException("No GroupEntry with the requested label exists");
         }
 
         @Override
@@ -1627,7 +1541,7 @@ class ImportSettingsAdapterData {
         groupList = other.groupList;
     }
 
-    @Nullable
+    @NonNull
     Group getGroupOfType(@Group.GroupType int type) {
         for (Group group : groupList) {
             if (group.getGroupType() == type) {
@@ -1635,7 +1549,7 @@ class ImportSettingsAdapterData {
             }
         }
 
-        return null;
+        throw new IllegalStateException("No group with the requested type exists");
     }
 
     boolean add(Group group) {
@@ -1648,10 +1562,6 @@ class ImportSettingsAdapterData {
         groupList.add(group);
 
         return true;
-    }
-
-    int size() {
-        return groupList.size();
     }
 
     Group get(int group) {
@@ -1670,7 +1580,7 @@ class ImportSettingsAdapterData {
         return new ArrayList<>(groupList);
     }
 
-    public Parcelable onSaveInstanceState() {
+    public SavedState onSaveInstanceState() {
         SavedState savedState = new SavedState();
 
         savedState.groupStates = new Parcelable[groupList.size()];
@@ -1682,7 +1592,7 @@ class ImportSettingsAdapterData {
         return savedState;
     }
 
-    public void onRestoreInstanceState(Parcelable state) {
+    public void onRestoreInstanceState(SavedState state) {
         SavedState savedState = (SavedState) state;
 
         for (int i = 0; i < savedState.groupStates.length; i++) {
@@ -1690,7 +1600,7 @@ class ImportSettingsAdapterData {
         }
     }
 
-    private static class SavedState implements Parcelable {
+    static class SavedState implements Parcelable {
         // Per group save each groupEntry's state
         Parcelable[] groupStates;
 

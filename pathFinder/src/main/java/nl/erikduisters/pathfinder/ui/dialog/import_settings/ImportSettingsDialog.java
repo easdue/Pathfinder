@@ -15,9 +15,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.annotation.Nonnull;
+
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.BaseDialogFragment;
+import nl.erikduisters.pathfinder.ui.dialog.CancelMessageDialog;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewState.DismissDialogState;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewState.InitializedState;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewState.ShowCancelMessageDialogState;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import timber.log.Timber;
 
@@ -27,21 +34,31 @@ import timber.log.Timber;
 public class ImportSettingsDialog
         extends BaseDialogFragment<ImportSettingsDialogViewModel>
         implements Toolbar.OnMenuItemClickListener {
+    private static final String TAG_CANCEL_DIALOG = "CancelDialog";
 
-    private static final String KEY_MAP_BOUNDING_BOX = "MapBoundingBox";
+    public interface Listener {
+        void onImportSettingsDialogDismissed(SearchTracks.JobInfo jobInfo);
+        //TODO: void onImportSettingsDialogDismissed(TrackImportService.Job)
+        void onImportSettingsDialogCancelled();
+    }
+
     private static final String KEY_VIEW_MODEL_STATE = "ImportSettingsDialogViewModelState";
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
 
     private ImportSettingsAdapter adapter;
+    private MyMenu optionsMenu;
+    private ImportSettingsAdapterData importSettingsAdapterData;
+    private Listener listener;
 
     public static ImportSettingsDialog newInstance() {
         return new ImportSettingsDialog();
     }
 
-    private MyMenu optionsMenu;
-    private ImportSettingsAdapterData importSettingsAdapterData;
+    public void setListener(@Nullable Listener listener) {
+        this.listener = listener;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,13 +79,10 @@ public class ImportSettingsDialog
 
         toolbar.setTitle(R.string.import_settings_dialog_title);
         toolbar.setNavigationIcon(R.drawable.abc_ic_clear_material);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onCancel(getDialog());
+        toolbar.setNavigationOnClickListener(v1 -> {
+            onCancel(getDialog());
 
-                dismiss();
-            }
+            dismiss();
         });
 
         toolbar.inflateMenu(R.menu.import_dialog_menu);
@@ -114,11 +128,27 @@ public class ImportSettingsDialog
             return;
         }
 
-        handle(viewState.optionsMenu);
-        handle(viewState.importSettingsAdapterData);
+        if (viewState instanceof InitializedState) {
+            render((InitializedState) viewState);
+        }
+
+        if (viewState instanceof ShowCancelMessageDialogState) {
+            showCancelMessageDialog((ShowCancelMessageDialogState) viewState, TAG_CANCEL_DIALOG);
+        } else {
+            dismissDialogFragment(TAG_CANCEL_DIALOG);
+        }
+
+        if (viewState instanceof DismissDialogState) {
+            render((DismissDialogState) viewState);
+        }
     }
 
-    private void handle(@NonNull MyMenu optionsMenu) {
+    private void render(@Nonnull InitializedState state) {
+        render(state.optionsMenu);
+        handle(state.importSettingsAdapterData);
+    }
+
+    private void render(@NonNull MyMenu optionsMenu) {
         if (optionsMenu != this.optionsMenu) {
             this.optionsMenu = optionsMenu;
             optionsMenu.updateAndroidMenu(toolbar.getMenu(), getContext());
@@ -132,9 +162,39 @@ public class ImportSettingsDialog
         }
     }
 
+    private void render(DismissDialogState state) {
+        if (state instanceof DismissDialogState.ReportGpsiesServiceJobState) {
+            if (listener != null) {
+                listener.onImportSettingsDialogDismissed(((DismissDialogState.ReportGpsiesServiceJobState)state).jobInfo);
+            }
+        }
+
+        dismiss();
+    }
+
+    private void showCancelMessageDialog(ShowCancelMessageDialogState state, String tag) {
+        CancelMessageDialog dialog = findFragment(tag);
+
+        if (dialog == null) {
+            dialog = CancelMessageDialog.newInstance(state.messageWithTitle);
+
+            show(dialog, tag);
+        }
+
+        dialog.setListener(new CancelMessageDialog.CancelMessageDialogListener() {
+            @Override
+            public void onCancelMessageDialogDismiss() {
+                viewModel.onCancelMessageDialogDismissed();
+            }
+        });
+    }
+
     @Override
     public void onCancel(DialogInterface dialog) {
         Timber.d("onCancel()");
+        if (listener != null) {
+            listener.onImportSettingsDialogCancelled();
+        }
     }
 
     @Override
@@ -155,6 +215,7 @@ public class ImportSettingsDialog
     public boolean onMenuItemClick(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.menu_search:
+            case R.id.menu_import:
                 viewModel.onMenuItemSelected(optionsMenu.findItem(item.getItemId()));
                 return true;
         }

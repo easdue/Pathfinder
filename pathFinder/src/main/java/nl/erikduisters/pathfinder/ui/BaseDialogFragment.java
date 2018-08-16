@@ -8,7 +8,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,11 +71,25 @@ public abstract class BaseDialogFragment<VM extends ViewModel> extends DialogFra
     protected abstract @LayoutRes int getLayoutResId();
     protected abstract Class<VM> getViewModelClass();
 
-    protected void invalidateOptionsMenu() {
-        FragmentActivity activity = getActivity();
+    protected <T extends Fragment> T findFragment(String tag) {
+        //noinspection unchecked
+        return (T) getChildFragmentManager().findFragmentByTag(tag);
+    }
 
-        if (activity != null) {
-            activity.invalidateOptionsMenu();
+    protected void show(DialogFragment fragment, String tag) {
+        Timber.d("Showing dialog: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
+        getChildFragmentManager()
+                .beginTransaction()
+                .add(fragment, tag)
+                .commit();
+    }
+
+    protected void dismissDialogFragment(String tag) {
+        DialogFragment fragment = (DialogFragment) getChildFragmentManager().findFragmentByTag(tag);
+
+        if (fragment != null) {
+            Timber.d("Dismissing dialog: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
+            fragment.dismiss();
         }
     }
 }

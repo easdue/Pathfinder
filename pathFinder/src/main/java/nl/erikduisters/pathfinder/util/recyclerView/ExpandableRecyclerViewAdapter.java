@@ -262,6 +262,10 @@ public abstract class ExpandableRecyclerViewAdapter<T extends ExpandableRecycler
             return null;
         }
 
+        /*
+         * From Android Framework View Class
+         */
+        //TODO: Create BaseSavedState with no member variables because now child can access these member variables but they will never be set
         public static class SavedState implements Parcelable {
             //public static final SavedState EMPTY_STATE = new SavedState();
 

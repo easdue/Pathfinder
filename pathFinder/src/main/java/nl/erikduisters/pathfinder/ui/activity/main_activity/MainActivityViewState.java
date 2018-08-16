@@ -2,10 +2,13 @@ package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
@@ -81,19 +84,98 @@ interface MainActivityViewState {
     class ShowEnableGpsSettingState implements MainActivityViewState {}
     class WaitingForGpsToBeEnabledState implements MainActivityViewState {}
 
-    class InitializedState implements MainActivityViewState { }
+    class InitializedState implements MainActivityViewState {
+        @NonNull final MyMenu optionsMenu;
+        @NonNull final NavigationViewState navigationViewState;
+        @Nullable final ShowDialogViewState showDialogViewState;
 
-    class NavigationViewState {
-        @NonNull final DrawableProvider avatar;
-        @NonNull final StringProvider userName;
-        @NonNull final MyMenu navigationMenu;
+        InitializedState(@NonNull MyMenu optionsMenu, @NonNull NavigationViewState navigationViewState) {
+            this(optionsMenu, navigationViewState, null);
+        }
 
-        NavigationViewState(@NonNull DrawableProvider avatar,
-                            @NonNull StringProvider userName,
-                            @NonNull MyMenu navigationMenu) {
-            this.avatar = avatar;
-            this.userName = userName;
-            this.navigationMenu = navigationMenu;
+        InitializedState(@NonNull MyMenu optionsMenu, @NonNull NavigationViewState navigationViewState, @Nullable ShowDialogViewState showDialogViewState) {
+            this.optionsMenu = optionsMenu;
+            this.navigationViewState = navigationViewState;
+            this.showDialogViewState = showDialogViewState;
+        }
+
+        static class NavigationViewState {
+            @NonNull final DrawableProvider avatar;
+            @NonNull final StringProvider userName;
+            @NonNull final MyMenu navigationMenu;
+
+            NavigationViewState(@NonNull DrawableProvider avatar,
+                                @NonNull StringProvider userName,
+                                @NonNull MyMenu navigationMenu) {
+                this.avatar = avatar;
+                this.userName = userName;
+                this.navigationMenu = navigationMenu;
+            }
+        }
+
+        interface ShowDialogViewState extends Parcelable {
+            final class ShowImportSettingsDialogState implements ShowDialogViewState {
+                public ShowImportSettingsDialogState() {
+                }
+
+                protected ShowImportSettingsDialogState(Parcel in) {
+                }
+
+                @Override
+                public int describeContents() {
+                    return 0;
+                }
+
+                @Override
+                public void writeToParcel(Parcel dest, int flags) {
+                }
+
+                public static final Parcelable.Creator<ShowImportSettingsDialogState> CREATOR = new Parcelable.Creator<ShowImportSettingsDialogState>() {
+                    @Override
+                    public ShowImportSettingsDialogState createFromParcel(Parcel source) {
+                        return new ShowImportSettingsDialogState(source);
+                    }
+
+                    @Override
+                    public ShowImportSettingsDialogState[] newArray(int size) {
+                        return new ShowImportSettingsDialogState[size];
+                    }
+                };
+            }
+
+            final class SelectTracksToImportDialogState implements ShowDialogViewState {
+                @NonNull final SearchTracks.JobInfo jobInfo;
+
+                public SelectTracksToImportDialogState(@NonNull SearchTracks.JobInfo jobInfo) {
+                    this.jobInfo = jobInfo;
+                }
+
+                @Override
+                public int describeContents() {
+                    return 0;
+                }
+
+                @Override
+                public void writeToParcel(Parcel dest, int flags) {
+                    dest.writeParcelable(this.jobInfo, flags);
+                }
+
+                protected SelectTracksToImportDialogState(Parcel in) {
+                    this.jobInfo = in.readParcelable(SearchTracks.JobInfo.class.getClassLoader());
+                }
+
+                public static final Creator<SelectTracksToImportDialogState> CREATOR = new Creator<SelectTracksToImportDialogState>() {
+                    @Override
+                    public SelectTracksToImportDialogState createFromParcel(Parcel source) {
+                        return new SelectTracksToImportDialogState(source);
+                    }
+
+                    @Override
+                    public SelectTracksToImportDialogState[] newArray(int size) {
+                        return new SelectTracksToImportDialogState[size];
+                    }
+                };
+            }
         }
     }
 
@@ -108,10 +190,4 @@ interface MainActivityViewState {
             return new Intent(context, activityClass);
         }
     }
-
-    interface ShowDialogViewState {
-        final class ShowImportSettingsDialogState implements ShowDialogViewState {}
-    }
-
-
 }

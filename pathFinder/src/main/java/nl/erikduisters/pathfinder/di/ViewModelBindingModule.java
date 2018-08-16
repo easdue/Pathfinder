@@ -9,6 +9,7 @@ import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivityViewMo
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.map_download.MapDownloadActivityViewModel;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewModel;
+import nl.erikduisters.pathfinder.ui.dialog.select_tracks_to_import.SelectTracksToImportDialogViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.compass.CompassFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.gps_status.GpsStatusFragmentViewModel;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewModel;
@@ -88,5 +89,10 @@ abstract class ViewModelBindingModule {
     @Binds
     @IntoMap
     @ViewModelKey(ImportSettingsDialogViewModel.class)
-    abstract ViewModel binImportSettingsDialogViewModel(ImportSettingsDialogViewModel viewModel);
+    abstract ViewModel bindImportSettingsDialogViewModel(ImportSettingsDialogViewModel viewModel);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SelectTracksToImportDialogViewModel.class)
+    abstract ViewModel bindSelectTracksToImportDialogViewModel(SelectTracksToImportDialogViewModel viewModel);
 }

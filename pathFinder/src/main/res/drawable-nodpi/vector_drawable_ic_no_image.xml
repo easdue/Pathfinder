@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:viewportWidth="73"
+        android:viewportHeight="73"
+        android:width="75dp"
+        android:height="75dp">
+    <path android:fillColor="#525252" android:strokeWidth="2.0964222" android:name="circle867"
+          android:fillAlpha="1"
+          android:pathData="M 36.46,31.63 C 40.17,31.63 43.17,34.63 43.17,38.34 C 43.17,42.04 40.17,45.05 36.46,45.05 C 32.75,45.05 29.75,42.04 29.75,38.34 C 29.75,34.63 32.75,31.63 36.46,31.63 z"/>
+    <path android:fillColor="#00000000" android:strokeAlpha="1" android:strokeLineJoin="round"
+          android:name="path4590" android:strokeWidth="4.00136042" android:fillAlpha="1"
+          android:strokeColor="#767676" android:strokeLineCap="round" android:strokeMiterLimit="4"
+          android:pathData="M 70.499494 36.241321 A 34.249283 34.240884 0 0 1 36.250209 70.482204 34.249283 34.240884 0 0 1 2.0009255 36.241321 34.249283 34.240884 0 0 1 36.250209 2.0004347 34.249283 34.240884 0 0 1 70.499494 36.241321 Z m -40.539323 -18.865486 -3.836923 4.19233 h -6.646474 c -2.306347 0 -4.193359 1.886549 -4.193359 4.19233 v 25.153983 c 0 2.305781 1.887012 4.19233 4.193359 4.19233 h 33.54687 c 2.306348 0 4.193359 -1.886549 4.193359 -4.19233 V 25.760495 c 0 -2.305781 -1.887011 -4.19233 -4.193359 -4.19233 h -6.646473 l -3.836924 -4.19233 z m 6.290038 31.442478 c -5.786835 0 -10.483397 -4.69541 -10.483397 -10.480826 0 -5.785416 4.696562 -10.480826 10.483397 -10.480826 5.786835 0 10.483397 4.69541 10.483397 10.480826 0 5.785416 -4.696562 10.480826 -10.483397 10.480826 z"/>
+    <path android:fillColor="#767676" android:strokeColor="#00000000"
+          android:strokeAlpha="0.5372549" android:strokeLineJoin="round"
+          android:strokeWidth="5.18988323" android:name="path883" android:fillAlpha="1"
+          android:strokeLineCap="round" android:strokeMiterLimit="4"
+          android:pathData="m 14.576635 12.133668 48.948173 43.83219 -3.084997 3.353898 -48.948174 -43.83219 z"/>
+</vector>

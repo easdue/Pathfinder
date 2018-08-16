@@ -20,8 +20,13 @@ android {
         }
     }
     buildTypes {
+        debug {
+            minifyEnabled true
+            useProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -90,6 +95,7 @@ dependencies {
     implementation "org.mapsforge:vtm-themes:$vtmVersion"
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
     debugImplementation "org.slf4j:slf4j-android:$slf4jVersion"
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation "org.mapsforge:vtm-android:$vtmVersion"
     implementation "org.mapsforge:vtm-json:$vtmVersion"
     implementation "org.mapsforge:vtm-android:$vtmVersion:natives-arm64-v8a"
@@ -99,8 +105,16 @@ dependencies {
     implementation "org.mapsforge:vtm-android:$vtmVersion:natives-mips64"
     implementation "org.mapsforge:vtm-android:$vtmVersion:natives-x86"
     implementation "org.mapsforge:vtm-android:$vtmVersion:natives-x86_64"
+    implementation 'com.squareup.moshi:moshi:1.5.0'
     implementation "com.facebook.stetho:stetho:$stethoVersion"
-    implementation "com.facebook.stetho:stetho-okhttp3:$stethoVersion"
+    implementation ("com.facebook.stetho:stetho-okhttp3:$stethoVersion") {
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+    implementation ('com.github.bumptech.glide:okhttp3-integration:4.7.1@aar') {
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
     testImplementation 'junit:junit:4.12'
     testImplementation "org.mockito:mockito-core:$mockito_version"
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

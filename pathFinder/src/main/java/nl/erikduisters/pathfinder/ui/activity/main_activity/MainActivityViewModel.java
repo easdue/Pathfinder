@@ -3,7 +3,11 @@ package nl.erikduisters.pathfinder.ui.activity.main_activity;
 import android.Manifest;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,6 +17,7 @@ import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.BaseActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
@@ -20,10 +25,8 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitStorageViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.NavigationViewState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState.ShowDialogViewState.SelectTracksToImportDialogState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState;
-import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowDialogViewState.ShowImportSettingsDialogState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.StartActivityViewState;
@@ -41,7 +44,7 @@ import timber.log.Timber;
 
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
 //TODO: Enable/Disable navigation view menu items
-//TODO: Add a navigation options menu item allowing the user to manage external maps (eg. delete)
+//TODO: Add a navigation options menu item allowing the user to manage external maps (eg. delete/download)
 //TODO: Allow the user to move storage from internal to external or visa versa
 /**
  * Created by Erik Duisters on 03-06-2018.
@@ -49,13 +52,11 @@ import timber.log.Timber;
 @Singleton
 public class MainActivityViewModel extends BaseActivityViewModel implements InitDatabaseHelper.InitDatabaseListener {
     private MutableLiveData<MainActivityViewState> mainActivityViewStateObservable;
-    private MutableLiveData<NavigationViewState> navigationViewStateObservable;
     private MutableLiveData<StartActivityViewState> startActivityViewStateObservable;
-    private MutableLiveData<MyMenu> optionsMenuObservable;
-    private MutableLiveData<ShowDialogViewState> showDialogViewStateObservable;
 
     private final GpsManager gpsManager;
     private final InitDatabaseHelper initDatabaseHelper;
+    private InitializedState.ShowDialogViewState restoredShowDialogViewState;
 
     @Inject
     MainActivityViewModel(InitDatabaseHelper initDatabaseHelper, GpsManager gpsManager, PreferenceManager preferenceManager) {
@@ -63,28 +64,21 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         Timber.d("New MainActivityViewModel created");
 
         mainActivityViewStateObservable = new MutableLiveData<>();
-        navigationViewStateObservable = new MutableLiveData<>();
         startActivityViewStateObservable = new MutableLiveData<>();
-        optionsMenuObservable = new MutableLiveData<>();
-        showDialogViewStateObservable = new MutableLiveData<>();
 
         this.gpsManager = gpsManager;
         this.initDatabaseHelper = initDatabaseHelper;
     }
 
     LiveData<MainActivityViewState> getMainActivityViewStateObservable() {
-        //TODO: Always check storage?
+        //TODO: Always check storage, runtimePermissions, etc ...?
         if (mainActivityViewStateObservable.getValue() == null) {
             initDatabase();
         }
 
         return mainActivityViewStateObservable;
     }
-
-    LiveData<NavigationViewState> getNavigationViewStateObservable() { return navigationViewStateObservable; }
     LiveData<StartActivityViewState> getStartActivityViewStateObservable() { return startActivityViewStateObservable; }
-    LiveData<MyMenu> getOptionsMenuObservable() { return optionsMenuObservable; }
-    LiveData<ShowDialogViewState> getShowDialogViewStateObservable() { return showDialogViewStateObservable; }
 
     private void initDatabase() {
         ProgressDialog.Properties properties =
@@ -202,18 +196,17 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     }
 
     private void setInitializedState() {
-        mainActivityViewStateObservable.setValue(new InitializedState());
-        optionsMenuObservable.setValue(createInitialOptionsMenu());
-        navigationViewStateObservable.setValue(createInitialNavigationViewState());
+        mainActivityViewStateObservable.setValue(new InitializedState(createInitialOptionsMenu(), createInitialNavigationViewState(), restoredShowDialogViewState));
+        restoredShowDialogViewState = null;
     }
 
-    private NavigationViewState createInitialNavigationViewState() {
+    private InitializedState.NavigationViewState createInitialNavigationViewState() {
         //TODO: Implement UserProfile and load it so the users avatar and username can be shown
         DrawableProvider avatar = new DrawableProvider(R.drawable.vector_drawable_ic_missing_avatar);
         StringProvider user = new StringProvider("");
         MyMenu navigationMenu = createInitialNavigationMenu();
 
-        return new NavigationViewState(avatar, user, navigationMenu);
+        return new InitializedState.NavigationViewState(avatar, user, navigationMenu);
     }
 
     private MyMenu createInitialOptionsMenu() {
@@ -226,18 +219,29 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         MyMenu menu = new MyMenu();
 
         menu.add(new MyMenuItem(R.id.nav_import, true, true));
-        menu.add(new MyMenuItem(R.id.nav_login_register, true, true));
+        menu.add(new MyMenuItem(R.id.nav_login_register, false, true));
         menu.add(new MyMenuItem(R.id.nav_gps_status, true, true));
         menu.add(new MyMenuItem(R.id.nav_settings, true, true));
 
         return menu;
     }
 
+    private InitializedState getCurrentInitializedState() {
+        MainActivityViewState currentState = mainActivityViewStateObservable.getValue();
+
+        if (!(currentState instanceof InitializedState)) {
+            throw new IllegalStateException("Expecting current MainActivityViewState to be Initialized state but it is Initialized");
+        }
+
+        return (InitializedState) currentState;
+    }
+
     void onNavigationMenuItemSelected(MyMenuItem menuItem) {
         switch (menuItem.getId()) {
             case R.id.nav_import:
-                //TODO: get map bounding box and pass that to ImportSettingsDialog
-                showDialogViewStateObservable.setValue(new ShowImportSettingsDialogState());
+                InitializedState currentState = getCurrentInitializedState();
+
+                mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState, new InitializedState.ShowDialogViewState.ShowImportSettingsDialogState()));
                 break;
             case R.id.nav_login_register:
                 //TODO
@@ -271,5 +275,90 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
                 mainActivityViewStateObservable.setValue(showFatalErrorMessagestate.nextState);
             }
         }
+    }
+
+    void onImportSettingsDialogDismissed(SearchTracks.JobInfo jobInfo) {
+        InitializedState currentState = getCurrentInitializedState();
+
+        mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu,
+                currentState.navigationViewState, new SelectTracksToImportDialogState(jobInfo)));
+    }
+
+    void onImportSettingsDialogCancelled() {
+        InitializedState currentState = getCurrentInitializedState();
+
+        mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState));
+    }
+
+    void onSelectTracksToImportDialogDismissed(List<String> selectedTrackFileIds) {
+        //TODO:
+    }
+
+    void onSelectTracksToImportDialogCancelled() {
+        InitializedState currentState = getCurrentInitializedState();
+
+        mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState));
+    }
+
+    Parcelable onSaveInstanceState() {
+        return new SavedState(mainActivityViewStateObservable.getValue());
+    }
+
+    /**
+     * Must be called before starting to observe any LiveData!
+     */
+    void onRestoreInstanceState(Parcelable savedState) {
+        if (savedState == null || mainActivityViewStateObservable.getValue() != null) {
+            Timber.d("Not restoring state");
+        }
+
+        SavedState state = (SavedState) savedState;
+
+        if (state.initialized && state.showDialogViewState != null) {
+            restoredShowDialogViewState = state.showDialogViewState;
+        }
+    }
+
+    private static class SavedState implements Parcelable {
+        boolean initialized;
+        InitializedState.ShowDialogViewState showDialogViewState;
+
+        public SavedState(MainActivityViewState currentViewState) {
+            if (currentViewState instanceof InitializedState) {
+                initialized = true;
+                showDialogViewState = ((InitializedState) currentViewState).showDialogViewState;
+            } else {
+                initialized = false;
+                showDialogViewState = null;
+            }
+        }
+
+        protected SavedState(Parcel in) {
+            this.initialized = in.readByte() != 0;
+            this.showDialogViewState = in.readParcelable(InitializedState.ShowDialogViewState.class.getClassLoader());
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeByte(this.initialized ? (byte) 1 : (byte) 0);
+            dest.writeParcelable(this.showDialogViewState, flags);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return new SavedState(source);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }

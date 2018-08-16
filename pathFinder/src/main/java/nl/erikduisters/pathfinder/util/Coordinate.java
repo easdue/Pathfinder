@@ -1,6 +1,8 @@
 package nl.erikduisters.pathfinder.util;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
@@ -16,7 +18,7 @@ import static nl.erikduisters.pathfinder.util.Coordinate.DisplayFormat.FORMAT_DE
 /**
  * Created by Erik Duisters on 18-07-2018.
  */
-public class Coordinate {
+public class Coordinate implements Parcelable {
     @IntDef({FORMAT_DECIMAL, FORMAT_DDMMMMM, FORMAT_DDMMSSS})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface DisplayFormat {
@@ -40,6 +42,9 @@ public class Coordinate {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    public double getLatitude() { return latitude; }
+    public double getLongitude() { return longitude; }
 
     public static void setDisplayFormat(@DisplayFormat int displayFormat) {
         Coordinate.displayFormat = displayFormat;
@@ -150,4 +155,32 @@ public class Coordinate {
 
         return sb.toString();
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeDouble(this.latitude);
+        dest.writeDouble(this.longitude);
+    }
+
+    protected Coordinate(Parcel in) {
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
+    }
+
+    public static final Parcelable.Creator<Coordinate> CREATOR = new Parcelable.Creator<Coordinate>() {
+        @Override
+        public Coordinate createFromParcel(Parcel source) {
+            return new Coordinate(source);
+        }
+
+        @Override
+        public Coordinate[] newArray(int size) {
+            return new Coordinate[size];
+        }
+    };
 }

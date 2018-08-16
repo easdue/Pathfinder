@@ -3,26 +3,44 @@ package nl.erikduisters.pathfinder.ui.dialog.import_settings;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.location.Location;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
+import org.oscim.core.MapPosition;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
+import nl.erikduisters.pathfinder.data.model.Track;
+import nl.erikduisters.pathfinder.data.model.TrackActivityType;
+import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
+import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.Group;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.Group.GroupType;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.GroupEntry.GroupEntryType;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.GroupEntryRadiogroup;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.GroupEntrySeekbar;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.GroupEntrySpinner;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.GroupEntryTrackActivityTypes;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.GroupEntryTrackLength;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.GroupEntryTrackType;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.ImportLocalFilesGroup;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.SearchTracksOnGpsiesGroup;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewState.InitializedState;
+import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewState.ShowCancelMessageDialogState;
+import nl.erikduisters.pathfinder.util.BoundingBox;
+import nl.erikduisters.pathfinder.util.Coordinate;
 import nl.erikduisters.pathfinder.util.FileUtil;
 import nl.erikduisters.pathfinder.util.Units;
 import nl.erikduisters.pathfinder.util.UnitsUtil;
@@ -35,21 +53,23 @@ import timber.log.Timber;
  */
 
 @Singleton
-public class ImportSettingsDialogViewModel extends ViewModel {
+public class ImportSettingsDialogViewModel extends ViewModel implements GpsManager.LocationListener {
     private final MutableLiveData<ImportSettingsDialogViewState> viewStateObservable;
 
     private final PreferenceManager preferenceManager;
+    private final GpsManager gpsManager;
 
     @Inject
-    ImportSettingsDialogViewModel(PreferenceManager preferenceManager) {
+    ImportSettingsDialogViewModel(PreferenceManager preferenceManager, GpsManager gpsManager) {
         viewStateObservable = new MutableLiveData<>();
 
         this.preferenceManager = preferenceManager;
+        this.gpsManager = gpsManager;
     }
 
     LiveData<ImportSettingsDialogViewState> getViewStateObservable() {
         if (viewStateObservable.getValue() == null) {
-            viewStateObservable.setValue(new ImportSettingsDialogViewState(createOptionsMenu(), createAdapterData()));
+            viewStateObservable.setValue(new InitializedState(createOptionsMenu(), createAdapterData()));
         }
 
         return viewStateObservable;
@@ -65,7 +85,6 @@ public class ImportSettingsDialogViewModel extends ViewModel {
     }
 
     private Group createSearchTracksOnGpsiesGroup() {
-        preferenceManager.setUnits(Units.IMPERIAL);
         SearchTracksOnGpsiesGroup group = new SearchTracksOnGpsiesGroup(R.string.search_tracks_on_gpsies, true);
 
         MyMenu menu = new MyMenu();
@@ -76,15 +95,19 @@ public class ImportSettingsDialogViewModel extends ViewModel {
 
         addTrackSearchTypeCenterWithRadiusChildren(group);
 
-        group.addChild(new ImportSettingsAdapterData.GroupEntrySeekbar(R.string.max_tracks_to_search_for, 0, 10, 10, 250, R.string.seekbar_value));
+        //group.addChild(new GroupEntrySeekbar(R.string.max_tracks_to_search_for, 0, 10, 10, 250, R.string.seekbar_value));
         group.addChild(new GroupEntryTrackActivityTypes(R.string.track_activity_types_to_include, true));
-        group.addChild(new ImportSettingsAdapterData.GroupEntryTrackType(R.string.track_type, true, false));
+        group.addChild(new GroupEntryTrackType(R.string.track_type, true, false));
 
         //TODO: Maybe make these dependent on the track activity types included
-        //TODO: Maybe make step, min and max configurable in settings
-        @StringRes int valueResId = preferenceManager.getUnits() == Units.METRIC ? R.string.seekbar_value_km : R.string.seekbar_value_mi;
-        int max = preferenceManager.getUnits() == Units.METRIC ? 500 : (int) UnitsUtil.kilometers2Miles(500);
-        group.addChild(new ImportSettingsAdapterData.GroupEntryTrackLength(R.string.track_length, R.string.track_length_minimum, R.string.track_length_maximum, 1, 1, max, valueResId));
+        //TODO: Maybe make step, min and max configurable in settings but make sure to check that (max - min) % step == 0 and that min is a multiple of step or 0
+        @Units int units = preferenceManager.getUnits();
+
+        @StringRes int valueResId = units == Units.METRIC ? R.string.seekbar_value_km : R.string.seekbar_value_mi;
+        int min = units == Units.METRIC ? 5 : 3;
+        int max = units == Units.METRIC ? 500 : 300;
+        int step = units == Units.METRIC ? 5 : 3;
+        group.addChild(new GroupEntryTrackLength(R.string.track_length, R.string.track_length_minimum, R.string.track_length_maximum, step, min, max, valueResId));
 
         group.setCanExpand(true);
 
@@ -93,11 +116,11 @@ public class ImportSettingsDialogViewModel extends ViewModel {
 
     private void addTrackSearchTypeCenterWithRadiusChildren(SearchTracksOnGpsiesGroup group) {
         boolean enabled = !preferenceManager.mapFollowsGps();
-        group.addChild(1, new ImportSettingsAdapterData.GroupEntryRadiogroup(R.string.track_search_center, R.string.track_search_center_gps,
+        group.addChild(1, new GroupEntryRadiogroup(R.string.track_search_center, R.string.track_search_center_gps,
                 R.string.track_search_center_map, 1, false, false, enabled));
 
         int min = 5;
-        int max = 50;
+        int max = 20;
         @StringRes int unitResId = R.string.seekbar_value_km;
 
         if (preferenceManager.getUnits() == Units.IMPERIAL) {
@@ -106,7 +129,7 @@ public class ImportSettingsDialogViewModel extends ViewModel {
             unitResId = R.string.seekbar_value_mi;
         }
 
-        group.addChild(2, new ImportSettingsAdapterData.GroupEntrySeekbar(R.string.track_search_radius, 0, 1, min, max, unitResId));
+        group.addChild(2, new GroupEntrySeekbar(R.string.track_search_radius, 0, 1, min, max, unitResId));
 
     }
 
@@ -142,18 +165,18 @@ public class ImportSettingsDialogViewModel extends ViewModel {
     }
 
     @NonNull
-    ImportSettingsDialogViewState assertCurrentViewstateNotNull() {
+    InitializedState getCurrentInitializedState() {
         ImportSettingsDialogViewState currentViewState = viewStateObservable.getValue();
 
-        if (currentViewState == null) {
-            throw new IllegalStateException("onChanged called but current view state is null");
+        if (!(currentViewState instanceof InitializedState)) {
+            throw new IllegalStateException("Expecting current viewState to be InitializedState but it is not");
         }
 
-        return currentViewState;
+        return (InitializedState) currentViewState;
     }
 
     void onChanged(ImportSettingsAdapterData.GroupEntry changedGroupEntry) {
-        ImportSettingsDialogViewState currentViewState = assertCurrentViewstateNotNull();
+        InitializedState currentViewState = getCurrentInitializedState();
 
         if (changedGroupEntry.labelResId == R.string.track_search_type) {
             onChanged((GroupEntrySpinner) changedGroupEntry, currentViewState);
@@ -166,7 +189,7 @@ public class ImportSettingsDialogViewModel extends ViewModel {
         }
     }
 
-    private void onChanged(GroupEntrySpinner groupEntry, ImportSettingsDialogViewState currentViewState) {
+    private void onChanged(GroupEntrySpinner groupEntry, InitializedState currentViewState) {
         MyMenuItem selectedMenuItem = groupEntry.getMenu().findItem(groupEntry.selectedMenuItemId());
 
         ImportSettingsAdapterData importSettingsAdapterData = new ImportSettingsAdapterData(currentViewState.importSettingsAdapterData);
@@ -183,17 +206,17 @@ public class ImportSettingsDialogViewModel extends ViewModel {
 
         importSettingsAdapterData.getGroups().set(0, newGroup);
 
-        viewStateObservable.setValue(new ImportSettingsDialogViewState(currentViewState.optionsMenu, importSettingsAdapterData));
+        viewStateObservable.setValue(new InitializedState(currentViewState.optionsMenu, importSettingsAdapterData));
     }
 
-    private void onChanged(GroupEntryTrackActivityTypes groupEntry, ImportSettingsDialogViewState currentViewState) {
+    private void onChanged(GroupEntryTrackActivityTypes groupEntry, InitializedState currentViewState) {
         MyMenu optionsMenu = new MyMenu(currentViewState.optionsMenu);
         optionsMenu.findItem(R.id.menu_search).setEnabled(!groupEntry.areAllTrackActivityTypesExcluded());
 
-        viewStateObservable.setValue(new ImportSettingsDialogViewState(optionsMenu, currentViewState.importSettingsAdapterData));
+        viewStateObservable.setValue(new InitializedState(optionsMenu, currentViewState.importSettingsAdapterData));
     }
 
-    private void onChanged(ImportLocalFilesGroup group, ImportSettingsDialogViewState currentViewState) {
+    private void onChanged(ImportLocalFilesGroup group, InitializedState currentViewState) {
         boolean anyChecked = false;
         for (ImportSettingsAdapterData.Item child : group.getChildren()) {
             if (((ImportSettingsAdapterData.GroupEntryFile)child).isChecked()) {
@@ -205,11 +228,11 @@ public class ImportSettingsDialogViewModel extends ViewModel {
         MyMenu optionsMenu = new MyMenu(currentViewState.optionsMenu);
         optionsMenu.findItem(R.id.menu_import).setEnabled(anyChecked);
 
-        viewStateObservable.setValue(new ImportSettingsDialogViewState(optionsMenu, currentViewState.importSettingsAdapterData));
+        viewStateObservable.setValue(new InitializedState(optionsMenu, currentViewState.importSettingsAdapterData));
     }
 
     void onGroupExpanded(Group expandedGroup) {
-        ImportSettingsDialogViewState currentViewState = assertCurrentViewstateNotNull();
+        InitializedState currentViewState = getCurrentInitializedState();
 
         ImportSettingsAdapterData adapterData = currentViewState.importSettingsAdapterData;
         MyMenu optionsMenu = new MyMenu(currentViewState.optionsMenu);
@@ -238,7 +261,7 @@ public class ImportSettingsDialogViewModel extends ViewModel {
 
         updateOptionsMenuForExpandedGroup(expandedGroup, optionsMenu);
 
-        viewStateObservable.setValue(new ImportSettingsDialogViewState(optionsMenu, adapterData));
+        viewStateObservable.setValue(new InitializedState(optionsMenu, adapterData));
     }
 
     private void updateOptionsMenuForExpandedGroup(Group expandedGroup, MyMenu optionsMenu) {
@@ -274,7 +297,7 @@ public class ImportSettingsDialogViewModel extends ViewModel {
 
     void onGroupCollapsed(Group group) {
         //Now both must be collapsed, find visible menu item and disable
-        ImportSettingsDialogViewState currentViewState = assertCurrentViewstateNotNull();
+        InitializedState currentViewState = getCurrentInitializedState();
         MyMenu optionsMenu = new MyMenu(currentViewState.optionsMenu);
 
         for (MyMenuItem menuItem : optionsMenu.getMenuItems()) {
@@ -283,43 +306,135 @@ public class ImportSettingsDialogViewModel extends ViewModel {
             }
         }
 
-        viewStateObservable.setValue(new ImportSettingsDialogViewState(optionsMenu, currentViewState.importSettingsAdapterData));
+        viewStateObservable.setValue(new InitializedState(optionsMenu, currentViewState.importSettingsAdapterData));
     }
 
-    /*
-         At this point I need to determine what to do: search for tracks or import tracks
-         Searching has to be done using an intentService (udacity rubic)
-            - Search result has to be presented to use so he/she can select which track to import
-            - After user selects tracks those tracks need to be downloaded (intentService) and imported
-            - Local .gpx files need to be imported
-
-            GPSiesService extents IntentService
-               Job
-                 SearchTracks
-                    The user is waiting so start a dialog, bind to the service and show progress
-                    Wait for GPS Fix if necessary
-                    Perform search (no network is show error/retry)
-                 DownloadTracks
-                    This can be done entirely in the background using a notification for progress
-
-            ImportService extends Service
-                ImportGpxFiles
-                    This can be done entirely in the background. Tracks will show up in the tracklist automatically using room LiveData
-     */
     void onMenuItemSelected(MyMenuItem menuItem) {
+        InitializedState currentState = getCurrentInitializedState();
+        ImportSettingsAdapterData adapterData = currentState.importSettingsAdapterData;
+
         switch (menuItem.getId()) {
             case R.id.menu_search:
+                handleSearchTracksOnGpsies(adapterData);
+                break;
+            case R.id.menu_import:
                 //TODO: Implement
                 break;
         }
+    }
+
+    private void handleSearchTracksOnGpsies(ImportSettingsAdapterData adapterData) {
+        SearchTracksOnGpsiesGroup group = (SearchTracksOnGpsiesGroup) adapterData.getGroupOfType(GroupType.TYPE_SEARCH_TRACKS_NEARBY);
+
+        GroupEntrySpinner searchTypeGroupEntry = group.findGroupEntryByLabel(R.string.track_search_type);
+
+        if (searchTypeGroupEntry.selectedMenuItemId() == R.id.menu_import_search_type_center_with_radius) {
+            if (((GroupEntryRadiogroup) group.findGroupEntryByLabel(R.string.track_search_center)).selectedButton() == 1 && !gpsManager.gpsHasFix()) {
+                setShowCancelDialogState(getCurrentInitializedState());
+
+                return;
+            }
+        }
+
+        SearchTracks.JobInfo jobInfo = createSearchJobInfo((SearchTracksOnGpsiesGroup) adapterData.getGroupOfType(GroupType.TYPE_SEARCH_TRACKS_NEARBY));
+        viewStateObservable.setValue(new ImportSettingsDialogViewState.DismissDialogState.ReportGpsiesServiceJobState(jobInfo));
+    }
+
+    private void setShowCancelDialogState(InitializedState initializedState) {
+        MessageWithTitle messageWithTitle = new MessageWithTitle(R.string.no_gps_fix_dialog_title, R.string.no_gps_fix_dialog_message);
+
+        viewStateObservable.setValue(new ShowCancelMessageDialogState(initializedState, messageWithTitle));
+
+        gpsManager.addLocationListener(this);
+    }
+
+    void onCancelMessageDialogDismissed() {
+        gpsManager.removeLocationListener(this);
+
+        InitializedState currentState = getCurrentInitializedState();
+
+        viewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.importSettingsAdapterData));
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        if (gpsManager.gpsHasFix()) {
+            gpsManager.removeLocationListener(this);
+
+            InitializedState currentState = getCurrentInitializedState();
+
+            handleSearchTracksOnGpsies(currentState.importSettingsAdapterData);
+        }
+    }
+
+    private SearchTracks.JobInfo createSearchJobInfo(SearchTracksOnGpsiesGroup group) {
+        GroupEntrySpinner searchTypeGroupEntry = group.findGroupEntryByLabel(R.string.track_search_type);
+
+        SearchTracks.JobInfo.Builder builder = new SearchTracks.JobInfo.Builder();
+
+        if (searchTypeGroupEntry.selectedMenuItemId() == R.id.menu_import_search_type_center_with_radius) {
+            builder.withBoundingBox(createBoundingBoxForCenterAndRadiusSearch(group));
+        } else {
+            builder.withBoundingBox(preferenceManager.getMapBoundingBox());
+        }
+
+        //int maxTracks = ((GroupEntrySeekbar) group.findGroupEntryByLabel(R.string.max_tracks_to_search_for)).getValue();
+
+        List<TrackActivityType> includedTrackActivityTypes = ((GroupEntryTrackActivityTypes) group
+                .findGroupEntryByLabel(R.string.track_activity_types_to_include)).getIncludedTrackActivityTypes();
+
+        @Track.Type List<Integer> trackTypes = new ArrayList<>();
+
+        GroupEntryTrackType groupEntryTrackType = group.findGroupEntryByLabel(R.string.track_type);
+
+        if (groupEntryTrackType.isRoundTripChecked()) {
+            trackTypes.add(Track.Type.ROUND_TRIP);
+        }
+
+        if (groupEntryTrackType.isOneWayChecked()) {
+            trackTypes.add(Track.Type.ONE_WAY);
+        }
+
+        GroupEntryTrackLength groupEntryTrackLength = group.findGroupEntryByLabel(R.string.track_length);
+        int minLength = groupEntryTrackLength.getMinValue();
+        int maxLength = groupEntryTrackLength.getMaxValue();
+
+        return builder
+                //.withMaxTracks(maxTracks)
+                .withTrackActivityTypes(includedTrackActivityTypes)
+                .withTrackTypes(trackTypes)
+                .withMinTrackLength(minLength)
+                .withMaxTrackLength(maxLength)
+                .build();
+    }
+
+    private BoundingBox createBoundingBoxForCenterAndRadiusSearch(SearchTracksOnGpsiesGroup group) {
+        Coordinate center;
+
+        if (((GroupEntryRadiogroup) group.findGroupEntryByLabel(R.string.track_search_center)).selectedButton() == 1) {
+            Location location = gpsManager.getLastKnowLocation();
+            center = new Coordinate(location.getLatitude(), location.getLongitude());
+        } else {
+            MapPosition mapPosition = preferenceManager.getMapPosition();
+            center = new Coordinate(mapPosition.getLatitude(), mapPosition.getLongitude());
+        }
+
+        int radiusKm = ((GroupEntrySeekbar) group.findGroupEntryByLabel(R.string.track_search_radius)).getValue();
+
+        return new BoundingBox(center, radiusKm * 1000);
     }
 
     @Nullable
     public Parcelable onSaveInstanceState() {
         ImportSettingsDialogViewState currentState = viewStateObservable.getValue();
 
-        if (currentState != null) {
-            return currentState.importSettingsAdapterData.onSaveInstanceState();
+        if (currentState != null && currentState instanceof InitializedState) {
+            SavedState savedState = new SavedState();
+
+            savedState.adapterDataState = ((InitializedState) currentState).importSettingsAdapterData.onSaveInstanceState();
+            savedState.showingCancelDialog = currentState instanceof ShowCancelMessageDialogState;
+
+            return savedState;
         }
 
         return null;
@@ -333,13 +448,14 @@ public class ImportSettingsDialogViewModel extends ViewModel {
 
         Timber.d("onRestoreInstanceState: Restoring state");
 
+        SavedState state = (SavedState) savedState;
+
         ImportSettingsAdapterData adapterData = createAdapterData();
-        adapterData.onRestoreInstanceState(savedState);
+        adapterData.onRestoreInstanceState(state.adapterDataState);
 
         SearchTracksOnGpsiesGroup searchTracksOnGpsiesGroup =
                 (SearchTracksOnGpsiesGroup) adapterData.getGroupOfType(GroupType.TYPE_SEARCH_TRACKS_NEARBY);
         GroupEntrySpinner searchTypeGroup = (GroupEntrySpinner) searchTracksOnGpsiesGroup.getChild(0);
-        GroupEntryTrackActivityTypes trackActivityTypesGroup = (GroupEntryTrackActivityTypes) searchTracksOnGpsiesGroup.getChild(4);
 
         if (searchTypeGroup.selectedMenuItemId() == R.id.menu_import_search_type_map_viewport) {
             searchTracksOnGpsiesGroup.getChildren().remove(1);
@@ -354,10 +470,50 @@ public class ImportSettingsDialogViewModel extends ViewModel {
             }
         }
 
-        viewStateObservable.setValue(new ImportSettingsDialogViewState(optionsMenu, adapterData));
+        InitializedState initializedState = new InitializedState(optionsMenu, adapterData);
+
+        if (state.showingCancelDialog) {
+            setShowCancelDialogState(initializedState);
+        } else {
+            viewStateObservable.setValue(initializedState);
+        }
     }
 
+    static class SavedState implements Parcelable {
+        ImportSettingsAdapterData.SavedState adapterDataState;
+        boolean showingCancelDialog;
 
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeParcelable(this.adapterDataState, flags);
+            dest.writeByte(this.showingCancelDialog ? (byte) 1 : (byte) 0);
+        }
+
+        public SavedState() {
+        }
+
+        protected SavedState(Parcel in) {
+            this.adapterDataState = in.readParcelable(ImportSettingsAdapterData.SavedState.class.getClassLoader());
+            this.showingCancelDialog = in.readByte() != 0;
+        }
+
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return new SavedState(source);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+    }
 
     @Override
     protected void onCleared() {

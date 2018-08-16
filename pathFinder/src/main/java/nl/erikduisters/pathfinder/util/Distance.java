@@ -26,6 +26,10 @@ public class Distance {
     }
 
     public String getDistance(Context ctx) {
+        return getDistance(ctx, distanceMeters, precision);
+    }
+
+    public static String getDistance(Context ctx, double distanceMeters, int precision) {
         String distance;
 
         if (Double.isNaN(distanceMeters)) {
