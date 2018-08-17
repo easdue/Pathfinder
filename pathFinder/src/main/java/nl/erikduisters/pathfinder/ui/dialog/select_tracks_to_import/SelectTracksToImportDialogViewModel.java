@@ -206,6 +206,7 @@ public class SelectTracksToImportDialogViewModel
         viewStateObservable.setValue(null);
     }
 
+    //TODO: Saving 250 markers to a Parcelable could become problematic. Maybe save them to preferences (as a json string) or room
     Parcelable onSaveInstanceState() {
         SelectTracksToImportDialogViewState currentState = getCurrentViewState();
 
