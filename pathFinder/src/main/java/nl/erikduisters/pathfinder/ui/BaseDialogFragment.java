@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
@@ -91,5 +93,13 @@ public abstract class BaseDialogFragment<VM extends ViewModel> extends DialogFra
             Timber.d("Dismissing dialog: %s, tag: %s", fragment.getClass().getSimpleName(), tag);
             fragment.dismiss();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        FirebaseAnalytics.getInstance(requireContext())
+                .setCurrentScreen(requireActivity(), this.getClass().getSimpleName(), null);
     }
 }

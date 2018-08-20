@@ -9,6 +9,7 @@ import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.OkMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.select_storage_dialog.SelectStorageDialog;
+import nl.erikduisters.pathfinder.ui.fragment.HeadlessFragment;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.ShowFatalMessageDialogState;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragmentViewState.ShowPositiveNegativeButtonMessageDialogState;
 import timber.log.Timber;
@@ -20,7 +21,10 @@ import static nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFra
 /**
  * Created by Erik Duisters on 03-06-2018.
  */
-public class InitStorageFragment extends BaseFragment<InitStorageFragmentViewModel> implements SelectStorageDialog.OnStorageSelectedListener, OkMessageDialog.OkMessageDialogListener {
+public class InitStorageFragment
+        extends BaseFragment<InitStorageFragmentViewModel>
+        implements SelectStorageDialog.OnStorageSelectedListener, OkMessageDialog.OkMessageDialogListener,
+                   HeadlessFragment {
     public interface InitStorageFragmentListener {
         void onStorageInitialized();
         void onStorageInitializationFailed();

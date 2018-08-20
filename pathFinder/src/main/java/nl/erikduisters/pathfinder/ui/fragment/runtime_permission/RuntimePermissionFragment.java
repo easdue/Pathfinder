@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.dialog.PermissionRationaleDialog;
+import nl.erikduisters.pathfinder.ui.fragment.HeadlessFragment;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewState.RequestRuntimePermissionState;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewState.RequestingRuntimePermissionState;
 import nl.erikduisters.pathfinder.ui.fragment.runtime_permission.RuntimePermissionFragmentViewState.RuntimePermissionResultState;
@@ -22,7 +23,7 @@ import timber.log.Timber;
 
 public class RuntimePermissionFragment
         extends BaseFragment<RuntimePermissionFragmentViewModel>
-        implements RuntimePermissionHelper, PermissionRationaleDialog.Listener {
+        implements RuntimePermissionHelper, PermissionRationaleDialog.Listener, HeadlessFragment {
 
     public interface RuntimePermissionFragmentListener {
         void onPermissionGranted(@NonNull String permission);

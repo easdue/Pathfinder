@@ -15,19 +15,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.support.AndroidSupportInjection;
+import nl.erikduisters.pathfinder.ui.fragment.HeadlessFragment;
+import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 import nl.erikduisters.pathfinder.viewmodel.ViewModelFactory;
 import timber.log.Timber;
 
 /**
  * Created by Erik Duisters on 02-06-2018.
  */
-
-//TODO: Call FirebaseAnalytics except when Fragment implements ViewPagerFragment
 public abstract class BaseFragment<VM extends ViewModel> extends Fragment implements BackPressed {
     @Nullable private Unbinder unbinder;
 
@@ -107,6 +109,11 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment implem
     public void onResume() {
         Timber.d("%s.onResume()", getClass().getSimpleName());
         super.onResume();
+
+        if (!(this instanceof ViewPagerFragment) && !(this instanceof HeadlessFragment)) {
+            FirebaseAnalytics.getInstance(requireContext())
+                    .setCurrentScreen(requireActivity(), this.getClass().getSimpleName(), null);
+        }
     }
 
     @Override

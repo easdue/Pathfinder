@@ -23,6 +23,7 @@ import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
+import nl.erikduisters.pathfinder.ui.fragment.HeadlessFragment;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.AskUserToResolveUnavailabilityState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.ReportPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragmentViewState.WaitForPlayServicesUpdateState;
@@ -34,7 +35,7 @@ import timber.log.Timber;
  */
 public class PlayServicesFragment
         extends BaseFragment<PlayServicesFragmentViewModel>
-        implements PlayServicesHelper {
+        implements PlayServicesHelper, HeadlessFragment {
 
     public interface PlayServicesFragmentListener {
         void onPlayServicesAvailable();

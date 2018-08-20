@@ -13,7 +13,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
-import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
+import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 
 /**
  * Created by Erik Duisters on 28-06-2018.

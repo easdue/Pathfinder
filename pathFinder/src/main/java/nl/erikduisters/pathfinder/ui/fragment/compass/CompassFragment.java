@@ -14,7 +14,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
-import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
+import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.widget.CompassView;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 

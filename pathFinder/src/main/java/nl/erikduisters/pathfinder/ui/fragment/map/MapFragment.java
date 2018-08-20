@@ -55,7 +55,7 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
-import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
+import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializedState;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializingState;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
