@@ -17,8 +17,9 @@ import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
-import nl.erikduisters.pathfinder.service.gpsies_service.GPSiesTrackImportService;
 import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
+import nl.erikduisters.pathfinder.service.track_import.GPSiesImportJob;
+import nl.erikduisters.pathfinder.service.track_import.ImportJob;
 import nl.erikduisters.pathfinder.ui.BaseActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
@@ -292,9 +293,10 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState));
     }
 
-    void onSelectTracksToImportDialogDismissed(List<String> selectedTrackFileIds, TrackDownloadScheduler trackDownloadScheduler) {
-        GPSiesTrackImportService.JobInfo jobInfo = new GPSiesTrackImportService.JobInfo(selectedTrackFileIds);
-        trackDownloadScheduler.scheduleTrackDownload(jobInfo);
+    //TODO: rename
+    void onSelectTracksToImportDialogDismissed(List<String> selectedTrackFileIds, TrackImportScheduler trackImportScheduler) {
+        ImportJob.JobInfo jobInfo = new GPSiesImportJob.JobInfo(selectedTrackFileIds);
+        trackImportScheduler.scheduleTrackDownload(jobInfo);
     }
 
     void onSelectTracksToImportDialogCancelled() {

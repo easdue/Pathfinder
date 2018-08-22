@@ -4,7 +4,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import nl.erikduisters.pathfinder.service.MapDownloadService;
 import nl.erikduisters.pathfinder.service.gpsies_service.GPSiesService;
-import nl.erikduisters.pathfinder.service.gpsies_service.GPSiesTrackImportService;
+import nl.erikduisters.pathfinder.service.track_import.TrackImportService;
 
 /**
  * Created by Erik Duisters on 28-07-2018.
@@ -19,5 +19,5 @@ public abstract class ServiceModule {
     abstract GPSiesService bindGPSiesService();
 
     @ContributesAndroidInjector
-    abstract GPSiesTrackImportService bindGPSiesTrackDownloadService();
+    abstract TrackImportService bindTrackImportService();
 }

@@ -26,8 +26,9 @@ import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.service.MapDownloadService;
-import nl.erikduisters.pathfinder.service.gpsies_service.GPSiesTrackImportService;
 import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
+import nl.erikduisters.pathfinder.service.track_import.ImportJob;
+import nl.erikduisters.pathfinder.service.track_import.TrackImportService;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
@@ -69,7 +70,7 @@ public class MainActivity
                    RuntimePermissionFragment.RuntimePermissionFragmentListener,
                    PlayServicesFragment.PlayServicesFragmentListener,
                    ViewPager.OnPageChangeListener, ViewTreeObserver.OnGlobalLayoutListener,
-                   TrackDownloadScheduler {
+        TrackImportScheduler {
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
@@ -527,11 +528,11 @@ public class MainActivity
     }
 
     @Override
-    public void scheduleTrackDownload(GPSiesTrackImportService.JobInfo jobInfo) {
-        Intent intent = new Intent(GPSiesTrackImportService.ACTION_DOWNLOAD_TRACKS);
-        intent.putExtra(GPSiesTrackImportService.EXTRA_DOWNLOAD_TRACKS_JOB_INFO, jobInfo);
+    public void scheduleTrackDownload(ImportJob.JobInfo jobInfo) {
+        Intent intent = new Intent(TrackImportService.ACTION_IMPORT_TRACKS);
+        intent.putExtra(TrackImportService.EXTRA_IMPORT_TRACKS_JOB_INFO, jobInfo);
 
-        GPSiesTrackImportService.enqueueWork(this, intent);
+        TrackImportService.enqueueWork(this, intent);
     }
 
     @Override

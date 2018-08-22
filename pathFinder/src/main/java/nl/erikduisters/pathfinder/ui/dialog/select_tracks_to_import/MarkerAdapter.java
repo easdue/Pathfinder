@@ -7,7 +7,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -185,6 +184,9 @@ public class MarkerAdapter
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+
+            //I am tired of RecyclerView returning null on calls to getChildViewHolder
+            heightChart.setTag(R.id.viewHolderTag, this);
         }
 
         void bind(Marker marker, int position) {
@@ -246,9 +248,7 @@ public class MarkerAdapter
 
         private ViewHolder getViewHolder(Target<Drawable> target) {
             ImageView imageView = ((DrawableImageViewTarget)target).getView();
-            ConstraintLayout constraintLayout = (ConstraintLayout) imageView.getParent();
-
-            return (ViewHolder) recyclerView.getChildViewHolder(constraintLayout);
+            return (ViewHolder) imageView.getTag(R.id.viewHolderTag);
         }
 
         @Override

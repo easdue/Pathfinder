@@ -12,7 +12,10 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjection;
 import nl.erikduisters.pathfinder.di.GPSiesOkHttpClient;
 import nl.erikduisters.pathfinder.util.NetworkUtil;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import timber.log.Timber;
 
 /**
@@ -98,4 +101,19 @@ public class GPSiesService extends IntentService implements Job.Callback {
         localBroadcastManager.sendBroadcast(intent);
     }
 
+    public static Request getDownloadTrackRequest(String trackFileId) {
+        return new Request.Builder()
+                .url(GPSIES_URL + "/download.do")
+                .post(createTrackDownloadRequestBody(trackFileId))
+                .build();
+    }
+
+    private static RequestBody createTrackDownloadRequestBody(String trackFileId) {
+        return new FormBody.Builder()
+                .add("trackSimplification", "0")    //TODO: Douglas-Peucker: none=0 low=0.00001 middle=0.00005 high=0.0001
+                .add("fileId", trackFileId)
+                .add("dataType", "3")
+                .add("filetype", "gpxTrk")
+                .build();
+    }
 }

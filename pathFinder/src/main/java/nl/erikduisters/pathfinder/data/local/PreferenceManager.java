@@ -84,8 +84,8 @@ public class PreferenceManager {
     private final String KEY_DOWNLOADING_MAPS;
     private final String KEY_RETRYABLE_MAP_DOWNLOAD_IDS;
     private final String KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS;
-    private final String KEY_DOWNLOADING_TRACK_FILE_IDS;
-    private final String KEY_DOWNLOADED_TRACK_FILE_IDS;
+    private final String KEY_DOWNLOADING_TRACK_IDENTIFIERS;
+    private final String KEY_DOWNLOADED_TRACK_IDENTIFIERS;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -138,8 +138,8 @@ public class PreferenceManager {
         KEY_DOWNLOADING_MAPS = context.getString(R.string.key_downloading_maps);
         KEY_RETRYABLE_MAP_DOWNLOAD_IDS = context.getString(R.string.key_retryable_map_download_ids);
         KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS = context.getString(R.string.key_reported_failed_map_download_ids);
-        KEY_DOWNLOADING_TRACK_FILE_IDS = context.getString(R.string.key_downloading_track_file_ids);
-        KEY_DOWNLOADED_TRACK_FILE_IDS = context.getString(R.string.key_downloaded_track_file_ids);
+        KEY_DOWNLOADING_TRACK_IDENTIFIERS = context.getString(R.string.key_downloading_track_identifiers);
+        KEY_DOWNLOADED_TRACK_IDENTIFIERS = context.getString(R.string.key_downloaded_track_identifiers);
 
         //preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         preferences = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
@@ -562,20 +562,20 @@ public class PreferenceManager {
     }
 
     @NonNull
-    public synchronized List<String> getDownloadedTrackFileIds() {
-        return getStringList(KEY_DOWNLOADED_TRACK_FILE_IDS);
+    public synchronized List<String> getDownloadedTrackIdentifiers() {
+        return getStringList(KEY_DOWNLOADED_TRACK_IDENTIFIERS);
     }
 
-    public void setDownloadedTrackFileIds(@NonNull List<String> downloadedTrackFileIds) {
-        setStringList(KEY_DOWNLOADED_TRACK_FILE_IDS, downloadedTrackFileIds);
+    public void setDownloadedTrackIdentifiers(@NonNull List<String> downloadedTrackIdentifiers) {
+        setStringList(KEY_DOWNLOADED_TRACK_IDENTIFIERS, downloadedTrackIdentifiers);
     }
 
     @NonNull
-    public synchronized List<String> getDownloadingTrackFileIds() {
-        return getStringList(KEY_DOWNLOADING_TRACK_FILE_IDS);
+    public synchronized List<String> getDownloadingTrackIdentifiers() {
+        return getStringList(KEY_DOWNLOADING_TRACK_IDENTIFIERS);
     }
 
-    public void setDownloadingTrackFileIds(@NonNull List<String> downloadingTrackFileIds) {
-        setStringList(KEY_DOWNLOADING_TRACK_FILE_IDS, downloadingTrackFileIds);
+    public void setDownloadingTrackIdentifiers(@NonNull List<String> downloadingTrackIdentifiers) {
+        setStringList(KEY_DOWNLOADING_TRACK_IDENTIFIERS, downloadingTrackIdentifiers);
     }
 }

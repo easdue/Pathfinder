@@ -70,7 +70,7 @@
             android:exported="false"/>
 
         <service
-            android:name=".service.gpsies_service.GPSiesTrackImportService"
+            android:name=".service.track_import.TrackImportService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
 
