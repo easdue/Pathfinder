@@ -14,7 +14,29 @@ import static java.lang.Float.parseFloat;
  * Created by Erik Duisters on 30-06-2018.
  */
 public class GpsiesGPXReader extends GPXReader {
+    //NOTE: GPSies.com erroneously sets its namespace to https://www.gpsies.com/GPX/1/0" when downloading tracks over https. Maybe add all rules twice (eg for http and https)
     private static final String GPSIES_V1_0_NS = "[https://www.gpsies.com/GPX/1/0]";
+
+    private GpsiesMetaDataExtensions gpsiesMetaDataExtensions;
+    private GpsiesWptExtensions gpsiesWptExtensions;
+
+    private GpsiesMetaDataExtensions getGpsiesMetaDataExtensions() {
+        if (gpsiesMetaDataExtensions == null) {
+            gpsiesMetaDataExtensions = new GpsiesMetaDataExtensions();
+            extensionsContainerDeque.peek().getExtensions().add(gpsiesMetaDataExtensions);
+        }
+
+        return gpsiesMetaDataExtensions;
+    }
+
+    private GpsiesWptExtensions getGpsiesWptExtensions() {
+        if (gpsiesWptExtensions == null) {
+            gpsiesWptExtensions = new GpsiesWptExtensions();
+            extensionsContainerDeque.peek().getExtensions().add(gpsiesWptExtensions);
+        }
+
+        return gpsiesWptExtensions;
+    }
 
     @Override
     void addGpxExtensionRules(String extensionPath) {
@@ -22,23 +44,11 @@ public class GpsiesGPXReader extends GPXReader {
 
     @Override
     void addMetaDataExtensionsRules(String extensionsPath) {
-        final GpsiesMetaDataExtensions[] gpsiesMetaDataExtensions = new GpsiesMetaDataExtensions[1];
-
-        rules.add(new DefaultRule<Gpx>(IRule.Type.TAG, extensionsPath) {
-            @Override
-            public void handleTag(XMLParser<Gpx> parser, boolean isStartTag, Gpx gpx) {
-                if (isStartTag) {
-                    gpsiesMetaDataExtensions[0] = new GpsiesMetaDataExtensions();
-                    extensionsContainerDeque.peek().getExtensions().add(gpsiesMetaDataExtensions[0]);
-                }
-            }
-        });
-
         String gpsiesPath = addNameSpace("/property", GPSIES_V1_0_NS);
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesMetaDataExtensions[0].setProperty(text);
+                getGpsiesMetaDataExtensions().setProperty(text);
             }
         });
 
@@ -46,7 +56,7 @@ public class GpsiesGPXReader extends GPXReader {
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesMetaDataExtensions[0].setTrackLengthMeter(parseFloat(text));
+                getGpsiesMetaDataExtensions().setTrackLengthMeter(parseFloat(text));
             }
         });
 
@@ -54,7 +64,7 @@ public class GpsiesGPXReader extends GPXReader {
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesMetaDataExtensions[0].setTotalAscentMeter(parseFloat(text));
+                getGpsiesMetaDataExtensions().setTotalAscentMeter(parseFloat(text));
             }
         });
 
@@ -62,7 +72,7 @@ public class GpsiesGPXReader extends GPXReader {
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesMetaDataExtensions[0].setTotalDescentMeter(parseFloat(text));
+                getGpsiesMetaDataExtensions().setTotalDescentMeter(parseFloat(text));
             }
         });
 
@@ -70,7 +80,7 @@ public class GpsiesGPXReader extends GPXReader {
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesMetaDataExtensions[0].setMinHeightMeter(parseFloat(text));
+                getGpsiesMetaDataExtensions().setMinHeightMeter(parseFloat(text));
             }
         });
 
@@ -78,30 +88,18 @@ public class GpsiesGPXReader extends GPXReader {
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesMetaDataExtensions[0].setMaxHeightMeter(parseFloat(text));
+                getGpsiesMetaDataExtensions().setMaxHeightMeter(parseFloat(text));
             }
         });
     }
 
     @Override
     void addWptExtensionsRules(String extensionsPath) {
-        final GpsiesWptExtensions[] gpsiesWptExtensionsContainer = new GpsiesWptExtensions[1];
-
-        rules.add(new DefaultRule<Gpx>(IRule.Type.TAG, extensionsPath) {
-            @Override
-            public void handleTag(XMLParser<Gpx> parser, boolean isStartTag, Gpx gpx) {
-                if (isStartTag) {
-                    gpsiesWptExtensionsContainer[0] = new GpsiesWptExtensions();
-                    extensionsContainerDeque.peek().getExtensions().add(gpsiesWptExtensionsContainer[0]);
-                }
-            }
-        });
-
         String gpsiesPath = addNameSpace("/course", GPSIES_V1_0_NS);
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesWptExtensionsContainer[0].setCourse(parseFloat(text));
+                getGpsiesWptExtensions().setCourse(parseFloat(text));
             }
         });
 
@@ -109,7 +107,7 @@ public class GpsiesGPXReader extends GPXReader {
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
             public void handleParsedCharacters(XMLParser<Gpx> parser, String text, Gpx gpx) {
-                gpsiesWptExtensionsContainer[0].setSpeed(parseFloat(text));
+                getGpsiesWptExtensions().setSpeed(parseFloat(text));
             }
         });
     }
