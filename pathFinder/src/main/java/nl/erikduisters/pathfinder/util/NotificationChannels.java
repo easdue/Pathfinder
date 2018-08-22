@@ -10,7 +10,8 @@ import nl.erikduisters.pathfinder.R;
  */
 public enum NotificationChannels {
     UNZIPPING_MAPS(R.string.channel_extracting_maps, R.string.channel_extracting_maps_description, NotificationManagerCompat.IMPORTANCE_DEFAULT),
-    MAPS_AVAILABLE(R.string.channel_available_maps, R.string.channel_available_maps_description, NotificationManagerCompat.IMPORTANCE_DEFAULT);
+    MAPS_AVAILABLE(R.string.channel_available_maps, R.string.channel_available_maps_description, NotificationManagerCompat.IMPORTANCE_DEFAULT),
+    DOWNLOADING_TRACKS(R.string.channel_downloading_tracks, R.string.channel_downloading_tracks_descriptions, NotificationManagerCompat.IMPORTANCE_DEFAULT);
 
     private final @StringRes int channelNameResId;
     private final @StringRes int channelDescriptionResId;

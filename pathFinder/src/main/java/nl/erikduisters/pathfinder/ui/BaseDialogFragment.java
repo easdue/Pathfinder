@@ -13,8 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
@@ -99,7 +97,9 @@ public abstract class BaseDialogFragment<VM extends ViewModel> extends DialogFra
     public void onResume() {
         super.onResume();
 
+        /* On API 19 I eventually get crashed due to a "Too many open files" exception and LeakCanary detects leaks
         FirebaseAnalytics.getInstance(requireContext())
                 .setCurrentScreen(requireActivity(), this.getClass().getSimpleName(), null);
+        */
     }
 }

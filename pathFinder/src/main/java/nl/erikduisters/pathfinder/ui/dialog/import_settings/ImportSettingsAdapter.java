@@ -459,7 +459,7 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
                 gridLayout.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
                 gridLayout.setUseDefaultMargins(true);
 
-                imageViews[trackActivityType.getCode()] = imageView;
+                imageViews[trackActivityType.code()] = imageView;
             }
 
             float[] matrix = {
@@ -481,7 +481,7 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
             label.setText(entry.labelResId);
 
             for (TrackActivityType trackActivityType : TrackActivityType.values()) {
-                bind(imageViews[trackActivityType.getCode()], trackActivityType, entry);
+                bind(imageViews[trackActivityType.code()], trackActivityType, entry);
             }
 
             itemView.setOnLongClickListener(entry.isEnabled() ? this : null);
@@ -512,7 +512,7 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
             ImportSettingsAdapterData.GroupEntryTrackActivityTypes entry = (ImportSettingsAdapterData.GroupEntryTrackActivityTypes) item;
 
 
-            invertInclusion(entry, trackActivityType, imageViews[trackActivityType.getCode()]);
+            invertInclusion(entry, trackActivityType, imageViews[trackActivityType.code()]);
 
             if (entry.shouldReportChange() && onChangedListener != null) {
                 onChangedListener.onChanged(entry);
@@ -532,7 +532,7 @@ class ImportSettingsAdapter extends ExpandableRecyclerViewAdapter<ImportSettings
             ImportSettingsAdapterData.GroupEntryTrackActivityTypes entry = (ImportSettingsAdapterData.GroupEntryTrackActivityTypes) item;
 
             for (TrackActivityType trackActivityType : TrackActivityType.values()) {
-                invertInclusion(entry, trackActivityType, imageViews[trackActivityType.getCode()]);
+                invertInclusion(entry, trackActivityType, imageViews[trackActivityType.code()]);
             }
 
             if (entry.shouldReportChange() && onChangedListener != null) {

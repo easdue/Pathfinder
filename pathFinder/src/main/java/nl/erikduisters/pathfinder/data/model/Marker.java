@@ -14,7 +14,7 @@ public class Marker implements Parcelable {
     public String filename;
     public String fileId;
     public int dataType;
-    public @Track.Type int property;
+    public TrackType property;
     @Json(name = "maxHeight")
     public float maxHeightMeters;
     @Json(name = "minHeight")
@@ -42,7 +42,7 @@ public class Marker implements Parcelable {
         dest.writeString(this.filename);
         dest.writeString(this.fileId);
         dest.writeInt(this.dataType);
-        dest.writeInt(this.property);
+        dest.writeParcelable(property, flags);
         dest.writeFloat(this.maxHeightMeters);
         dest.writeFloat(this.minHeightMeters);
         dest.writeFloat(this.totalAscentMeters);
@@ -63,7 +63,7 @@ public class Marker implements Parcelable {
         this.filename = in.readString();
         this.fileId = in.readString();
         this.dataType = in.readInt();
-        this.property = in.readInt();
+        this.property = in.readParcelable(TrackType.class.getClassLoader());
         this.maxHeightMeters = in.readFloat();
         this.minHeightMeters = in.readFloat();
         this.totalAscentMeters = in.readFloat();
@@ -75,7 +75,7 @@ public class Marker implements Parcelable {
         this.index = in.readInt();
     }
 
-    public static final Parcelable.Creator<Marker> CREATOR = new Parcelable.Creator<Marker>() {
+    public static final Creator<Marker> CREATOR = new Creator<Marker>() {
         @Override
         public Marker createFromParcel(Parcel source) {
             return new Marker(source);

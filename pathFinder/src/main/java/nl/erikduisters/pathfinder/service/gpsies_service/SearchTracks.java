@@ -1,7 +1,6 @@
 package nl.erikduisters.pathfinder.service.gpsies_service;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.squareup.moshi.JsonAdapter;
@@ -15,9 +14,10 @@ import java.util.List;
 
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.Marker;
-import nl.erikduisters.pathfinder.data.model.Track;
 import nl.erikduisters.pathfinder.data.model.TrackActivityType;
+import nl.erikduisters.pathfinder.data.model.TrackType;
 import nl.erikduisters.pathfinder.util.BoundingBox;
+import nl.erikduisters.pathfinder.util.MarkerTrackTypeAdapter;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -29,23 +29,19 @@ import timber.log.Timber;
 /**
  * Created by Erik Duisters on 12-08-2018.
  */
-public class SearchTracks extends Job {
+public class SearchTracks extends Job<SearchTracks.JobInfo> {
     private final static String MARKERS_ARRAY_REGEX = "(?s).*markersArray *= *(\\[\\{.*\\}\\]).*";
 
-    @NonNull final JobInfo jobInfo;
-
     SearchTracks(@NonNull JobInfo jobInfo) {
-        this.jobInfo = jobInfo;
+        super(jobInfo);
     }
 
     @Override
     void execute(OkHttpClient okHttpClient, Job.Callback callback) {
-        RequestBody requestBody = createRequestBody();
-
         Request request = new Request.Builder()
                 .url(GPSiesService.GPSIES_URL + "/trackList.do")
                 .addHeader("Accept-Language", "en-US")
-                .post(requestBody)
+                .post(createRequestBody())
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {
@@ -63,7 +59,9 @@ public class SearchTracks extends Job {
                     markersArray = body.replaceAll(MARKERS_ARRAY_REGEX, "$1");
                 }
 
-                Moshi moshi = new Moshi.Builder().build();
+                Moshi moshi = new Moshi.Builder()
+                        .add(new MarkerTrackTypeAdapter())
+                        .build();
 
                 Type type = Types.newParameterizedType(List.class, Marker.class);
                 JsonAdapter<List<Marker>> jsonMarkerAdapter = moshi.adapter(type);
@@ -113,7 +111,7 @@ public class SearchTracks extends Job {
     private void addProperty(FormBody.Builder builder) {
         if (jobInfo.trackTypes.size() == 2) {
             builder.add("property", "both");
-        } else if (jobInfo.trackTypes.get(0) == Track.Type.ONE_WAY) {
+        } else if (jobInfo.trackTypes.get(0) == TrackType.ONE_WAY) {
             builder.add("property", "oneWayTrip");
         } else {
             builder.add("property", "roundTrip");
@@ -134,11 +132,11 @@ public class SearchTracks extends Job {
                 .toString();
     }
 
-    public static class JobInfo implements Parcelable {
+    public static class JobInfo implements Job.JobInfo {
         @NonNull BoundingBox boundingBox;
         //final int maxTracks;
         @NonNull final List<TrackActivityType> trackActivityTypes;
-        @NonNull final @Track.Type List<Integer> trackTypes;
+        @NonNull final List<TrackType> trackTypes;
         final int minTrackLength;
         final int maxTrackLength;
 
@@ -155,7 +153,7 @@ public class SearchTracks extends Job {
             private BoundingBox boundingBox;
             //private int maxTracks;
             private List<TrackActivityType> trackActivityTypes;
-            private @Track.Type List<Integer> trackTypes;
+            private List<TrackType> trackTypes;
             private int minTrackLength;
             private int maxTrackLength;
 
@@ -176,7 +174,7 @@ public class SearchTracks extends Job {
                 return this;
             }
 
-            public Builder withTrackTypes(@NonNull @Track.Type List<Integer> trackTypes) {
+            public Builder withTrackTypes(@NonNull List<TrackType> trackTypes) {
                 this.trackTypes = trackTypes;
                 return this;
             }
@@ -218,10 +216,10 @@ public class SearchTracks extends Job {
         protected JobInfo(Parcel in) {
             this.boundingBox = in.readParcelable(BoundingBox.class.getClassLoader());
             //this.maxTracks = in.readInt();
-            this.trackActivityTypes = new ArrayList<TrackActivityType>();
+            this.trackActivityTypes = new ArrayList<>();
             in.readList(this.trackActivityTypes, TrackActivityType.class.getClassLoader());
-            this.trackTypes = new ArrayList<Integer>();
-            in.readList(this.trackTypes, Integer.class.getClassLoader());
+            this.trackTypes = new ArrayList<>();
+            in.readList(this.trackTypes, TrackType.class.getClassLoader());
             this.minTrackLength = in.readInt();
             this.maxTrackLength = in.readInt();
         }

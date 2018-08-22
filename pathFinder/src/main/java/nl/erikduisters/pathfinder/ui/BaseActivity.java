@@ -452,6 +452,4 @@ public abstract class BaseActivity<VM extends BaseActivityViewModel>
             }
         });
     }
-
-
 }

@@ -24,8 +24,6 @@ public class Copyright {
         this.author = author;
     }
 
-    public boolean hasYear() { return year != null; }
-
     @Nullable
     public String getYear() {
         return year;
@@ -34,8 +32,6 @@ public class Copyright {
     public void setYear(@Nullable String year) {
         this.year = year;
     }
-
-    public boolean hasLicense() { return license != null; }
 
     @Nullable
     public String getLicense() {

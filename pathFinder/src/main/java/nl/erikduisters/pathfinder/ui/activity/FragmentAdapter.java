@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
+
 /**
  * Created by Erik Duisters on 27-06-2018.
  */

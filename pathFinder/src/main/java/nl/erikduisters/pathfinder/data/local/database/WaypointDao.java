@@ -4,9 +4,10 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import nl.erikduisters.pathfinder.data.model.Waypoint;
+import java.util.List;
 
 /**
  * Created by Erik Duisters on 14-06-2018.
@@ -14,12 +15,16 @@ import nl.erikduisters.pathfinder.data.model.Waypoint;
 @Dao
 public interface WaypointDao {
     @Insert
-    public long insert(Waypoint waypoint);
+    long insert(Waypoint waypoint);
 
     @Query("SELECT * FROM waypoint WHERE _id = :id")
     @Nullable
-    public Waypoint getWaypointById(long id);
+    Waypoint getWaypointById(long id);
+
+    @Query("SELECT * FROM waypoint WHERE track_id = :trackId")
+    @NonNull
+    List<Waypoint> getWaypointsByTrackId(long trackId);
 
     @Delete
-    public void delete(Waypoint waypoint);
+    void delete(Waypoint waypoint);
 }

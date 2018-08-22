@@ -84,6 +84,8 @@ public class PreferenceManager {
     private final String KEY_DOWNLOADING_MAPS;
     private final String KEY_RETRYABLE_MAP_DOWNLOAD_IDS;
     private final String KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS;
+    private final String KEY_DOWNLOADING_TRACK_FILE_IDS;
+    private final String KEY_DOWNLOADED_TRACK_FILE_IDS;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -136,6 +138,8 @@ public class PreferenceManager {
         KEY_DOWNLOADING_MAPS = context.getString(R.string.key_downloading_maps);
         KEY_RETRYABLE_MAP_DOWNLOAD_IDS = context.getString(R.string.key_retryable_map_download_ids);
         KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS = context.getString(R.string.key_reported_failed_map_download_ids);
+        KEY_DOWNLOADING_TRACK_FILE_IDS = context.getString(R.string.key_downloading_track_file_ids);
+        KEY_DOWNLOADED_TRACK_FILE_IDS = context.getString(R.string.key_downloaded_track_file_ids);
 
         //preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         preferences = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
@@ -520,5 +524,58 @@ public class PreferenceManager {
 
     public synchronized void setReportedFailedMapDownloadIds(List<Long> reportedFailedMapDownloadIds) {
         setLongList(KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS, reportedFailedMapDownloadIds);
+    }
+
+    @NonNull
+    private synchronized List<String> getStringList(@NonNull String key) {
+        List<String> stringList = new ArrayList<>();
+
+        try {
+            JSONObject jsonObject = new JSONObject(preferences.getString(key, "{}"));
+            JSONArray jsonArray = jsonObject.getJSONArray(key);
+
+            for (int i = 0, length = jsonArray.length(); i < length; i++) {
+                stringList.add(jsonArray.getString(i));
+            }
+        } catch (JSONException e) {
+            //To bad
+        }
+
+        return stringList;
+    }
+
+    private synchronized void setStringList(@NonNull String key, @NonNull List<String> trackFileIds) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            JSONArray jsonArray = new JSONArray();
+
+            for (String trackFileId : trackFileIds) {
+                jsonArray.put(trackFileId);
+            }
+
+            jsonObject.put(key, jsonArray);
+
+            preferences.edit().putString(key, jsonObject.toString()).apply();
+        } catch (JSONException e) {
+            preferences.edit().putString(key, "{}").apply();
+        }
+    }
+
+    @NonNull
+    public synchronized List<String> getDownloadedTrackFileIds() {
+        return getStringList(KEY_DOWNLOADED_TRACK_FILE_IDS);
+    }
+
+    public void setDownloadedTrackFileIds(@NonNull List<String> downloadedTrackFileIds) {
+        setStringList(KEY_DOWNLOADED_TRACK_FILE_IDS, downloadedTrackFileIds);
+    }
+
+    @NonNull
+    public synchronized List<String> getDownloadingTrackFileIds() {
+        return getStringList(KEY_DOWNLOADING_TRACK_FILE_IDS);
+    }
+
+    public void setDownloadingTrackFileIds(@NonNull List<String> downloadingTrackFileIds) {
+        setStringList(KEY_DOWNLOADING_TRACK_FILE_IDS, downloadingTrackFileIds);
     }
 }

@@ -1,31 +1,38 @@
-package nl.erikduisters.pathfinder.data.model;
+package nl.erikduisters.pathfinder.data.local.database;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
-import java.util.Date;
+import java.net.URL;
+
+import nl.erikduisters.pathfinder.data.model.WaypointType;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
  * Created by Erik Duisters on 14-06-2018.
  */
-@Entity(tableName = "track_point",
+@Entity(tableName = "waypoint",
         foreignKeys = @ForeignKey(entity = Track.class, parentColumns = "_id",
                                   childColumns = "track_id", onDelete = CASCADE),
         indices = {@Index("track_id")})
-public class TrackPoint {
+public class Waypoint {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     public long id;
     @ColumnInfo(name = "track_id")
-    public long trackId;
-    public int segment;
+    @Nullable
+    public Long trackId;
     public double latitude;
     public double longitude;
     public float elevation;
-    public Date time;
+    public String name;
+    public String description;
+    @Nullable
+    public URL link;
+    public WaypointType type;
 }

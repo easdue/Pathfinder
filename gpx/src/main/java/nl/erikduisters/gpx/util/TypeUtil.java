@@ -62,7 +62,7 @@ public class TypeUtil {
 
     public static String assertValidProperty(String property) {
         switch (property) {
-            case "one-way":
+            case "one-way trip":
             case "round trip":
                 return property;
             default:

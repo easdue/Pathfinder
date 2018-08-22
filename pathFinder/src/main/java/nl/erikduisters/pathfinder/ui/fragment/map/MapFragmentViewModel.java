@@ -67,7 +67,7 @@ public class MapFragmentViewModel
     private final GpsManager gpsManager;
     private final BackgroundJobHandler backgroundJobHandler;
     private final HeadingManager headingManager;
-    private final OkHttpClient.Builder okHttpClientBuilder;
+    private final OkHttpClient okHttpClient;
     private final ExternalRenderThemeManager externalRenderThemeManager;
 
     private MapInitializedState.Builder mapInitializedStateBuilder;
@@ -81,13 +81,13 @@ public class MapFragmentViewModel
                          GpsManager gpsManager,
                          BackgroundJobHandler backgroundJobHandler,
                          HeadingManager headingManager,
-                         OkHttpClient.Builder okHttpClientBuilder,
+                         OkHttpClient okHttpClient,
                          ExternalRenderThemeManager externalRenderThemeManager) {
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
         this.backgroundJobHandler = backgroundJobHandler;
         this.headingManager = headingManager;
-        this.okHttpClientBuilder = okHttpClientBuilder;
+        this.okHttpClient = okHttpClient;
         this.externalRenderThemeManager = externalRenderThemeManager;
 
         initLiveData();
@@ -199,7 +199,7 @@ public class MapFragmentViewModel
     }
 
     private TileSource getOnlineTileSource() {
-        return preferenceManager.getOnlineMap().provideTileSource(okHttpClientBuilder);
+        return preferenceManager.getOnlineMap().provideTileSource(okHttpClient.newBuilder());
     }
 
     private void updateMapFragmentViewStateFor(TileSource tileSource) {

@@ -68,8 +68,6 @@ public class Waypoint implements ExtensionsContainer, LinksContainer {
 
     public void setElevation(float elevation) { this.elevation = elevation; }
 
-    public boolean hasTime() { return time != null; }
-
     public Date getTime() { return time; }
 
     public void setTime(Date time) { this.time = time; }
@@ -88,21 +86,15 @@ public class Waypoint implements ExtensionsContainer, LinksContainer {
 
     public void setGeoidHeight(float geoidHeight) { this.geoidHeight = geoidHeight; }
 
-    public boolean hasName() { return name != null; }
-
     @Nullable
     public String getName() { return name; }
 
     public void setName(@Nullable String name) { this.name = name; }
 
-    public boolean hasComment() { return comment != null; }
-
     @Nullable
     public String getComment() { return comment; }
 
     public void setComment(@Nullable String comment) { this.comment = comment; }
-
-    public boolean hasDescription() { return description != null; }
 
     @Nullable
     public String getDescription() { return description; }
@@ -114,28 +106,20 @@ public class Waypoint implements ExtensionsContainer, LinksContainer {
 
     public void setSource(@Nullable String source) { this.source = source; }
 
-    public boolean hasSymbol() { return symbol != null; }
-
     @Nullable
     public String getSymbol() { return symbol; }
 
     public void setSymbol(@Nullable String symbol) { this.symbol = symbol; }
-
-    public boolean hasType() { return type != null; }
 
     @Nullable
     public String getType() { return type; }
 
     public void setType(@Nullable String type) { this.type = type; }
 
-    public boolean hasFix() { return fix != null; }
-
     @Nullable
     public String getFix() { return fix; }
 
     public void setFix(@Nullable String fix) { this.fix = TypeUtil.assertValidFixType(fix); }
-
-    public boolean hasNumSatellites() { return numSatellites >= 0; }
 
     public int getNumSatellites() { return numSatellites; }
 

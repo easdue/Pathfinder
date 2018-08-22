@@ -18,21 +18,15 @@ public class Person implements LinksContainer {
         links = new ArrayList<>();
     }
 
-    public boolean hasName() { return name != null; }
-
     @Nullable
     public String getName() { return name; }
 
     public void setName(@Nullable String name) { this.name = name; }
 
-    public boolean hasEmail() { return email != null; }
-
     @Nullable
     public Email getEmail() { return email; }
 
     public void setEmail(@Nullable Email email) { this.email = email; }
-
-    public boolean hasLinks() { return links.size() > 0; }
 
     @Override
     public List<Link> getLinks() {

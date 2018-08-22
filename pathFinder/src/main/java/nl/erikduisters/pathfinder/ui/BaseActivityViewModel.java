@@ -90,7 +90,7 @@ public abstract class BaseActivityViewModel extends ViewModel {
                 break;
             case R.id.menu_retryable_downloads:
                 MessageWithTitle messageWithTitle =
-                        new MessageWithTitle(R.string.map_unpack_fialed_dialog_title, R.string.map_unpack_failed_dialog_message, preferenceManager.getStorageDir());
+                        new MessageWithTitle(R.string.map_unpack_failed_dialog_title, R.string.map_unpack_failed_dialog_message, preferenceManager.getStorageDir());
 
                 PositiveNegativeButtonMessageDialog.DialogInfo.Builder builder = new PositiveNegativeButtonMessageDialog.DialogInfo.Builder();
                 builder.withMessageWithTitle(messageWithTitle)

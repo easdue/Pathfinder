@@ -3,6 +3,7 @@ package nl.erikduisters.pathfinder.ui.fragment.init_storage;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 
 import java.io.File;
@@ -224,6 +225,7 @@ public class InitStorageFragmentViewModel extends ViewModel {
         if (allOk) allOk = FileUtil.createDirectory(new File(storage, preferenceManager.getStorageCacheSubDir()));
         if (allOk) allOk = FileUtil.createDirectory(new File(storage, preferenceManager.getStorageUserSubDir()));
         if (allOk) allOk = FileUtil.createDirectory(new File(storage, preferenceManager.getStorageRenderThemeSubDir()));
+        if (allOk) allOk = FileUtil.createDirectory(new File(storage, Environment.DIRECTORY_DOWNLOADS));
         if (allOk) allOk = FileUtil.createFile(new File(storage, ".nomedia"));
 
         return allOk;

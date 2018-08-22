@@ -881,11 +881,11 @@ class ImportSettingsAdapterData {
         }
 
         void setIncluded(TrackActivityType trackActivityType, boolean included) {
-            trackActivityTypeIncluded[trackActivityType.getCode()] = included;
+            trackActivityTypeIncluded[trackActivityType.code()] = included;
         }
 
         boolean isIncluded(TrackActivityType trackActivityType) {
-            return trackActivityTypeIncluded[trackActivityType.getCode()];
+            return trackActivityTypeIncluded[trackActivityType.code()];
         }
 
         boolean areAllTrackActivityTypesExcluded() {
@@ -902,7 +902,7 @@ class ImportSettingsAdapterData {
             List<TrackActivityType> includedTrackActivityTypes = new ArrayList<>();
 
             for (TrackActivityType activityType : TrackActivityType.values()) {
-                if (trackActivityTypeIncluded[activityType.getCode()]) {
+                if (trackActivityTypeIncluded[activityType.code()]) {
                     includedTrackActivityTypes.add(activityType);
                 }
             }

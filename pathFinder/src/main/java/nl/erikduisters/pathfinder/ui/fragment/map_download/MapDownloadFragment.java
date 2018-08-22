@@ -177,7 +177,7 @@ public class MapDownloadFragment
         }
 
         viewModel.getViewStateObservable().observe(this, this::render);
-        viewModel.getScheduleMapDownloadStateObservable().observe(this, this::handleDownloadMapState);
+        viewModel.getScheduleMapDownloadStateObservable().observe(this, this::handleScheduleMapDownloadState);
 
         return v;
     }
@@ -202,7 +202,7 @@ public class MapDownloadFragment
         viewModel.onMessageDisplayed();
     }
 
-    private void handleDownloadMapState(MapDownloadFragmentViewState.ScheduleMapDownloadState state) {
+    private void handleScheduleMapDownloadState(MapDownloadFragmentViewState.ScheduleMapDownloadState state) {
         if (state == null) {
             return;
         }

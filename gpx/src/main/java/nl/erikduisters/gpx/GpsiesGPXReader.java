@@ -4,8 +4,6 @@ import com.thebuzzmedia.sjxp.XMLParser;
 import com.thebuzzmedia.sjxp.rule.DefaultRule;
 import com.thebuzzmedia.sjxp.rule.IRule;
 
-import java.io.File;
-
 import nl.erikduisters.gpx.model.GpsiesMetaDataExtensions;
 import nl.erikduisters.gpx.model.GpsiesWptExtensions;
 import nl.erikduisters.gpx.model.Gpx;
@@ -17,10 +15,6 @@ import static java.lang.Float.parseFloat;
  */
 public class GpsiesGPXReader extends GPXReader {
     private static final String GPSIES_V1_0_NS = "[https://www.gpsies.com/GPX/1/0]";
-
-    public GpsiesGPXReader(File gpxFile) {
-        super(gpxFile);
-    }
 
     @Override
     void addGpxExtensionRules(String extensionPath) {

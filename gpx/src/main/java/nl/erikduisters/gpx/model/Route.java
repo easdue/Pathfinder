@@ -17,8 +17,6 @@ public class Route extends RouteOrTrack implements  WaypointsContainer {
         routePoints = new ArrayList<>();
     }
 
-    public boolean hasRoutePoints() { return routePoints.size() > 0; }
-
     public List<Waypoint> getRoutePoints() { return routePoints; }
 
     @Override

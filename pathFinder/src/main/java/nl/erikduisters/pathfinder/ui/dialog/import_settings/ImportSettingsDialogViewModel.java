@@ -22,8 +22,8 @@ import javax.inject.Singleton;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
-import nl.erikduisters.pathfinder.data.model.Track;
 import nl.erikduisters.pathfinder.data.model.TrackActivityType;
+import nl.erikduisters.pathfinder.data.model.TrackType;
 import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapterData.Group;
@@ -383,16 +383,16 @@ public class ImportSettingsDialogViewModel extends ViewModel implements GpsManag
         List<TrackActivityType> includedTrackActivityTypes = ((GroupEntryTrackActivityTypes) group
                 .findGroupEntryByLabel(R.string.track_activity_types_to_include)).getIncludedTrackActivityTypes();
 
-        @Track.Type List<Integer> trackTypes = new ArrayList<>();
+        List<TrackType> trackTypes = new ArrayList<>();
 
         GroupEntryTrackType groupEntryTrackType = group.findGroupEntryByLabel(R.string.track_type);
 
         if (groupEntryTrackType.isRoundTripChecked()) {
-            trackTypes.add(Track.Type.ROUND_TRIP);
+            trackTypes.add(TrackType.ROUND_TRIP);
         }
 
         if (groupEntryTrackType.isOneWayChecked()) {
-            trackTypes.add(Track.Type.ONE_WAY);
+            trackTypes.add(TrackType.ONE_WAY);
         }
 
         GroupEntryTrackLength groupEntryTrackLength = group.findGroupEntryByLabel(R.string.track_length);

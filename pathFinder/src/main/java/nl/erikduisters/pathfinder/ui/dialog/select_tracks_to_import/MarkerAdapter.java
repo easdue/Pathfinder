@@ -32,7 +32,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.model.Marker;
-import nl.erikduisters.pathfinder.data.model.Track;
+import nl.erikduisters.pathfinder.data.model.TrackType;
 import nl.erikduisters.pathfinder.glide.CropHeightGraphTransformation;
 import nl.erikduisters.pathfinder.glide.GlideApp;
 import nl.erikduisters.pathfinder.service.gpsies_service.GPSiesService;
@@ -207,7 +207,7 @@ public class MarkerAdapter
 
             length.setText(Distance.getDistance(itemView.getContext(), marker.trackLengthKilometers * 1000f, 2));
 
-            SvgView trackTypeSvgView = marker.property == Track.Type.ONE_WAY ? oneWaySvgView : roundTripSvgView;
+            SvgView trackTypeSvgView = marker.property == TrackType.ONE_WAY ? oneWaySvgView : roundTripSvgView;
 
             if (trackTypeSvgView.isRendered()) {
                 trackTypeImageView.setImageBitmap(trackTypeSvgView.getBitmap());

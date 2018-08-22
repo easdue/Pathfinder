@@ -1,7 +1,7 @@
 package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
 import nl.erikduisters.pathfinder.ui.activity.FragmentProvider;
-import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
+import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.fragment.compass.CompassFragment;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapFragment;
 import nl.erikduisters.pathfinder.ui.fragment.track_list.TrackListFragment;

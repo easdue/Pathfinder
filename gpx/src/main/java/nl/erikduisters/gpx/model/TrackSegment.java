@@ -17,14 +17,10 @@ public class TrackSegment implements WaypointsContainer, ExtensionsContainer {
         extensions = new ArrayList<>();
     }
 
-    public boolean hasExtensions() { return extensions.size() > 0; }
-
     @Override
     public List<Gpx.Extension> getExtensions() {
         return extensions;
     }
-
-    public boolean hasTrackPoints() { return trackPoints.size() > 0; }
 
     public List<Waypoint> getTrackPoints() { return trackPoints; }
 

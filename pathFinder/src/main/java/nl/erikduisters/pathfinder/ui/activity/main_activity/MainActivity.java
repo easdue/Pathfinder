@@ -20,19 +20,17 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import java.util.List;
 
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.service.MapDownloadService;
+import nl.erikduisters.pathfinder.service.gpsies_service.GPSiesTrackImportService;
 import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.BaseActivity;
 import nl.erikduisters.pathfinder.ui.RequestCode;
 import nl.erikduisters.pathfinder.ui.activity.FragmentAdapter;
-import nl.erikduisters.pathfinder.ui.activity.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.CheckPlayServicesAvailabilityState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitDatabaseState;
@@ -50,6 +48,7 @@ import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialog;
 import nl.erikduisters.pathfinder.ui.dialog.select_tracks_to_import.SelectTracksToImportDialog;
+import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.fragment.init_storage.InitStorageFragment;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapFragment;
 import nl.erikduisters.pathfinder.ui.fragment.play_services.PlayServicesFragment;
@@ -69,7 +68,8 @@ public class MainActivity
         implements NavigationView.OnNavigationItemSelectedListener, InitStorageFragment.InitStorageFragmentListener,
                    RuntimePermissionFragment.RuntimePermissionFragmentListener,
                    PlayServicesFragment.PlayServicesFragmentListener,
-                   ViewPager.OnPageChangeListener, ViewTreeObserver.OnGlobalLayoutListener{
+                   ViewPager.OnPageChangeListener, ViewTreeObserver.OnGlobalLayoutListener,
+                   TrackDownloadScheduler {
 
     private static final String TAG_INIT_STORAGE_FRAGMENT = "InitStorageFragment";
     private static final String TAG_RUNTIME_PERMISSION_FRAGMENT = "RuntimePermissionFragment";
@@ -84,6 +84,8 @@ public class MainActivity
     private static final String KEY_VIEW_MODEL_STATE = "ViewModelState";
 
     public static final String INTENT_EXTRA_STARTED_FROM_MAP_AVAILABLE_NOTIFICATION = "nl.erikduisters.pathfinder.StartedFromMapAvailableNotification";
+    public static final String INTENT_EXTRA_FAILED_TRACK_IMPORT_JOB_INFO = "nl.erikduisters.pathfinder.FailedTrackImportJobInfo";
+    public static final String INTENT_EXTRA_FAILED_TRACK_IMPORT_REASON = "nl.erikduisters.pathfinder.FailedTrackImportReason";
 
     @BindView(R.id.coordinatorLayout) CoordinatorLayout coordinatorLayout;
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -129,14 +131,14 @@ public class MainActivity
         avatar = headerView.findViewById(R.id.gpsies_avatar);
         username = headerView.findViewById(R.id.gpsies_username);
 
-        viewModel.getMainActivityViewStateObservable().observe(this, this::render);
-        viewModel.getStartActivityViewStateObservable().observe(this, this::render);
-
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(fragmentAdapter);
         viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(this);
         tabLayout.setupWithViewPager(viewPager);
+
+        viewModel.getMainActivityViewStateObservable().observe(this, this::render);
+        viewModel.getStartActivityViewStateObservable().observe(this, this::render);
 
         onNewIntent(getIntent());
     }
@@ -162,7 +164,7 @@ public class MainActivity
 
     @Override
     protected View getCoordinatorLayoutOrRootView() {
-        //TODO: If I ever have a FAB in a fragment I will I have to ask my fragment for its coordinator layout?
+        //TODO: If I ever have a FAB in a fragment will I have to ask my fragment for its coordinator layout?
         return coordinatorLayout;
     }
 
@@ -514,7 +516,7 @@ public class MainActivity
         dialog.setListener(new SelectTracksToImportDialog.Listener() {
             @Override
             public void onSelectTracksToImportDialogDismissed(List<String> trackFileIds) {
-                viewModel.onSelectTracksToImportDialogDismissed(trackFileIds);
+                viewModel.onSelectTracksToImportDialogDismissed(trackFileIds, MainActivity.this);
             }
 
             @Override
@@ -522,6 +524,14 @@ public class MainActivity
                 viewModel.onSelectTracksToImportDialogCancelled();
             }
         });
+    }
+
+    @Override
+    public void scheduleTrackDownload(GPSiesTrackImportService.JobInfo jobInfo) {
+        Intent intent = new Intent(GPSiesTrackImportService.ACTION_DOWNLOAD_TRACKS);
+        intent.putExtra(GPSiesTrackImportService.EXTRA_DOWNLOAD_TRACKS_JOB_INFO, jobInfo);
+
+        GPSiesTrackImportService.enqueueWork(this, intent);
     }
 
     @Override
@@ -568,8 +578,10 @@ public class MainActivity
         if (frag != null) {
             currentViewPagerPosition = position;
 
+            /*TODO: I disabled analytics because
             FirebaseAnalytics.getInstance(this)
                     .setCurrentScreen(this, frag.getClass().getSimpleName(), null);
+            */
         }
 
         viewPager.setPagingEnabled(position != 1);

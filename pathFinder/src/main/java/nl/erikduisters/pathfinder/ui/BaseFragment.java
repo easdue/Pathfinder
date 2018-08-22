@@ -15,15 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.support.AndroidSupportInjection;
-import nl.erikduisters.pathfinder.ui.fragment.HeadlessFragment;
-import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 import nl.erikduisters.pathfinder.viewmodel.ViewModelFactory;
 import timber.log.Timber;
 
@@ -110,10 +106,12 @@ public abstract class BaseFragment<VM extends ViewModel> extends Fragment implem
         Timber.d("%s.onResume()", getClass().getSimpleName());
         super.onResume();
 
+        /* On API 19 I eventually get crashed due to a "Too many open files" exception and LeakCanary detects leaks
         if (!(this instanceof ViewPagerFragment) && !(this instanceof HeadlessFragment)) {
             FirebaseAnalytics.getInstance(requireContext())
                     .setCurrentScreen(requireActivity(), this.getClass().getSimpleName(), null);
         }
+        */
     }
 
     @Override

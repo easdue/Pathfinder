@@ -69,6 +69,7 @@ import static android.view.View.VISIBLE;
  */
 
 //TODO: Persist Cookies https://gist.github.com/atoennis/c12c56a61f0a284cbaa5
+//TODO: If current map == online map keep track of network availability and show the user when network is not available
 public class MapFragment
         extends BaseFragment<MapFragmentViewModel>
         implements Map.UpdateListener, ViewPagerFragment {

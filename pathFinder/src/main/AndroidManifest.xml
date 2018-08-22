@@ -4,6 +4,8 @@
     <!-- On API 22 DownloadManager throws a SecurityException if I don't have WRITE_EXTERNAL_STORAGE permission normally maxSdkVersion should be 18-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="22"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <!-- TODO: on API 28 I will require android.permission.FOREGROUND_SERVICE -->
 
     <uses-feature android:name="android.hardware.location.gps" android:required="true"/>
@@ -16,6 +18,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
+
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+
         <activity
             android:name=".ui.activity.main_activity.MainActivity"
             android:label="@string/app_name"
@@ -55,14 +61,17 @@
             android:theme="@style/SubAppTheme"
             android:label="@string/activity_download_map_name"/>
 
-        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
-
         <service
             android:name=".service.MapDownloadService"
             android:exported="false"/>
 
         <service
             android:name=".service.gpsies_service.GPSiesService"
+            android:exported="false"/>
+
+        <service
+            android:name=".service.gpsies_service.GPSiesTrackImportService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
 
         <receiver

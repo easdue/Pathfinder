@@ -69,31 +69,21 @@ public class Gpx
         return metadata;
     }
 
-    public boolean hasMetadate() { return metadata != null; }
-
-    public boolean hasWaypoints() { return waypoints.size() > 0; }
-
     @NonNull
     @Override
     public List<Waypoint> getWaypoints() {
         return waypoints;
     }
 
-    public boolean hasRoutes() { return routes.size() > 0; }
-
     @NonNull
     public List<Route> getRoutes() {
         return routes;
     }
 
-    public boolean hasTracks() { return tracks.size() > 0; }
-
     @NonNull
     public List<Track> getTracks() {
         return tracks;
     }
-
-    public boolean hasExtension() { return extensions.size() > 0; }
 
     @NonNull
     @Override
@@ -101,5 +91,5 @@ public class Gpx
         return extensions;
     }
 
-    interface Extension {}
+    public interface Extension {}
 }

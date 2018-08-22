@@ -4,9 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
-import nl.erikduisters.pathfinder.data.model.Track;
-import nl.erikduisters.pathfinder.data.model.TrackPoint;
-import nl.erikduisters.pathfinder.data.model.Waypoint;
+import nl.erikduisters.pathfinder.data.model.TrackType;
 import nl.erikduisters.pathfinder.data.model.WaypointType;
 
 /**
@@ -19,9 +17,9 @@ public class TestUtil {
         track.name = "Test Track";
         track.description = "This is a test track";
         track.author = "Erik Duisters";
-        track.gpsiesId = "dke24l56lsas";
+        track.gpsiesFileId = "dke24l56lsas";
         track.dateCreated = new Date();
-        track.type = Track.Type.ONE_WAY;
+        track.type = TrackType.ONE_WAY;
         track.length = 12.5f;
         track.totalAscent = 10.2f;
         track.totalDescent = 10.4f;

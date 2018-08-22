@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -40,7 +41,6 @@ import nl.erikduisters.gpx.util.DateUtil;
 public abstract class GPXReader {
     private static final String GPX_V1_1_NS = "[http://www.topografix.com/GPX/1/1]";
 
-    final private File gpxFile;
     final private Pattern slashPattern;
     final private StringBuilder stringBuilder;
     final List<IRule<Gpx>> rules;
@@ -49,8 +49,7 @@ public abstract class GPXReader {
     protected Deque<ExtensionsContainer> extensionsContainerDeque;
     protected Deque<WaypointsContainer> waypointsContainerDeque;
 
-    public GPXReader(File gpxFile) {
-        this.gpxFile = gpxFile;
+    public GPXReader() {
         slashPattern = Pattern.compile("/");
         stringBuilder = new StringBuilder(1024);
         rules = new ArrayList<>();
@@ -67,34 +66,32 @@ public abstract class GPXReader {
     abstract void addTrkExtensionsRules(String extensionsPath);
     abstract void addTrksegExtensionsRules(String extensionsPath);
 
-    public boolean doImport(Gpx gpx) {
+    public Gpx doImport(File inFile) throws ImportException {
+        try {
+            FileInputStream inputStream = new FileInputStream(inFile);
+            return doImport(inputStream);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
+
+    public Gpx doImport(InputStream inputStream) throws ImportException {
         //System.setProperty("sjxp.namespaces", "false");
+        Gpx gpx = new Gpx();
 
         addGPXRules(gpx);
 
         @SuppressWarnings("unchecked")
         XMLParser<Gpx> xmlParser = new XMLParser<>(rules.toArray(new IRule[rules.size()]));
 
-        FileInputStream inputStream = null;
-
         try {
-            inputStream = new FileInputStream(gpxFile);
             xmlParser.parse(inputStream, gpx);
-        } catch (OutOfMemoryError e) {
-            //FaultMessage msg = new FaultMessage(importJob, ImportOrigin.GPX_IMPORTER, null, R.string.import_message_ran_out_of_memory_while_parsing_file, gpxFileToImport.getName(), true);
-            //listener.handleImportMessage(msg);
-            return false;
-        } catch (IllegalArgumentException e) {
-            //FaultMessage msg = new FaultMessage(importJob, ImportOrigin.GPX_IMPORTER, null, R.string.import_message_error, e.getMessage(), false);
-            //listener.handleImportMessage(msg);
-            return false;
+        } /*catch (OutOfMemoryError e) {
+            return null;
+        }*/ catch (IllegalArgumentException e) {
+            throw new ImportException(e);
         } catch (XMLParserException e) {
-            //FaultMessage msg = new FaultMessage(importJob, ImportOrigin.GPX_IMPORTER, null, R.string.import_message_error_parsing_file, gpxFileToImport.getName(), false);
-            //listener.handleImportMessage(msg);
-            return false;
-        } catch (FileNotFoundException e) {
-            //FaultMessage msg = new FaultMessage(importJob, ImportOrigin.GPX_IMPORTER, null, R.string.import_message_file_not_found, gpxFileToImport.getName(), false);
-            return false;
+            throw new ImportException(e);
         } finally {
             if (inputStream != null) {
                 try {
@@ -105,7 +102,7 @@ public abstract class GPXReader {
             }
         }
 
-        return true;
+        return gpx;
     }
 
     String addNameSpace(String locationPath, String nameSpace) {
@@ -703,5 +700,11 @@ public abstract class GPXReader {
 
         currentLocationPath = addNameSpace(basePath + "/extensions", GPX_V1_1_NS);
         addTrksegExtensionsRules(currentLocationPath);
+    }
+
+    public class ImportException extends RuntimeException {
+        ImportException(Exception cause) {
+            super(cause);
+        }
     }
 }

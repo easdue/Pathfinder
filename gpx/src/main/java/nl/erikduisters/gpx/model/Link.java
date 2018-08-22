@@ -24,8 +24,6 @@ public class Link {
         this.href = href;
     }
 
-    public boolean hasText() { return text != null; }
-
     @Nullable
     public String getText() {
         return text;
@@ -34,8 +32,6 @@ public class Link {
     public void setText(@Nullable String text) {
         this.text = text;
     }
-
-    public boolean hasType() { return type != null; }
 
     @Nullable
     public String getType() {

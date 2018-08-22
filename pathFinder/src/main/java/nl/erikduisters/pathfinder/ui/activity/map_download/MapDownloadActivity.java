@@ -54,7 +54,7 @@ public class MapDownloadActivity extends BaseActivity<VoidViewModel> {
                 finish();
         }
 
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -26,8 +26,6 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
         extensions = new ArrayList<>();
     }
 
-    public boolean hasName() { return name != null; }
-
     @Nullable
     public String getName() {
         return name;
@@ -36,8 +34,6 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
     public void setName(@Nullable String name) {
         this.name = name;
     }
-
-    public boolean hasDescription() { return description != null; }
 
     @Nullable
     public String getDescription() {
@@ -48,8 +44,6 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
         this.description = description;
     }
 
-    public boolean hasAuthor() { return author != null; }
-
     @Nullable
     public Person getAuthor() {
         return author;
@@ -58,8 +52,6 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
     public void setAuthor(@Nullable Person author) {
         this.author = author;
     }
-
-    public boolean hasCopyright() { return copyright != null; }
 
     @Nullable
     public Copyright getCopyright() {
@@ -70,8 +62,6 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
         this.copyright = copyright;
     }
 
-    public boolean hasTime() { return time != null; }
-
     @Nullable
     public Date getTime() {
         return time;
@@ -80,8 +70,6 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
     public void setTime(@Nullable Date time) {
         this.time = time;
     }
-
-    public boolean hasKeywords() { return getKeywords() != null; }
 
     @Nullable
     public String getKeywords() {
@@ -92,8 +80,6 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
         this.keywords = keywords;
     }
 
-    public boolean hasBounds() { return bounds != null; }
-
     @Nullable
     public Bounds getBounds() {
         return bounds;
@@ -103,14 +89,10 @@ public class Metadata implements LinksContainer, ExtensionsContainer {
         this.bounds = bounds;
     }
 
-    public boolean hasExtensions() { return extensions.size() > 0; }
-
     @Override
     public List<Gpx.Extension> getExtensions() {
         return extensions;
     }
-
-    public boolean hasLinks() { return links.size() > 0; }
 
     @Override
     public List<Link> getLinks() {

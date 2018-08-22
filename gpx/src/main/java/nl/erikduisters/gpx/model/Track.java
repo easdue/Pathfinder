@@ -17,7 +17,5 @@ public class Track extends RouteOrTrack {
         trackSegments = new ArrayList<>();
     }
 
-    public boolean hasTrackSegments() { return trackSegments.size() > 0; }
-
     public List<TrackSegment> getTrackSegments() { return trackSegments; }
 }

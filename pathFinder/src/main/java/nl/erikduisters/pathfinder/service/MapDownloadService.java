@@ -4,7 +4,6 @@ import android.app.DownloadManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -120,7 +119,7 @@ public class MapDownloadService extends Service {
                 new NotificationCompat.Builder(this, NotificationChannels.UNZIPPING_MAPS.getChannelId())
                         .setContentTitle(getString(R.string.extracting_maps))
                         .setSmallIcon(R.drawable.ic_notification_unarchive)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setPriority(NotificationChannels.UNZIPPING_MAPS.getImportance())
                         .setOngoing(true)
                         .setOnlyAlertOnce(true)
                         .setAutoCancel(false);
@@ -484,17 +483,18 @@ public class MapDownloadService extends Service {
 
         //TODO: Only show if there are no listener? (eg app is not visible)
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(MainActivity.INTENT_EXTRA_STARTED_FROM_MAP_AVAILABLE_NOTIFICATION, true);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntentWithParentStack(intent);
-        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        /* Extreme bullshit again. If requestCode == 0 then MainActivity will always be re-created */
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, NotificationId.MAP_AVAILABLE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this, NotificationChannels.MAPS_AVAILABLE.getChannelId())
                         .setContentTitle(getString(R.string.available_maps_title))
                         .setContentText(getString(R.string.available_maps_description))
                         .setSmallIcon(R.drawable.ic_notification_pathfinder)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setPriority(NotificationChannels.MAPS_AVAILABLE.getImportance())
                         .setOngoing(false)
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent)
@@ -537,10 +537,10 @@ public class MapDownloadService extends Service {
 
     private void handleUnzipProgress(UnzipMap.Progress progress) {
         notificationBuilder.setContentText(getString(R.string.extracting_map, progress.mapName));
-        if (Float.isNaN(progress.progress)) {
+        if (progress.progress == -1) {
             notificationBuilder.setProgress(0, 0, true);
         } else {
-            notificationBuilder.setProgress(100, Math.round(progress.progress), false);
+            notificationBuilder.setProgress(100, progress.progress, false);
         }
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);

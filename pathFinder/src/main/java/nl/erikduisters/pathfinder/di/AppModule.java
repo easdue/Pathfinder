@@ -13,6 +13,8 @@ import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -44,6 +46,7 @@ abstract class AppModule {
     @Provides
     @Singleton
     static PathfinderDatabase providePathfinderDatabase(@ApplicationContext Context context) {
+        //TODO: Use PreferenceManager.getStorageDir() after MainActivityViewModel switches InitStorage and InitDatabase
         return Room.databaseBuilder(context, PathfinderDatabase.class, "pathfinder.db")
                 .addMigrations(PathfinderDatabase.getMigrations())
                 .build();
@@ -87,14 +90,34 @@ abstract class AppModule {
 
     @Provides
     @Singleton
-    static OkHttpClient.Builder provideOkHttpClientBuilder() {
+    static OkHttpClient provideOkHttpClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         if (BuildConfig.DEBUG) {
             builder.addNetworkInterceptor(new StethoInterceptor());
         }
 
-        return builder;
+        return builder.build();
+    }
+
+    /*
+       TODO: Setup cookieJar: The height chart is generated with metric/imperial scale depending on cookies u=imperial|metric
+             As soon as I am able to login the cookie is also used to identify me
+
+             CookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
+
+             OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .cookieJar(cookieJar)
+                    .build();
+    */
+    @Provides
+    @Singleton
+    @GPSiesOkHttpClient
+    static OkHttpClient provideGPSiesOkHttpClient(OkHttpClient okHttpClient) {
+        return okHttpClient.newBuilder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .build();
     }
 
     @Provides

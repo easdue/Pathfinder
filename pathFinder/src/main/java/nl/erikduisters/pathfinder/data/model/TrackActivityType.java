@@ -1,5 +1,7 @@
 package nl.erikduisters.pathfinder.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 
@@ -10,7 +12,7 @@ import nl.erikduisters.pathfinder.R;
  */
 
 //TODO: Better drawables or perferably svg images
-public enum TrackActivityType {
+public enum TrackActivityType implements Parcelable {
     TREKKING(0, "trekking", R.string.trekking, R.drawable.trekking),
     WALKING(1, "walking", R.string.walking, R.drawable.walking),
     JOGGING(2, "jogging", R.string.jogging, R.drawable.jogging),
@@ -49,6 +51,11 @@ public enum TrackActivityType {
     private String gpsiesName;
     private @StringRes int nameResId;
     private @DrawableRes int drawableResId;
+    private static final TrackActivityType[] values;
+
+    static {
+        values = TrackActivityType.values();
+    }
 
     TrackActivityType(int code, String gpsiesName, @StringRes int nameResId, @DrawableRes int drawableResId) {
         this.code = code;
@@ -57,8 +64,42 @@ public enum TrackActivityType {
         this.drawableResId = drawableResId;
     }
 
-    public int getCode() { return code; }
+    public int code() { return code; }
+
+    public static TrackActivityType fromCode(int code) {
+        for (TrackActivityType trackActivityType : values) {
+            if (trackActivityType.code == code) {
+                return trackActivityType;
+            }
+        }
+
+        throw new IllegalArgumentException("There is no TrackActivityType with code: " + code);
+    }
+
     public String getGPSiesName() { return gpsiesName; }
     public @StringRes int getNameResId() { return nameResId; }
     public @DrawableRes int getDrawableResId() { return drawableResId; }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(code);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<TrackActivityType> CREATOR = new Creator<TrackActivityType>() {
+        @Override
+        public TrackActivityType createFromParcel(Parcel in) {
+            int code = in.readInt();
+            return TrackActivityType.fromCode(code);
+        }
+
+        @Override
+        public TrackActivityType[] newArray(int size) {
+            return new TrackActivityType[size];
+        }
+    };
 }

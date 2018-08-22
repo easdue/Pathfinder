@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0a4ca5ca528ac496a66744ce601e1bda",
+    "identityHash": "07db2b187dea7920eea661967609e7fd",
     "entities": [
       {
         "tableName": "track",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `description` TEXT, `author` TEXT, `gpsies_id` TEXT, `data_created` INTEGER, `type` INTEGER NOT NULL, `length` REAL NOT NULL, `total_ascent` REAL NOT NULL, `total_descent` REAL NOT NULL, `min_height` REAL NOT NULL, `max_height` REAL NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `description` TEXT, `author` TEXT, `gpsies_file_id` TEXT, `data_created` INTEGER, `type` INTEGER, `length` REAL NOT NULL, `total_ascent` REAL NOT NULL, `total_descent` REAL NOT NULL, `min_height` REAL NOT NULL, `max_height` REAL NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -33,8 +33,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "gpsiesId",
-            "columnName": "gpsies_id",
+            "fieldPath": "gpsiesFileId",
+            "columnName": "gpsies_file_id",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -48,7 +48,7 @@
             "fieldPath": "type",
             "columnName": "type",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "length",
@@ -97,12 +97,12 @@
             "createSql": "CREATE  INDEX `index_track_name` ON `${TABLE_NAME}` (`name`)"
           },
           {
-            "name": "index_track_gpsies_id",
+            "name": "index_track_gpsies_file_id",
             "unique": false,
             "columnNames": [
-              "gpsies_id"
+              "gpsies_file_id"
             ],
-            "createSql": "CREATE  INDEX `index_track_gpsies_id` ON `${TABLE_NAME}` (`gpsies_id`)"
+            "createSql": "CREATE  INDEX `index_track_gpsies_file_id` ON `${TABLE_NAME}` (`gpsies_file_id`)"
           }
         ],
         "foreignKeys": []
@@ -276,7 +276,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"0a4ca5ca528ac496a66744ce601e1bda\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"07db2b187dea7920eea661967609e7fd\")"
     ]
   }
 }

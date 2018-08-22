@@ -17,6 +17,7 @@ import nl.erikduisters.pathfinder.data.InitDatabaseHelper;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
+import nl.erikduisters.pathfinder.service.gpsies_service.GPSiesTrackImportService;
 import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.BaseActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
@@ -80,6 +81,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     }
     LiveData<StartActivityViewState> getStartActivityViewStateObservable() { return startActivityViewStateObservable; }
 
+    //TODO: Database is now stored on internal storage. It would be better to store it in the selected storage location so first initStorage and then init database
     private void initDatabase() {
         ProgressDialog.Properties properties =
                 new ProgressDialog.Properties(R.string.initializing_database, true,
@@ -290,8 +292,9 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState));
     }
 
-    void onSelectTracksToImportDialogDismissed(List<String> selectedTrackFileIds) {
-        //TODO:
+    void onSelectTracksToImportDialogDismissed(List<String> selectedTrackFileIds, TrackDownloadScheduler trackDownloadScheduler) {
+        GPSiesTrackImportService.JobInfo jobInfo = new GPSiesTrackImportService.JobInfo(selectedTrackFileIds);
+        trackDownloadScheduler.scheduleTrackDownload(jobInfo);
     }
 
     void onSelectTracksToImportDialogCancelled() {
