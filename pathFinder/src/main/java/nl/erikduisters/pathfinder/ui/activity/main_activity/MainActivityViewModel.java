@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ import nl.erikduisters.pathfinder.data.usecase.InitDatabase;
 import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.service.track_import.GPSiesImportJob;
 import nl.erikduisters.pathfinder.service.track_import.ImportJob;
+import nl.erikduisters.pathfinder.service.track_import.LocalImportJob;
 import nl.erikduisters.pathfinder.ui.BaseActivityViewModel;
 import nl.erikduisters.pathfinder.ui.activity.gps_status.GpsStatusActivity;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.AskUserToEnableGpsState;
@@ -287,6 +289,11 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
                 currentState.navigationViewState, new SelectTracksToImportDialogState(jobInfo)));
     }
 
+    void onImportSettingsDialogDismissed(List<File> filesToImport, TrackImportScheduler trackImportScheduler) {
+        ImportJob.JobInfo jobInfo = new LocalImportJob.JobInfo(filesToImport);
+        trackImportScheduler.scheduleTrackImport(jobInfo);
+    }
+
     void onImportSettingsDialogCancelled() {
         InitializedState currentState = getCurrentInitializedState();
 
@@ -296,7 +303,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     //TODO: rename
     void onSelectTracksToImportDialogDismissed(List<String> selectedTrackFileIds, TrackImportScheduler trackImportScheduler) {
         ImportJob.JobInfo jobInfo = new GPSiesImportJob.JobInfo(selectedTrackFileIds);
-        trackImportScheduler.scheduleTrackDownload(jobInfo);
+        trackImportScheduler.scheduleTrackImport(jobInfo);
     }
 
     void onSelectTracksToImportDialogCancelled() {

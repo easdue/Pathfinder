@@ -318,7 +318,7 @@ public class ImportSettingsDialogViewModel extends ViewModel implements GpsManag
                 handleSearchTracksOnGpsies(adapterData);
                 break;
             case R.id.menu_import:
-                //TODO: Implement
+                handleImportLocalTracks(adapterData);
                 break;
         }
     }
@@ -337,7 +337,7 @@ public class ImportSettingsDialogViewModel extends ViewModel implements GpsManag
         }
 
         SearchTracks.JobInfo jobInfo = createSearchJobInfo((SearchTracksOnGpsiesGroup) adapterData.getGroupOfType(GroupType.TYPE_SEARCH_TRACKS_NEARBY));
-        viewStateObservable.setValue(new ImportSettingsDialogViewState.DismissDialogState.ReportGpsiesServiceJobState(jobInfo));
+        viewStateObservable.setValue(new ImportSettingsDialogViewState.DismissDialogState.ReportSearchTracksState(jobInfo));
     }
 
     private void setShowCancelDialogState(InitializedState initializedState) {
@@ -422,6 +422,28 @@ public class ImportSettingsDialogViewModel extends ViewModel implements GpsManag
         int radiusKm = ((GroupEntrySeekbar) group.findGroupEntryByLabel(R.string.track_search_radius)).getValue();
 
         return new BoundingBox(center, radiusKm * 1000);
+    }
+
+    private void handleImportLocalTracks(ImportSettingsAdapterData adapterData) {
+        List<File> filesToImport = getFilesToImport((ImportLocalFilesGroup) adapterData.getGroupOfType(GroupType.TYPE_IMPORT_LOCAL_FILES));
+        viewStateObservable.setValue(new ImportSettingsDialogViewState.DismissDialogState.ReportImportFilesState(filesToImport));
+    }
+
+    @NonNull
+    private List<File> getFilesToImport(ImportLocalFilesGroup group) {
+        List<File> filesToImport = new ArrayList<>();
+
+        List<ImportSettingsAdapterData.Item> items = group.getChildren();
+
+        for (ImportSettingsAdapterData.Item item : items) {
+            ImportSettingsAdapterData.GroupEntryFile fileEntry = (ImportSettingsAdapterData.GroupEntryFile) item;
+
+            if (fileEntry.isChecked()) {
+                filesToImport.add(fileEntry.getFile());
+            }
+        }
+
+        return filesToImport;
     }
 
     @Nullable

@@ -2,6 +2,9 @@ package nl.erikduisters.pathfinder.ui.dialog.import_settings;
 
 import android.support.annotation.NonNull;
 
+import java.io.File;
+import java.util.List;
+
 import nl.erikduisters.pathfinder.service.gpsies_service.SearchTracks;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
@@ -31,11 +34,19 @@ public interface ImportSettingsDialogViewState {
     }
 
     interface DismissDialogState extends ImportSettingsDialogViewState {
-        final class ReportGpsiesServiceJobState implements DismissDialogState {
-            SearchTracks.JobInfo jobInfo;
+        final class ReportSearchTracksState implements DismissDialogState {
+            final @NonNull SearchTracks.JobInfo jobInfo;
 
-            ReportGpsiesServiceJobState(SearchTracks.JobInfo jobInfo) {
+            ReportSearchTracksState(@NonNull SearchTracks.JobInfo jobInfo) {
                 this.jobInfo = jobInfo;
+            }
+        }
+
+        final class ReportImportFilesState implements DismissDialogState {
+            final @NonNull List<File> filesToImport;
+
+            ReportImportFilesState(@NonNull List<File> filesToImport) {
+                this.filesToImport = filesToImport;
             }
         }
     }

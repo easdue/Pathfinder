@@ -14,6 +14,7 @@ import java.util.List;
  */
 public abstract class ImportJob<T extends ImportJob.JobInfo> {
     protected @NonNull T jobInfo;
+    protected volatile boolean isCanceled;
 
     public ImportJob(@NonNull T jobInfo) {
         this.jobInfo = jobInfo;
@@ -23,7 +24,7 @@ public abstract class ImportJob<T extends ImportJob.JobInfo> {
     public abstract void removeTrack(String trackIdentifier);
     public abstract @NonNull String getTrackIdentifier(int track);
     public abstract @NonNull List<String> getTrackIdentifiers();
-    public abstract void cancel();
+    public void cancel() { isCanceled = true; }
 
     /**
      * Returns an InputStream to the GPX data
@@ -37,6 +38,8 @@ public abstract class ImportJob<T extends ImportJob.JobInfo> {
      */
     public @Nullable
     abstract InputStream getInputStream(int track, Context context, Callback callback) throws RuntimeException, IOException;
+
+    abstract void cleanupResource(int track);
 
     public interface Callback {
         void showNotification(String title, String text);

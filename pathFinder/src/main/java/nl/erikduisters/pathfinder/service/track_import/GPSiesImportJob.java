@@ -40,7 +40,6 @@ public class GPSiesImportJob extends ImportJob<GPSiesImportJob.JobInfo> {
     private final ConnectivityBroadCastReceiver connectivityBroadCastReceiver;
     private final NetworkCallback networkCallback;
     private final Object waitLock;
-    private volatile boolean isCanceled;
 
     public GPSiesImportJob(@NonNull JobInfo jobInfo, Context context, OkHttpClient okHttpClient) {
         super(jobInfo);
@@ -83,7 +82,7 @@ public class GPSiesImportJob extends ImportJob<GPSiesImportJob.JobInfo> {
 
     @Override
     public void cancel() {
-        isCanceled = true;
+        super.cancel();
 
         if (Build.VERSION.SDK_INT < 21) {
             context.unregisterReceiver(connectivityBroadCastReceiver);
@@ -142,6 +141,11 @@ public class GPSiesImportJob extends ImportJob<GPSiesImportJob.JobInfo> {
         }
 
         return null;
+    }
+
+    @Override
+    void cleanupResource(int track) {
+        return;
     }
 
     private void waitForNetwork(Callback callback) {

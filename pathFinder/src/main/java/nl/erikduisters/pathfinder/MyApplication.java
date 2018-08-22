@@ -56,6 +56,7 @@ public class MyApplication extends Application implements HasActivityInjector, H
         }
 
         //TODO: Maybe make this optional through a preference
+        //TODO: I have excluded firebase-core (Analytics) in build.gradle because if Crashlytics is disabled here it crashed my app on at least API 19 due to "too many open files"
         if (Build.PRODUCT.startsWith("sdk") || Build.PRODUCT.startsWith("vbox")) {
             Timber.d("Disabled Crashlytics");
             CrashlyticsCore disabled = new CrashlyticsCore.Builder()

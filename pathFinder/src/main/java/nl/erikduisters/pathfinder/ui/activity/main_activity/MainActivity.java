@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -491,12 +492,10 @@ public class MainActivity
                 viewModel.onImportSettingsDialogDismissed(jobInfo);
             }
 
-            /* TODO
             @Override
-            public void onImportSettingsDialogDismissed(TrackImportService.Job) {
-                viewModel.onImportSettingsDialogDismissed(xx);
+            public void onImportSettingsDialogDismissed(List<File> filesToImport) {
+                viewModel.onImportSettingsDialogDismissed(filesToImport, MainActivity.this);
             }
-            */
 
             @Override
             public void onImportSettingsDialogCancelled() {
@@ -528,7 +527,7 @@ public class MainActivity
     }
 
     @Override
-    public void scheduleTrackDownload(ImportJob.JobInfo jobInfo) {
+    public void scheduleTrackImport(ImportJob.JobInfo jobInfo) {
         Intent intent = new Intent(TrackImportService.ACTION_IMPORT_TRACKS);
         intent.putExtra(TrackImportService.EXTRA_IMPORT_TRACKS_JOB_INFO, jobInfo);
 

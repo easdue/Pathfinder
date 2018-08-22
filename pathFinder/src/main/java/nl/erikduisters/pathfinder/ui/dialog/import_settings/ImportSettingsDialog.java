@@ -15,6 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.File;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 import butterknife.BindView;
@@ -38,7 +41,7 @@ public class ImportSettingsDialog
 
     public interface Listener {
         void onImportSettingsDialogDismissed(SearchTracks.JobInfo jobInfo);
-        //TODO: void onImportSettingsDialogDismissed(TrackImportService.Job)
+        void onImportSettingsDialogDismissed(List<File> filesToImport);
         void onImportSettingsDialogCancelled();
     }
 
@@ -163,9 +166,15 @@ public class ImportSettingsDialog
     }
 
     private void render(DismissDialogState state) {
-        if (state instanceof DismissDialogState.ReportGpsiesServiceJobState) {
+        if (state instanceof DismissDialogState.ReportSearchTracksState) {
             if (listener != null) {
-                listener.onImportSettingsDialogDismissed(((DismissDialogState.ReportGpsiesServiceJobState)state).jobInfo);
+                listener.onImportSettingsDialogDismissed(((DismissDialogState.ReportSearchTracksState)state).jobInfo);
+            }
+        }
+
+        if (state instanceof DismissDialogState.ReportImportFilesState) {
+            if (listener != null) {
+                listener.onImportSettingsDialogDismissed(((DismissDialogState.ReportImportFilesState)state).filesToImport);
             }
         }
 

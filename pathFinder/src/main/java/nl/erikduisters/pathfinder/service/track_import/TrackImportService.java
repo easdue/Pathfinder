@@ -118,6 +118,8 @@ public class TrackImportService extends JobIntentService implements ImportJob.Ca
 
         if (jobInfo instanceof GPSiesImportJob.JobInfo) {
             currentImportJob = new GPSiesImportJob((GPSiesImportJob.JobInfo) jobInfo, this, okHttpClient);
+        } else if (jobInfo instanceof LocalImportJob.JobInfo) {
+            currentImportJob = new LocalImportJob((LocalImportJob.JobInfo) jobInfo);
         } else {
             throw new IllegalStateException("I do not know how to handle: " + jobInfo.getClass().getName());
         }
@@ -134,17 +136,19 @@ public class TrackImportService extends JobIntentService implements ImportJob.Ca
         float progressIncrement = 100 / numTracks;
         int failedImports = 0;
 
-        showProgressNotification(curTrackIdx + 1, numTracks, 0);
+        showProgressNotification(curTrackIdx + 1, numTracks, 1);
 
         while (!isStopped() && !canceled && curTrackIdx < numTracks) {
             try (InputStream inputStream = currentImportJob.getInputStream(curTrackIdx, this, this)) {
                 if (!canceled) {
-                    System.setProperty("sjxp.debug", "true");
+                    //System.setProperty("sjxp.debug", "true");
                     Gpx gpx = gpxReader.doImport(inputStream);
 
                     FullTrack track = new FullTrack(gpx);
 
                     trackRepository.save(track);
+
+                    currentImportJob.cleanupResource(curTrackIdx);
 
                     downloadedTrackIdentifiers.add(currentImportJob.getTrackIdentifier(curTrackIdx));
                     preferenceManager.setDownloadedTrackIdentifiers(downloadedTrackIdentifiers);
@@ -156,11 +160,13 @@ public class TrackImportService extends JobIntentService implements ImportJob.Ca
                 Timber.d(e.getMessage());
 
                 curTrackIdx++;
+                showProgressNotification(Math.min(curTrackIdx + 1, numTracks), numTracks, Math.round((curTrackIdx) * progressIncrement));
                 failedImports++;
                 Crashlytics.logException(e);
             }  catch (IOException e) {
                 curTrackIdx++;
-
+                showProgressNotification(Math.min(curTrackIdx + 1, numTracks), numTracks, Math.round((curTrackIdx) * progressIncrement));
+                failedImports++;
                 Crashlytics.logException(e);
             }
         }
