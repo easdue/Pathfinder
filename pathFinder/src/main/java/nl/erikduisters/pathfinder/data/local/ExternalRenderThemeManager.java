@@ -15,9 +15,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import nl.erikduisters.pathfinder.data.model.map.AssetsThemeFile;
-import nl.erikduisters.pathfinder.data.model.map.ExternalThemeFile;
-import nl.erikduisters.pathfinder.data.model.map.StorageThemeFile;
+import nl.erikduisters.pathfinder.util.map.AssetsThemeFile;
+import nl.erikduisters.pathfinder.util.map.ExternalThemeFile;
+import nl.erikduisters.pathfinder.util.map.StorageThemeFile;
 
 /**
  * Created by Erik Duisters on 22-07-2018.

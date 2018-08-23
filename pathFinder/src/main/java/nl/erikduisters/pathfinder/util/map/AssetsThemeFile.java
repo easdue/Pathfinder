@@ -1,36 +1,37 @@
-package nl.erikduisters.pathfinder.data.model.map;
+package nl.erikduisters.pathfinder.util.map;
 
 import android.support.annotation.NonNull;
 
+import org.oscim.backend.AssetAdapter;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.ThemeUtils;
 import org.oscim.theme.XmlRenderThemeMenuCallback;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 /**
  * Created by Erik Duisters on 22-07-2018.
  */
-public class StorageThemeFile implements ExternalThemeFile {
+public class AssetsThemeFile implements ExternalThemeFile {
     private final String themeName;
-    private final File renderTheme;
+    private final String absFileName;
+    private final String relativePathPrefix;
     private XmlRenderThemeMenuCallback menuCallback;
 
-    public StorageThemeFile(File renderTheme) {
-        this(renderTheme, null);
+    public AssetsThemeFile(String themeFile) {
+        this(themeFile, null);
     }
 
-    public StorageThemeFile(File renderTheme, XmlRenderThemeMenuCallback menuCallback) {
-        String name = renderTheme.getName();
+    public AssetsThemeFile(String absFileName, XmlRenderThemeMenuCallback menuCallback) {
+        File themeFile = new File(absFileName);
 
+        String name = themeFile.getName();
         themeName = name.substring(0, name.toLowerCase().indexOf(".xml"));
-        this.renderTheme = renderTheme;
+        this.absFileName = absFileName;
+        relativePathPrefix = themeFile.getParent();
         this.menuCallback = menuCallback;
     }
-
     @Override
     public String getThemeName() {
         return themeName;
@@ -43,18 +44,14 @@ public class StorageThemeFile implements ExternalThemeFile {
 
     @Override
     public String getRelativePathPrefix() {
-        return renderTheme.getParent();
+        return relativePathPrefix;
     }
 
     @Override
     public InputStream getRenderThemeAsStream() throws IRenderTheme.ThemeException {
-        InputStream is;
+        InputStream is = AssetAdapter.readFileAsStream(absFileName);
 
-        try {
-            is = new FileInputStream(renderTheme);
-        } catch (FileNotFoundException e) {
-            throw new IRenderTheme.ThemeException(e.getMessage());
-        }
+        if (is == null) throw new IRenderTheme.ThemeException(absFileName + " cannot be read from assets");
 
         return is;
     }

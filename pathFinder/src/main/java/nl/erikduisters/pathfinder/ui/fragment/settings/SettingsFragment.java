@@ -27,13 +27,13 @@ import dagger.android.support.AndroidSupportInjection;
 import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.ExternalRenderThemeManager;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
-import nl.erikduisters.pathfinder.data.model.map.ExternalThemeFile;
-import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
-import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.ui.activity.map_download.MapDownloadActivity;
 import nl.erikduisters.pathfinder.ui.activity.settings.SettingsActivity;
 import nl.erikduisters.pathfinder.ui.preference.ListPreferenceWithButton;
 import nl.erikduisters.pathfinder.ui.preference.ListPreferenceWithButtonDialogFragment;
+import nl.erikduisters.pathfinder.util.map.ExternalThemeFile;
+import nl.erikduisters.pathfinder.util.map.OnlineMap;
+import nl.erikduisters.pathfinder.util.map.ScaleBarType;
 import timber.log.Timber;
 
 /**

@@ -1,4 +1,4 @@
-package nl.erikduisters.pathfinder.data.model.map;
+package nl.erikduisters.pathfinder.util.map;
 
 import android.content.Context;
 import android.support.annotation.StringRes;

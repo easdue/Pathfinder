@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import org.oscim.core.MapPosition;
 
-import nl.erikduisters.pathfinder.data.model.map.LocationLayerInfo;
+import nl.erikduisters.pathfinder.util.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 
 /**

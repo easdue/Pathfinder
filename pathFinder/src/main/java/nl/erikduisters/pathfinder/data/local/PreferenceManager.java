@@ -22,8 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import nl.erikduisters.pathfinder.R;
-import nl.erikduisters.pathfinder.data.model.map.OnlineMap;
-import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
 import nl.erikduisters.pathfinder.di.ApplicationContext;
 import nl.erikduisters.pathfinder.util.BoundingBox;
 import nl.erikduisters.pathfinder.util.Coordinate;
@@ -31,6 +29,8 @@ import nl.erikduisters.pathfinder.util.Distance;
 import nl.erikduisters.pathfinder.util.FileUtil;
 import nl.erikduisters.pathfinder.util.Speed;
 import nl.erikduisters.pathfinder.util.Units;
+import nl.erikduisters.pathfinder.util.map.OnlineMap;
+import nl.erikduisters.pathfinder.util.map.ScaleBarType;
 import timber.log.Timber;
 
 /**

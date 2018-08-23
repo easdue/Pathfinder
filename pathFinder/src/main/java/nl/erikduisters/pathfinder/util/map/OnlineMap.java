@@ -1,4 +1,4 @@
-package nl.erikduisters.pathfinder.data.model.map;
+package nl.erikduisters.pathfinder.util.map;
 
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.OkHttpEngine;

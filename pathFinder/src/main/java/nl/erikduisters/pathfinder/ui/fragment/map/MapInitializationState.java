@@ -7,7 +7,7 @@ import android.support.annotation.StringRes;
 import org.oscim.theme.IRenderTheme;
 import org.oscim.tiling.TileSource;
 
-import nl.erikduisters.pathfinder.data.model.map.ScaleBarType;
+import nl.erikduisters.pathfinder.util.map.ScaleBarType;
 
 /**
  * Created by Erik Duisters on 06-07-2018.
