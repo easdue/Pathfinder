@@ -304,6 +304,9 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     void onSelectTracksToImportDialogDismissed(List<String> selectedTrackFileIds, TrackImportScheduler trackImportScheduler) {
         ImportJob.JobInfo jobInfo = new GPSiesImportJob.JobInfo(selectedTrackFileIds);
         trackImportScheduler.scheduleTrackImport(jobInfo);
+
+        InitializedState currentState = getCurrentInitializedState();
+        mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState));
     }
 
     void onSelectTracksToImportDialogCancelled() {
