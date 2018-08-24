@@ -44,6 +44,15 @@ public class GpsiesGPXReader extends GPXReader {
 
     @Override
     void addMetaDataExtensionsRules(String extensionsPath) {
+        rules.add(new DefaultRule<Gpx>(IRule.Type.TAG, extensionsPath) {
+            @Override
+            public void handleTag(XMLParser<Gpx> parser, boolean isStartTag, Gpx gpx) {
+                if (isStartTag) {
+                    gpsiesMetaDataExtensions = null;
+                }
+            }
+        });
+
         String gpsiesPath = addNameSpace("/property", GPSIES_V1_0_NS);
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
@@ -95,6 +104,15 @@ public class GpsiesGPXReader extends GPXReader {
 
     @Override
     void addWptExtensionsRules(String extensionsPath) {
+        rules.add(new DefaultRule<Gpx>(IRule.Type.TAG, extensionsPath) {
+            @Override
+            public void handleTag(XMLParser<Gpx> parser, boolean isStartTag, Gpx gpx) {
+                if (isStartTag) {
+                    gpsiesWptExtensions = null;
+                }
+            }
+        });
+
         String gpsiesPath = addNameSpace("/course", GPSIES_V1_0_NS);
         rules.add(new DefaultRule<Gpx>(IRule.Type.CHARACTER, extensionsPath + gpsiesPath) {
             @Override
