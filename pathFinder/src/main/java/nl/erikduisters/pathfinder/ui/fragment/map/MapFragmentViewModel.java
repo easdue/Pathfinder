@@ -483,6 +483,8 @@ public class MapFragmentViewModel
         Timber.e("onMapPositionChangedByUser");
 
         mapFragmentViewStateBuilder.getMapPosition().copy(mapPosition);
+
+        preferenceManager.setMapPosition(mapPosition);
     }
 
     void onSaveState() {
