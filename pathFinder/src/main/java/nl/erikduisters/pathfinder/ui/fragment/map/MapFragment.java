@@ -25,6 +25,8 @@ import org.oscim.event.MotionEvent;
 import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
 import org.oscim.layers.LocationTextureLayer;
+import org.oscim.layers.marker.ItemizedLayer;
+import org.oscim.layers.marker.MarkerItem;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -86,6 +88,7 @@ public class MapFragment
     private DefaultMapScaleBar scaleBar;
     private TextureRegion locationFixedRegion;
     private TextureRegion locationNotFixedRegion;
+    private MinimalTrackLayer minimalTrackLayer;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -180,6 +183,10 @@ public class MapFragment
         if (currentMapFragmentViewState == null || currentMapFragmentViewState.optionsMenu != viewState.optionsMenu) {
             this.optionsMenu = viewState.optionsMenu;
             invalidateOptionsMenu();
+        }
+
+        if (currentMapFragmentViewState == null || currentMapFragmentViewState.minimalTrackList != viewState.minimalTrackList) {
+            minimalTrackLayer.setMinimalTrackList(viewState.minimalTrackList);
         }
 
         handleLocationLayerInfo(viewState.locationLayerInfo);
@@ -277,6 +284,24 @@ public class MapFragment
         if (state.addLocationLayer) {
             addLocationLayer(state.locationFixedMarkerSvgResId, state.locationNotFixedMarkerSvgResId);
         }
+
+        minimalTrackLayer = new MinimalTrackLayer(map, requireContext());
+        minimalTrackLayer.setOnItemGestureListener(new ItemizedLayer.OnItemGestureListener<MarkerItem>() {
+            @Override
+            public boolean onItemSingleTapUp(int index, MarkerItem item) {
+                //TODO
+                Timber.d("onItemSingleTapUp(%d, %s)", index, item.getTitle());
+                return false;
+            }
+
+            @Override
+            public boolean onItemLongPress(int index, MarkerItem item) {
+                //TODO
+                Timber.d("onItemLongPress(%d, %s)", index, item.getTitle());
+                return false;
+            }
+        });
+        layers.add(minimalTrackLayer);
     }
 
     private void addScaleBarLayer(ScaleBarType scaleBarType) {

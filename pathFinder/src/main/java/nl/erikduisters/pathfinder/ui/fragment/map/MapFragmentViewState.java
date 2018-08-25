@@ -1,9 +1,11 @@
 package nl.erikduisters.pathfinder.ui.fragment.map;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.oscim.core.MapPosition;
 
+import nl.erikduisters.pathfinder.data.model.MinimalTrackList;
 import nl.erikduisters.pathfinder.util.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
 
@@ -18,6 +20,7 @@ public final class MapFragmentViewState {
     @NonNull final MyMenu optionsMenu;
     @NonNull final MapPosition mapPosition;
     @NonNull final LocationLayerInfo locationLayerInfo;
+    @Nullable final MinimalTrackList minimalTrackList;
 
     private MapFragmentViewState(Builder builder) {
         zoomEnabled = builder.zoomEnabled;
@@ -27,6 +30,7 @@ public final class MapFragmentViewState {
         optionsMenu = builder.optionsMenu;
         mapPosition = builder.mapPosition;
         locationLayerInfo = builder.locationLayerInfo;
+        minimalTrackList = builder.minimalTrackList;
     }
 
     public static final class Builder {
@@ -37,6 +41,7 @@ public final class MapFragmentViewState {
         private MyMenu optionsMenu;
         private MapPosition mapPosition;
         private LocationLayerInfo locationLayerInfo;
+        private MinimalTrackList minimalTrackList;
 
         public Builder() {
         }
@@ -82,6 +87,11 @@ public final class MapFragmentViewState {
 
         public LocationLayerInfo getLocationLayerInfo() {
             return locationLayerInfo;
+        }
+
+        public Builder withMinimalTrackList(@Nullable MinimalTrackList minimalTrackList) {
+            this.minimalTrackList = minimalTrackList;
+            return this;
         }
 
         public MapFragmentViewState build() {

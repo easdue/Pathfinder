@@ -37,11 +37,13 @@ import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.HeadingManager;
 import nl.erikduisters.pathfinder.data.local.MinimalTrackListLoader;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
+import nl.erikduisters.pathfinder.data.model.MinimalTrackList;
 import nl.erikduisters.pathfinder.data.usecase.LoadRenderTheme;
 import nl.erikduisters.pathfinder.data.usecase.UseCase;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializedState;
 import nl.erikduisters.pathfinder.util.BoundingBox;
 import nl.erikduisters.pathfinder.util.IntegerDegrees;
+import nl.erikduisters.pathfinder.util.SingleSourceMediatorLiveData;
 import nl.erikduisters.pathfinder.util.StringProvider;
 import nl.erikduisters.pathfinder.util.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
@@ -62,7 +64,7 @@ public class MapFragmentViewModel
         implements GpsManager.GpsFixListener, HeadingManager.HeadingListener,
                    SharedPreferences.OnSharedPreferenceChangeListener, GpsManager.LocationListener {
     private MutableLiveData<MapInitializationState> mapInitializationStateObservable;
-    private MutableLiveData<MapFragmentViewState> mapFragmentViewStateObservable;
+    private SingleSourceMediatorLiveData<MapFragmentViewState> mapFragmentViewStateObservable;
 
     private final PreferenceManager preferenceManager;
     private final GpsManager gpsManager;
@@ -113,7 +115,14 @@ public class MapFragmentViewModel
 
     private void initLiveData() {
         mapInitializationStateObservable = new MutableLiveData<>();
-        mapFragmentViewStateObservable = new MutableLiveData<>();
+        mapFragmentViewStateObservable = new SingleSourceMediatorLiveData<>();
+        mapFragmentViewStateObservable.addSource(minimalTrackListLoader.getMinimalTrackListObservable(), this::minimalTrackListToViewState);
+    }
+
+    private void minimalTrackListToViewState(MinimalTrackList minimalTrackList) {
+        mapFragmentViewStateBuilder.withMinimalTrackList(minimalTrackList);
+
+        setMapFragmentViewStateIfInitialized();
     }
 
     private void initMapFragmentViewStateBuilder() {
@@ -468,7 +477,7 @@ public class MapFragmentViewModel
         updateMapFragmentViewState(followGps);
 
         if (followGps) {
-            Location lastKnownLocation = preferenceManager.getLastKnownLocation();
+            Location lastKnownLocation = gpsManager.getLastKnowLocation();
             onLocationChanged(lastKnownLocation);
             minimalTrackListLoader.onLocationChanged(lastKnownLocation);
         } else {
