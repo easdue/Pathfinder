@@ -32,7 +32,7 @@ import javax.inject.Singleton;
 
 import timber.log.Timber;
 
-//TODO: User localbroadcast instead of listeners
+//TODO: Use LiveData instead of listeners
 //TODO: Update to the new GNSS but there are issues see comment in SatelliteInfo below
 /**
  * Created by Erik Duisters on 03-01-2017.
@@ -500,14 +500,14 @@ public class GpsManager implements
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
 
-            Timber.d("onLocationResult - NumLocations: %d", locationResult.getLocations().size());
+            //Timber.d("onLocationResult - NumLocations: %d", locationResult.getLocations().size());
             onLocationChanged(locationResult.getLastLocation());
 
         }
 
         @Override
         public void onLocationChanged(Location location) {
-            Timber.d("onLocationChanged received: %s", location == null ? "null" : location.toString());
+            //Timber.d("onLocationChanged received: %s", location == null ? "null" : location.toString());
 
             if (location == null) {
                 return;
@@ -632,7 +632,7 @@ public class GpsManager implements
                 satInfoList.add(new SatelliteInfo(status, i));
             }
 
-            Collections.sort(satInfoList, new CompareGpsSatellites());
+            Collections.sortByDistance(satInfoList, new CompareGpsSatellites());
 
             if (listener != null) {
                 listener.onSatelliteStatusChanged(satInfoList);
