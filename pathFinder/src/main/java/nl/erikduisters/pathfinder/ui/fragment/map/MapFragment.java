@@ -17,6 +17,8 @@ import android.widget.TextView;
 import org.oscim.android.MapView;
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
+import org.oscim.backend.canvas.Color;
+import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.event.Event;
 import org.oscim.event.Gesture;
@@ -25,8 +27,8 @@ import org.oscim.event.MotionEvent;
 import org.oscim.layers.AbstractMapEventLayer;
 import org.oscim.layers.Layer;
 import org.oscim.layers.LocationTextureLayer;
+import org.oscim.layers.PathLayer;
 import org.oscim.layers.marker.ItemizedLayer;
-import org.oscim.layers.marker.MarkerItem;
 import org.oscim.layers.tile.bitmap.BitmapTileLayer;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.OsmTileLayer;
@@ -54,6 +56,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import nl.erikduisters.pathfinder.R;
+import nl.erikduisters.pathfinder.data.local.database.TrackPoint;
+import nl.erikduisters.pathfinder.data.model.FullTrack;
 import nl.erikduisters.pathfinder.ui.BaseFragment;
 import nl.erikduisters.pathfinder.ui.fragment.ViewPagerFragment;
 import nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.MapInitializedState;
@@ -71,13 +75,20 @@ import static android.view.View.VISIBLE;
  */
 
 //TODO: Persist Cookies https://gist.github.com/atoennis/c12c56a61f0a284cbaa5
-//TODO: If current map == online map keep track of network availability and show the user when network is not available
+//TODO: If current map == online map, keep track of network availability and show the user when network is not available
+/*TODO: When FullTrack is available:
+            Show Waypoints
+            Show TrackPoints when zoomlevel > 12
+            Show next Trackpoint highlighted and compass should point to the next trackpoint
+            Hide trackmarker and show start and end markers
+            Optimize trackpoint using Douglas-Peucker algorithm
+*/
 public class MapFragment
         extends BaseFragment<MapFragmentViewModel>
         implements Map.UpdateListener, ViewPagerFragment {
     @BindView(R.id.mapView) MapView mapView;
     //@BindView(R.id.progressGroup) View progressGroup;
-    @BindView(R.id.scrimm) View  scrimm;
+    @BindView(R.id.scrimm) View scrimm;
     @BindView(R.id.progressBar) ProgressBar progressBar;
     @BindView(R.id.progressMessage) TextView progressMessage;
 
@@ -89,6 +100,7 @@ public class MapFragment
     private TextureRegion locationFixedRegion;
     private TextureRegion locationNotFixedRegion;
     private MinimalTrackLayer minimalTrackLayer;
+    private PathLayer trackLayer;
 
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -189,6 +201,28 @@ public class MapFragment
             minimalTrackLayer.setMinimalTrackList(viewState.minimalTrackList);
         }
 
+        if (currentMapFragmentViewState == null || currentMapFragmentViewState.fullTrack != viewState.fullTrack) {
+            trackLayer.clearPath();
+
+            if (viewState.fullTrack != null) {
+                int numTrackPoints = 0;
+
+                for (FullTrack.TrackSegment trackSegment : viewState.fullTrack.getTrackSegments()) {
+                    numTrackPoints += trackSegment.getTrackPoints().size();
+                }
+
+                List<GeoPoint> geoPoints = new ArrayList<>(numTrackPoints);
+
+                for (FullTrack.TrackSegment trackSegment : viewState.fullTrack.getTrackSegments()) {
+                    for (TrackPoint trackPoint : trackSegment.getTrackPoints()) {
+                        geoPoints.add(new GeoPoint(trackPoint.latitude, trackPoint.longitude));
+                    }
+                }
+
+                trackLayer.addPoints(geoPoints);
+            }
+        }
+
         handleLocationLayerInfo(viewState.locationLayerInfo);
         map.setMapPosition(viewState.mapPosition);
 
@@ -286,21 +320,26 @@ public class MapFragment
         }
 
         minimalTrackLayer = new MinimalTrackLayer(map, requireContext());
-        minimalTrackLayer.setOnItemGestureListener(new ItemizedLayer.OnItemGestureListener<MarkerItem>() {
+        minimalTrackLayer.setOnItemGestureListener(new ItemizedLayer.OnItemGestureListener<MinimalTrackMarker>() {
             @Override
-            public boolean onItemSingleTapUp(int index, MarkerItem item) {
-                //TODO
-                Timber.d("onItemSingleTapUp(%d, %s)", index, item.getTitle());
-                return false;
+            public boolean onItemSingleTapUp(int index, MinimalTrackMarker marker) {
+                Timber.d("onItemSingleTapUp: new track selected: id: %d, name: %s", marker.getMinimalTrack().id, marker.getMinimalTrack().name);
+                viewModel.onMinimalTrackClicked(marker.getMinimalTrack());
+
+                return true;
             }
 
             @Override
-            public boolean onItemLongPress(int index, MarkerItem item) {
-                //TODO
-                Timber.d("onItemLongPress(%d, %s)", index, item.getTitle());
+            public boolean onItemLongPress(int index, MinimalTrackMarker marker) {
                 return false;
             }
         });
+
+
+        //TODO: Zoom dependent lineWidth????
+        trackLayer = new PathLayer(map, Color.CYAN, 6);
+        layers.add(trackLayer);
+
         layers.add(minimalTrackLayer);
     }
 

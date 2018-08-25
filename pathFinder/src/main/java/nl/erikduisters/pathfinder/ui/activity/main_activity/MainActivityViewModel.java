@@ -50,6 +50,7 @@ import timber.log.Timber;
 //TODO: Enable/Disable navigation view menu items
 //TODO: Add a navigation options menu item allowing the user to manage external maps (eg. delete/download)
 //TODO: Allow the user to move storage from internal to external or visa versa
+//TODO: Allow the user to start and stop recording a track
 /**
  * Created by Erik Duisters on 03-06-2018.
  */

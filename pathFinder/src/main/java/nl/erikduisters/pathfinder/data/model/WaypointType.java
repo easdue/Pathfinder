@@ -7,6 +7,8 @@ import nl.erikduisters.pathfinder.R;
 /**
  * Created by Erik Duisters on 14-06-2018.
  */
+
+//TODO: Find / Create svg images for all WaypointTypes
 public enum WaypointType {
     GENERIC(0, "Generic", R.string.waypoint_type_generic),
     SUMMIT(1, "Summit", R.string.waypoint_type_summit),

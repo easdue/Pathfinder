@@ -37,6 +37,9 @@ import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.HeadingManager;
 import nl.erikduisters.pathfinder.data.local.MinimalTrackListLoader;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
+import nl.erikduisters.pathfinder.data.local.SelectedTrackLoader;
+import nl.erikduisters.pathfinder.data.model.FullTrack;
+import nl.erikduisters.pathfinder.data.model.MinimalTrack;
 import nl.erikduisters.pathfinder.data.model.MinimalTrackList;
 import nl.erikduisters.pathfinder.data.usecase.LoadRenderTheme;
 import nl.erikduisters.pathfinder.data.usecase.UseCase;
@@ -57,12 +60,12 @@ import static nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.
 /**
  * Created by Erik Duisters on 28-06-2018.
  */
-
+//TODO: Show currently recording track
 @Singleton
 public class MapFragmentViewModel
         extends ViewModel
         implements GpsManager.GpsFixListener, HeadingManager.HeadingListener,
-                   SharedPreferences.OnSharedPreferenceChangeListener, GpsManager.LocationListener {
+                   SharedPreferences.OnSharedPreferenceChangeListener, GpsManager.LocationListener, SelectedTrackLoader.Listener {
     private MutableLiveData<MapInitializationState> mapInitializationStateObservable;
     private SingleSourceMediatorLiveData<MapFragmentViewState> mapFragmentViewStateObservable;
 
@@ -73,12 +76,14 @@ public class MapFragmentViewModel
     private final OkHttpClient okHttpClient;
     private final ExternalRenderThemeManager externalRenderThemeManager;
     private final MinimalTrackListLoader minimalTrackListLoader;
+    private final SelectedTrackLoader selectedTrackLoader;
 
     private MapInitializedState.Builder mapInitializedStateBuilder;
     private MapFragmentViewState.Builder mapFragmentViewStateBuilder;
 
     private UseCaseJob renderThemeJob;
     @Nullable private Viewport viewport;
+    private long selectedTrackId;
 
     @Inject
     MapFragmentViewModel(PreferenceManager preferenceManager,
@@ -87,7 +92,8 @@ public class MapFragmentViewModel
                          HeadingManager headingManager,
                          OkHttpClient okHttpClient,
                          ExternalRenderThemeManager externalRenderThemeManager,
-                         MinimalTrackListLoader minimalTrackListLoader) {
+                         MinimalTrackListLoader minimalTrackListLoader,
+                         SelectedTrackLoader selectedTrackLoader) {
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
         this.backgroundJobHandler = backgroundJobHandler;
@@ -95,12 +101,17 @@ public class MapFragmentViewModel
         this.okHttpClient = okHttpClient;
         this.externalRenderThemeManager = externalRenderThemeManager;
         this.minimalTrackListLoader = minimalTrackListLoader;
+        this.selectedTrackLoader = selectedTrackLoader;
+
+        this.selectedTrackLoader.addListener(this);
 
         initLiveData();
         initMapFragmentViewStateBuilder();
         initMapInitializedStateBuilder();
 
         preferenceManager.registerOnSharedPreferenceChangeListener(this);
+
+        selectedTrackId = 0;
     }
 
     @Override
@@ -108,6 +119,8 @@ public class MapFragmentViewModel
         super.onCleared();
 
         preferenceManager.unregisterOnSharedPreferenceChangeListener(this);
+        selectedTrackLoader.removeListener(this);
+        selectedTrackId = 0;
     }
 
     LiveData<MapInitializationState> getMapInitializationStateObservable() { return mapInitializationStateObservable; }
@@ -677,6 +690,21 @@ public class MapFragmentViewModel
     private void setMapFragmentViewStateIfInitialized() {
         if (mapInitializationStateObservable.getValue() instanceof MapInitializedState) {
             mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
+        }
+    }
+
+    @Override
+    public void onFullTrackLoaded(@Nullable FullTrack fullTrack) {
+        selectedTrackId = fullTrack.id;
+
+        mapFragmentViewStateBuilder.withFullTrack(fullTrack);
+
+        setMapFragmentViewStateIfInitialized();
+    }
+
+    void onMinimalTrackClicked(MinimalTrack minimalTrack) {
+        if (selectedTrackId != minimalTrack.id) {
+            selectedTrackLoader.loadTrackWithId(minimalTrack.id);
         }
     }
 }

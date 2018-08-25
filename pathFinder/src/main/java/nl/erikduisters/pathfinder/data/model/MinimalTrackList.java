@@ -66,4 +66,15 @@ public class MinimalTrackList {
             }
         }
     }
+
+    @NonNull
+    public MinimalTrack getMinimalTrackWithId(long id) {
+        for (MinimalTrack minimalTrack: minimalTracks) {
+            if (minimalTrack.id == id) {
+                return minimalTrack;
+            }
+        }
+
+        throw new IllegalArgumentException("A MinimalTrack with the requested id is not in the list");
+    }
 }

@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import org.oscim.core.MapPosition;
 
+import nl.erikduisters.pathfinder.data.model.FullTrack;
 import nl.erikduisters.pathfinder.data.model.MinimalTrackList;
 import nl.erikduisters.pathfinder.util.map.LocationLayerInfo;
 import nl.erikduisters.pathfinder.util.menu.MyMenu;
@@ -21,6 +22,7 @@ public final class MapFragmentViewState {
     @NonNull final MapPosition mapPosition;
     @NonNull final LocationLayerInfo locationLayerInfo;
     @Nullable final MinimalTrackList minimalTrackList;
+    @Nullable final FullTrack fullTrack;
 
     private MapFragmentViewState(Builder builder) {
         zoomEnabled = builder.zoomEnabled;
@@ -31,6 +33,7 @@ public final class MapFragmentViewState {
         mapPosition = builder.mapPosition;
         locationLayerInfo = builder.locationLayerInfo;
         minimalTrackList = builder.minimalTrackList;
+        fullTrack = builder.fullTrack;
     }
 
     public static final class Builder {
@@ -42,6 +45,7 @@ public final class MapFragmentViewState {
         private MapPosition mapPosition;
         private LocationLayerInfo locationLayerInfo;
         private MinimalTrackList minimalTrackList;
+        private FullTrack fullTrack;
 
         public Builder() {
         }
@@ -91,6 +95,11 @@ public final class MapFragmentViewState {
 
         public Builder withMinimalTrackList(@Nullable MinimalTrackList minimalTrackList) {
             this.minimalTrackList = minimalTrackList;
+            return this;
+        }
+
+        public Builder withFullTrack(@Nullable FullTrack fullTrack) {
+            this.fullTrack = fullTrack;
             return this;
         }
 

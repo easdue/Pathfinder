@@ -5,9 +5,7 @@ import android.support.annotation.Nullable;
 
 import org.oscim.backend.CanvasAdapter;
 import org.oscim.backend.canvas.Bitmap;
-import org.oscim.core.GeoPoint;
 import org.oscim.layers.marker.ItemizedLayer;
-import org.oscim.layers.marker.MarkerItem;
 import org.oscim.layers.marker.MarkerSymbol;
 import org.oscim.map.Map;
 import org.oscim.utils.IOUtils;
@@ -27,7 +25,8 @@ import nl.erikduisters.pathfinder.data.model.MinimalTrackList;
 //TODO: Item listener
 //TODO: Zoom dependent symbol size
 //TODO: Select track on marker click
-public class MinimalTrackLayer extends ItemizedLayer<MarkerItem> {
+//TODO: Different MarkerSymbol for selected track
+public class MinimalTrackLayer extends ItemizedLayer<MinimalTrackMarker> {
     private MarkerSymbol markerSymbol;
 
     public MinimalTrackLayer(Map map, Context context) {
@@ -60,14 +59,12 @@ public class MinimalTrackLayer extends ItemizedLayer<MarkerItem> {
             return;
         }
 
-        List<MarkerItem> markerItems = new ArrayList<>(minimalTrackList.getMinimalTracks().size());
+        List<MinimalTrackMarker> markerItems = new ArrayList<>(minimalTrackList.getMinimalTracks().size());
 
         for (MinimalTrack minimalTrack : minimalTrackList.getMinimalTracks()) {
-            GeoPoint geoPoint = new GeoPoint(minimalTrack.startLatitude, minimalTrack.startLongitude);
-            MarkerItem markerItem = new MarkerItem(minimalTrack.name, "", geoPoint);
-            markerItem.setMarker(markerSymbol);
+            MinimalTrackMarker marker = new MinimalTrackMarker(minimalTrack, markerSymbol);
 
-            markerItems.add(markerItem);
+            markerItems.add(marker);
         }
 
         addItems(markerItems);

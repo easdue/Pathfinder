@@ -6,6 +6,7 @@ import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -14,6 +15,8 @@ import nl.erikduisters.pathfinder.R;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.MinimalTrackListLoader;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
+import nl.erikduisters.pathfinder.data.local.SelectedTrackLoader;
+import nl.erikduisters.pathfinder.data.model.FullTrack;
 import nl.erikduisters.pathfinder.data.model.MinimalTrack;
 import nl.erikduisters.pathfinder.data.model.MinimalTrackList;
 import nl.erikduisters.pathfinder.ui.fragment.track_list.TrackListFragmentViewState.DataState;
@@ -29,27 +32,32 @@ import timber.log.Timber;
 //TODO: Subscribe to GpsManager and resort MinimalTrackList on every meter moved
 //TODO: Long press starts contextual action mode to allow the user to delete tracks, upload tracks to GPSies.com or Share tracks
 @Singleton
-public class TrackListFragmentViewModel extends ViewModel implements GpsManager.LocationListener, SingleSourceMediatorLiveData.Listener {
+public class TrackListFragmentViewModel extends ViewModel implements GpsManager.LocationListener, SingleSourceMediatorLiveData.Listener, SelectedTrackLoader.Listener {
     private final PreferenceManager preferenceManager;
     private final GpsManager gpsManager;
     private final MinimalTrackListLoader minimalTrackListLoader;
+    private final SelectedTrackLoader selectedTrackLoader;
     private final SingleSourceMediatorLiveData<TrackListFragmentViewState> viewStateObservable;
     private long selectedTrackId;
     private Location sortLocation;
 
     @Inject
-    TrackListFragmentViewModel(PreferenceManager preferenceManager, GpsManager gpsManager, MinimalTrackListLoader minimalTrackListLoader) {
+    TrackListFragmentViewModel(PreferenceManager preferenceManager, GpsManager gpsManager,
+                               MinimalTrackListLoader minimalTrackListLoader, SelectedTrackLoader selectedTrackLoader) {
         Timber.d("New TrackListFragmentViewModel created");
 
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
         this.minimalTrackListLoader = minimalTrackListLoader;
+        this.selectedTrackLoader = selectedTrackLoader;
         selectedTrackId = 0;
         sortLocation = null;
 
         viewStateObservable = new SingleSourceMediatorLiveData<>();
         viewStateObservable.setListener(this);
         viewStateObservable.addSource(minimalTrackListLoader.getMinimalTrackListObservable(), this::minimalTrackListToViewState);
+
+        selectedTrackLoader.addListener(this);
     }
 
     /* First attempt to get livedata updates working
@@ -142,12 +150,16 @@ public class TrackListFragmentViewModel extends ViewModel implements GpsManager.
     }
 
     void onMinimalTrackClicked(MinimalTrack minimalTrack) {
+        setSelectedMinimalTrackState(minimalTrack);
+
+        selectedTrackLoader.loadTrackWithId(minimalTrack.id);
+    }
+
+    private void setSelectedMinimalTrackState(MinimalTrack minimalTrack) {
         DataState currentState = getCurrentDataState();
 
         selectedTrackId = minimalTrack.id;
         viewStateObservable.setValue(new DataState(currentState.minimalTrackList, minimalTrack));
-
-        //TODO: Kickoff loading of FullTrack
     }
 
     @Override
@@ -178,10 +190,23 @@ public class TrackListFragmentViewModel extends ViewModel implements GpsManager.
     }
 
     @Override
+    public void onFullTrackLoaded(@Nullable FullTrack fullTrack) {
+        if (fullTrack == null || selectedTrackId == fullTrack.id) {
+            return;
+        }
+
+        //A track was selected on the map
+        DataState currentState = getCurrentDataState();
+
+        setSelectedMinimalTrackState(currentState.minimalTrackList.getMinimalTrackWithId(fullTrack.id));
+    }
+
+    @Override
     protected void onCleared() {
         super.onCleared();
 
         viewStateObservable.setValue(null);
+        selectedTrackLoader.removeListener(this);
     }
 
     Parcelable onSaveState() {
