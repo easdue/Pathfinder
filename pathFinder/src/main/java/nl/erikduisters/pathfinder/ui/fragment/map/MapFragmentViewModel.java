@@ -59,7 +59,7 @@ import static nl.erikduisters.pathfinder.ui.fragment.map.MapInitializationState.
 public class MapFragmentViewModel
         extends ViewModel
         implements GpsManager.GpsFixListener, HeadingManager.HeadingListener,
-                   SharedPreferences.OnSharedPreferenceChangeListener {
+                   SharedPreferences.OnSharedPreferenceChangeListener, GpsManager.LocationListener {
     private MutableLiveData<MapInitializationState> mapInitializationStateObservable;
     private MutableLiveData<MapFragmentViewState> mapFragmentViewStateObservable;
 
@@ -93,9 +93,6 @@ public class MapFragmentViewModel
         initLiveData();
         initMapFragmentViewStateBuilder();
         initMapInitializedStateBuilder();
-
-        this.gpsManager.addLocationListener(this::onLocationChanged);
-        this.gpsManager.addGpsFixListener(this);
 
         preferenceManager.registerOnSharedPreferenceChangeListener(this);
     }
@@ -499,7 +496,8 @@ public class MapFragmentViewModel
         }
     }
 
-    private void onLocationChanged(Location location) {
+    @Override
+    public void onLocationChanged(Location location) {
         Timber.e("onLocationChanged()");
 
         if (!preferenceManager.mapFollowsGps()) {
@@ -549,10 +547,16 @@ public class MapFragmentViewModel
         if (!preferenceManager.mapDisplaysNorthUp()) {
             headingManager.addHeadingListener(this);
         }
+
+        gpsManager.addLocationListener(this);
+        gpsManager.addGpsFixListener(this);
     }
 
     void onInvisible() {
         headingManager.removeHeadingListener(this);
+
+        gpsManager.removeLocationListener(this);
+        gpsManager.removeGpsFixListener(this);
     }
 
     @Override
