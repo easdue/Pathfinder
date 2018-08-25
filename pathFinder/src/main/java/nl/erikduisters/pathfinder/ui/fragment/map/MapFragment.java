@@ -399,7 +399,6 @@ public class MapFragment
 
     @Override
     public void onVisibilityChanged(boolean visible) {
-        //TODO:
         /*
          * On at least a Samsung Galaxy S5 mini when moving away from the Mapfragment a black screen is displayed
          * by making the mapView invisible the new fragment is magically displayed as it should be

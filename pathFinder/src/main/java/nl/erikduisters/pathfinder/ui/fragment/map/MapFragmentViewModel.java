@@ -35,6 +35,7 @@ import nl.erikduisters.pathfinder.async.UseCaseJob;
 import nl.erikduisters.pathfinder.data.local.ExternalRenderThemeManager;
 import nl.erikduisters.pathfinder.data.local.GpsManager;
 import nl.erikduisters.pathfinder.data.local.HeadingManager;
+import nl.erikduisters.pathfinder.data.local.MinimalTrackListLoader;
 import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.usecase.LoadRenderTheme;
 import nl.erikduisters.pathfinder.data.usecase.UseCase;
@@ -69,6 +70,7 @@ public class MapFragmentViewModel
     private final HeadingManager headingManager;
     private final OkHttpClient okHttpClient;
     private final ExternalRenderThemeManager externalRenderThemeManager;
+    private final MinimalTrackListLoader minimalTrackListLoader;
 
     private MapInitializedState.Builder mapInitializedStateBuilder;
     private MapFragmentViewState.Builder mapFragmentViewStateBuilder;
@@ -82,13 +84,15 @@ public class MapFragmentViewModel
                          BackgroundJobHandler backgroundJobHandler,
                          HeadingManager headingManager,
                          OkHttpClient okHttpClient,
-                         ExternalRenderThemeManager externalRenderThemeManager) {
+                         ExternalRenderThemeManager externalRenderThemeManager,
+                         MinimalTrackListLoader minimalTrackListLoader) {
         this.preferenceManager = preferenceManager;
         this.gpsManager = gpsManager;
         this.backgroundJobHandler = backgroundJobHandler;
         this.headingManager = headingManager;
         this.okHttpClient = okHttpClient;
         this.externalRenderThemeManager = externalRenderThemeManager;
+        this.minimalTrackListLoader = minimalTrackListLoader;
 
         initLiveData();
         initMapFragmentViewStateBuilder();
@@ -464,7 +468,9 @@ public class MapFragmentViewModel
         updateMapFragmentViewState(followGps);
 
         if (followGps) {
-            onLocationChanged(gpsManager.getLastKnowLocation());
+            Location lastKnownLocation = preferenceManager.getLastKnownLocation();
+            onLocationChanged(lastKnownLocation);
+            minimalTrackListLoader.onLocationChanged(lastKnownLocation);
         } else {
             mapFragmentViewStateObservable.setValue(mapFragmentViewStateBuilder.build());
         }
@@ -480,16 +486,18 @@ public class MapFragmentViewModel
     }
 
     void onMapPositionChangedByUser(MapPosition mapPosition) {
-        Timber.e("onMapPositionChangedByUser");
-
         mapFragmentViewStateBuilder.getMapPosition().copy(mapPosition);
 
         preferenceManager.setMapPosition(mapPosition);
+
+        Location location = new Location("map");
+        location.setLatitude(mapPosition.getLatitude());
+        location.setLongitude(mapPosition.getLongitude());
+
+        minimalTrackListLoader.onMapLocationChanged(location);
     }
 
     void onSaveState() {
-        Timber.e("onSaveState()");
-
         preferenceManager.setMapPosition(mapFragmentViewStateBuilder.getMapPosition());
         if (viewport != null) {
             Box box = viewport.getBBox(null, 0);
@@ -500,8 +508,6 @@ public class MapFragmentViewModel
 
     @Override
     public void onLocationChanged(Location location) {
-        Timber.e("onLocationChanged()");
-
         if (!preferenceManager.mapFollowsGps()) {
             return;
         }
@@ -525,13 +531,11 @@ public class MapFragmentViewModel
 
     @Override
     public void onGpsFixAcquired() {
-        Timber.e("onGpsFixAcquired()");
         handleFixChange(true);
     }
 
     @Override
     public void onGpsFixLost() {
-        Timber.e("onGpsFixLost()");
         handleFixChange(false);
     }
 

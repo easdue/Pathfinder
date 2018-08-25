@@ -7,4 +7,6 @@
     <color name="map_scrimm">#d8ebf4f9</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="list_ripple_color">#0099CC</color>
+    <color name="list_selected_color">#e7e7e7</color>
 </resources>

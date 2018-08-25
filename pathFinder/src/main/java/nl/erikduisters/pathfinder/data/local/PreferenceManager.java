@@ -86,6 +86,7 @@ public class PreferenceManager {
     private final String KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS;
     private final String KEY_DOWNLOADING_TRACK_IDENTIFIERS;
     private final String KEY_DOWNLOADED_TRACK_IDENTIFIERS;
+    private final String KEY_TRACK_LOAD_RADIUS;
 
     private final SharedPreferences preferences;
     private String storageDir;
@@ -140,6 +141,7 @@ public class PreferenceManager {
         KEY_REPORTED_FAILED_MAP_DOWNLOAD_IDS = context.getString(R.string.key_reported_failed_map_download_ids);
         KEY_DOWNLOADING_TRACK_IDENTIFIERS = context.getString(R.string.key_downloading_track_identifiers);
         KEY_DOWNLOADED_TRACK_IDENTIFIERS = context.getString(R.string.key_downloaded_track_identifiers);
+        KEY_TRACK_LOAD_RADIUS = context.getString(R.string.key_track_load_radius);
 
         //preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
         preferences = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
@@ -577,5 +579,10 @@ public class PreferenceManager {
 
     public void setDownloadingTrackIdentifiers(@NonNull List<String> downloadingTrackIdentifiers) {
         setStringList(KEY_DOWNLOADING_TRACK_IDENTIFIERS, downloadingTrackIdentifiers);
+    }
+
+    //TODO: Add to preferences.xml and handle
+    public synchronized int getTrackLoadRadius() {
+        return preferences.getInt(KEY_TRACK_LOAD_RADIUS, 20000);
     }
 }

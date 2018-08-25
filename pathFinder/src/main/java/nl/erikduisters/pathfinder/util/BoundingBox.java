@@ -1,5 +1,6 @@
 package nl.erikduisters.pathfinder.util;
 
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -36,7 +37,7 @@ public class BoundingBox implements Parcelable {
      * @param center The center point of the bounding box
      * @param radius The radius from the center point the bounding box must enclose in meters
      */
-    public BoundingBox(Coordinate center, int radius) {
+    public BoundingBox(Location center, int radius) {
         /*
          * Based on http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates
          */

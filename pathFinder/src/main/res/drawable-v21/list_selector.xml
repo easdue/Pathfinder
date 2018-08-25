@@ -3,14 +3,14 @@
     <item>
         <selector>
             <item android:state_selected="true"
-                  android:drawable="@drawable/list_activated_holo" />
-            <item android:drawable="@android:color/transparent" />
+                  android:drawable="@color/list_selected_color" />
+            <item android:drawable="@color/transparent" />
         </selector>
     </item>
     <item>
-        <ripple android:color="@android:color/holo_blue_dark">
+        <ripple android:color="@color/list_ripple_color">
             <item android:id="@android:id/mask">
-                <color android:color="@android:color/white" />
+                <color android:color="@color/white" />
             </item>
         </ripple>
     </item>

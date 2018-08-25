@@ -35,8 +35,8 @@ public class FullTrack extends nl.erikduisters.pathfinder.data.local.database.Tr
             throw new IllegalArgumentException("The gpx must contain exactly 1 track");
         }
 
-        if (gpx.getMetadata() == null) {
-            throw new IllegalArgumentException("The gpx does not have metadata");
+        if (gpx.getMetadata() == null || gpx.getMetadata().getExtensions().size() == 0) {
+            throw new IllegalArgumentException("This is not a gpsies.com gpx file");
         }
 
         addFromMetaData(gpx.getMetadata());

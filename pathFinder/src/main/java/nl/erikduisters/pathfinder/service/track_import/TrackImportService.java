@@ -39,10 +39,12 @@ import timber.log.Timber;
  * Created by Erik Duisters on 17-08-2018.
  */
 
-//TODO: Who ever came up with the JobIntentService?
-//          - There is no way to define job scheduling criteria.
-//          - When running as a job there is no way to know if the job has been re-scheduled
-//TODO: So, since the user is expecting these downloads to happen just use a service/intentService that does work in the foreground
+/*TODO: Who ever came up with the JobIntentService?
+        - There is no way to define job scheduling criteria.
+        - When running as a job there is no way to know if the job has been re-scheduled
+        So, since the user is expecting these downloads to happen just use a service/intentService that does work in the foreground
+*/
+//TODO: Also import track activity types
 public class TrackImportService extends JobIntentService implements ImportJob.Callback {
     public static final String ACTION_IMPORT_TRACKS = "nl.erikduisters.pathfinder.IMPORT_TRACKS";
     public static final String EXTRA_IMPORT_TRACKS_JOB_INFO = "nl.erikduisters.pathfinder.IMPORT_TRACKS_JOB_INFO";

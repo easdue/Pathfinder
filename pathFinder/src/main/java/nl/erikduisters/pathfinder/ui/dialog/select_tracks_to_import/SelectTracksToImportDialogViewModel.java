@@ -36,6 +36,7 @@ import timber.log.Timber;
 
 //TODO: Implement showing track preview on map in a dialog or popup window
 //TODO: Add select all/none
+//TODO: Sort markers on distance
 @Singleton
 public class SelectTracksToImportDialogViewModel
         extends ViewModel

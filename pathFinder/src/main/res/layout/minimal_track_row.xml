@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Show track activity types when they are imported -->
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:paddingBottom="6dp"
+    android:paddingEnd="12dp"
+    android:paddingStart="12dp"
+    android:paddingTop="4dp">
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- TODO: Distribute Height chart and info fields evenly over available width -->
+    <TextView
+        android:id="@+id/trackName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/checkBox"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="The name of the track, can be very long"/>
+
+    <nl.erikduisters.pathfinder.ui.widget.ProgressBarCompat
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/heightChart"
+        app:layout_constraintEnd_toEndOf="@id/heightChart"
+        app:layout_constraintStart_toStartOf="@id/heightChart"
+        app:layout_constraintTop_toTopOf="@id/heightChart"/>
+
+    <ImageView
+        android:id="@+id/heightChart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="false"
+        android:minHeight="64dp"
+        android:minWidth="140dp"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="@+id/trackName"
+        app:layout_constraintTop_toBottomOf="@+id/trackName"
+        />
+
+    <TextView
+        android:id="@+id/authorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/author_label"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintBottom_toTopOf="@id/trackTypeImageView"
+        app:layout_constraintStart_toEndOf="@id/heightChart"
+        app:layout_constraintTop_toTopOf="@id/heightChart"
+        app:layout_constraintVertical_chainStyle="packed"/>
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintStart_toEndOf="@id/authorLabel"
+        app:layout_constraintTop_toTopOf="@id/authorLabel"/>
+
+    <TextView
+        android:id="@+id/lengthLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/length_label"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintBottom_toBottomOf="@+id/trackTypeImageView"
+        app:layout_constraintStart_toEndOf="@+id/heightChart"
+        app:layout_constraintTop_toTopOf="@+id/trackTypeImageView"/>
+
+    <TextView
+        android:id="@+id/length"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintStart_toEndOf="@+id/lengthLabel"
+        app:layout_constraintTop_toTopOf="@+id/lengthLabel"
+        tools:text="24.5km"/>
+
+    <ImageView
+        android:id="@+id/trackTypeImageView"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/totalAscentImageView"
+        app:layout_constraintStart_toEndOf="@+id/length"
+        app:layout_constraintTop_toBottomOf="@+id/authorLabel"/>
+
+    <ImageView
+        android:id="@+id/totalAscentImageView"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/heightChart"
+        app:layout_constraintStart_toStartOf="@+id/lengthLabel"
+        app:layout_constraintTop_toBottomOf="@+id/trackTypeImageView"/>
+
+    <TextView
+        android:id="@+id/totalAscent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintBottom_toBottomOf="@+id/totalAscentImageView"
+        app:layout_constraintStart_toEndOf="@+id/totalAscentImageView"
+        app:layout_constraintTop_toTopOf="@+id/totalAscentImageView"
+        tools:text="256m"/>
+
+    <ImageView
+        android:id="@+id/totalDescentImageView"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/totalAscentImageView"
+        app:layout_constraintStart_toEndOf="@id/totalAscent"
+        app:layout_constraintTop_toTopOf="@id/totalAscentImageView"/>
+
+    <TextView
+        android:id="@+id/totalDescent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:layout_constraintBottom_toBottomOf="@+id/totalDescentImageView"
+        app:layout_constraintStart_toEndOf="@+id/totalDescentImageView"
+        app:layout_constraintTop_toTopOf="@+id/totalDescentImageView"
+        tools:text="256m"/>
+</android.support.constraint.ConstraintLayout>

@@ -40,7 +40,6 @@ import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsAdapte
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewState.InitializedState;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialogViewState.ShowCancelMessageDialogState;
 import nl.erikduisters.pathfinder.util.BoundingBox;
-import nl.erikduisters.pathfinder.util.Coordinate;
 import nl.erikduisters.pathfinder.util.FileUtil;
 import nl.erikduisters.pathfinder.util.Units;
 import nl.erikduisters.pathfinder.util.UnitsUtil;
@@ -409,14 +408,16 @@ public class ImportSettingsDialogViewModel extends ViewModel implements GpsManag
     }
 
     private BoundingBox createBoundingBoxForCenterAndRadiusSearch(SearchTracksOnGpsiesGroup group) {
-        Coordinate center;
+        Location center;
 
         if (((GroupEntryRadiogroup) group.findGroupEntryByLabel(R.string.track_search_center)).selectedButton() == 1) {
             Location location = gpsManager.getLastKnowLocation();
-            center = new Coordinate(location.getLatitude(), location.getLongitude());
+            center = location;
         } else {
             MapPosition mapPosition = preferenceManager.getMapPosition();
-            center = new Coordinate(mapPosition.getLatitude(), mapPosition.getLongitude());
+            center = new Location("");
+            center.setLatitude(mapPosition.getLatitude());
+            center.setLongitude(mapPosition.getLongitude());
         }
 
         int radiusKm = ((GroupEntrySeekbar) group.findGroupEntryByLabel(R.string.track_search_radius)).getValue();

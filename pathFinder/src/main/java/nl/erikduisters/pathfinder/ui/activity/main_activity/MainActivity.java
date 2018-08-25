@@ -473,6 +473,7 @@ public class MainActivity
     private void showImportSettingsDialog(String tag) {
         ImportSettingsDialog dialog = findFragment(tag);
 
+        //TODO: Ugly, think of something better
         if (dialog == null) {
             MapFragment mapFragment = fragmentAdapter.getFragment(MainActivityFragmentProvider.MAP_FRAGMENT);
 

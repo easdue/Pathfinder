@@ -102,11 +102,11 @@ public class Coordinate implements Parcelable {
         }
     }
 
-    private synchronized static String formatDecimal(double coord) {
+    private String formatDecimal(double coord) {
         return Double.toString(coord);
     }
 
-    private synchronized static String formatDDMMMMM(double coord, boolean isLatitude) {
+    private String formatDDMMMMM(double coord, boolean isLatitude) {
         StringBuilder sb = new StringBuilder();
 
         int degrees = (int) coord;
@@ -128,7 +128,7 @@ public class Coordinate implements Parcelable {
         return sb.toString();
     }
 
-    private synchronized static String formatDDMMSSS(double coord, boolean isLatitude) {
+    private String formatDDMMSSS(double coord, boolean isLatitude) {
         StringBuilder sb = new StringBuilder();
 
         int degrees = (int) coord;
