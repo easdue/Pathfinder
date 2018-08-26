@@ -29,6 +29,7 @@ import nl.erikduisters.pathfinder.data.local.TrackRepository;
 import nl.erikduisters.pathfinder.data.model.FullTrack;
 import nl.erikduisters.pathfinder.di.GPSiesOkHttpClient;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivity;
+import nl.erikduisters.pathfinder.ui.app_widget.WidgetService;
 import nl.erikduisters.pathfinder.util.JobId;
 import nl.erikduisters.pathfinder.util.NotificationChannels;
 import nl.erikduisters.pathfinder.util.NotificationId;
@@ -159,7 +160,7 @@ public class TrackImportService extends JobIntentService implements ImportJob.Ca
                     showProgressNotification(Math.min(curTrackIdx + 1, numTracks), numTracks, Math.round((curTrackIdx) * progressIncrement));
                 }
             } catch (RuntimeException e) {
-                Timber.d(e.getMessage());
+                Timber.d(e);
 
                 curTrackIdx++;
                 showProgressNotification(Math.min(curTrackIdx + 1, numTracks), numTracks, Math.round((curTrackIdx) * progressIncrement));
@@ -191,6 +192,8 @@ public class TrackImportService extends JobIntentService implements ImportJob.Ca
 
             notificationManager.notify(NotificationId.DOWNLOADING_TRACKS, notificationBuilder.build());
         }
+
+        WidgetService.startActionUpdateWidget(this);
 
         resetDownloadPreferences();
 

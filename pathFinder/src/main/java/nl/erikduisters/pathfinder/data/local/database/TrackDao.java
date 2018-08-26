@@ -12,6 +12,7 @@ import java.util.List;
 
 import nl.erikduisters.pathfinder.data.model.FullTrack;
 import nl.erikduisters.pathfinder.data.model.MinimalTrack;
+import nl.erikduisters.pathfinder.ui.app_widget.WidgetInfo;
 
 /**
  * Created by Erik Duisters on 14-06-2018.
@@ -33,6 +34,9 @@ public interface TrackDao {
             "AS tp2 ON tp2.track_id = t._id WHERE (tp2.latitude BETWEEN :minLat AND :maxLat AND tp2.longitude BETWEEN :minLon and :maxLon) OR t._id = :trackIdToInclude")
     @NonNull
     LiveData<List<MinimalTrack>> getMinimalTracks(double minLat, double minLon, double maxLat, double maxLon, long trackIdToInclude);
+
+    @Query("SELECT COUNT(_id) AS numTracks, 1 AS numTrackActivityTypes, IFNULL(AVG(length), 0) AS averageLength, IFNULL(SUM(length), 0) AS totalLength FROM track;")
+    WidgetInfo getWidgetInfo();
 
     @Query("DELETE FROM track WHERE gpsies_file_id = :gpsiesFileId")
     void delete(String gpsiesFileId);

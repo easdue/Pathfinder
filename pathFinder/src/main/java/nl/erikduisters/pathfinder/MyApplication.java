@@ -19,6 +19,7 @@ import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 import dagger.android.HasServiceInjector;
 import io.fabric.sdk.android.Fabric;
+import nl.erikduisters.pathfinder.data.local.PreferenceManager;
 import nl.erikduisters.pathfinder.data.local.SvgRenderer;
 import nl.erikduisters.pathfinder.di.DaggerAppComponent;
 import nl.erikduisters.pathfinder.ui.widget.SvgView;
@@ -37,6 +38,8 @@ public class MyApplication extends Application implements HasActivityInjector, H
     DispatchingAndroidInjector<Service> dispatchingAndroidServiceInjector;
     @Inject
     SvgRenderer svgRenderer;
+    @Inject
+    PreferenceManager preferenceManager;    //Make sure Coordinate, Distance and Speed get initialized
 
     @Override
     public void onCreate() {

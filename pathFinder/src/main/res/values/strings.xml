@@ -343,4 +343,12 @@
     <string name="length_label">Length:</string>
     <string name="total_ascent_label">Total ascent:</string>
     <string name="total_descent_label">Total descent:</string>
+
+    <!-- App Widget -->
+    <string name="widget_largest_text">Available tracks</string>
+    <string name="available_tracks">Available tracks</string>
+    <string name="activity_types">Activity types</string>
+    <string name="average_length">Average length</string>
+    <string name="total_length">Total length</string>
+
 </resources>
