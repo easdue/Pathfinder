@@ -51,6 +51,8 @@ captures/
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
+keystore.properties
+fakekeystore.jks
 
 # Freeline
 freeline.py
