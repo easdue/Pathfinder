@@ -86,7 +86,8 @@
             android:minHeight="@dimen/small_button_height"
             android:minWidth="@dimen/small_button_height"
             android:src="@raw/ic_retry"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:contentDescription="@string/retry"/>
 
     </FrameLayout>
 

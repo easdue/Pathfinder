@@ -37,7 +37,8 @@
             android:layout_gravity="center_vertical|center_horizontal"
             android:background="@drawable/btn_small"
             android:scaleType="center"
-            android:visibility="visible"/>
+            android:visibility="visible"
+            android:contentDescription="@string/expande_collapse"/>
 
     </FrameLayout>
 

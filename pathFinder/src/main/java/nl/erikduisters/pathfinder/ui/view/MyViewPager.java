@@ -19,6 +19,11 @@ public class MyViewPager extends ViewPager {
     }
 
     @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         return pagingEnabled && super.onTouchEvent(event);
     }

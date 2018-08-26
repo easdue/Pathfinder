@@ -238,6 +238,9 @@ public class MinimalTrackAdapter extends RecyclerView.Adapter<MinimalTrackAdapte
                 trackTypeImageView.setImageBitmap(trackTypeSvgView.getBitmap());
             }
 
+            String contentDescription = trackTypeSvgView.getContext().getString(minimalTrack.type == TrackType.ONE_WAY ? R.string.track_type_one_way : R.string.track_type_round_trip);
+            trackTypeImageView.setContentDescription(contentDescription);
+
             if (totalAscentSvgView.isRendered()) {
                 totalAscentImageView.setImageBitmap(totalAscentSvgView.getBitmap());
             }

@@ -301,7 +301,7 @@
     <string name="track_length_minimum">Min</string>
     <string name="track_length_maximum">Max</string>
     <string name="track_type_round_trip">Round trip</string>
-    <string name="track_type_one_way">One way</string>
+    <string name="track_type_one_way">One way trip</string>
     <string name="no_gps_fix_dialog_title">No GPS fix available</string>
     <string name="no_gps_fix_dialog_message">Waiting for GPS to acquire your current location</string>
 
@@ -351,4 +351,8 @@
     <string name="average_length">Average length</string>
     <string name="total_length">Total length</string>
 
+    <!-- Content Description -->
+    <string name="total_ascent">Total ascent</string>
+    <string name="total_descent">Total descent</string>
+    <string name="expande_collapse">expand or collapse</string>
 </resources>

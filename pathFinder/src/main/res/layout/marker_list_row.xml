@@ -53,6 +53,7 @@
         android:minHeight="64dp"
         android:minWidth="140dp"
         android:visibility="visible"
+        android:importantForAccessibility="no"
         app:layout_constraintStart_toStartOf="@+id/trackName"
         app:layout_constraintTop_toBottomOf="@+id/trackName"
         />
@@ -83,6 +84,7 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginStart="4dp"
+        android:contentDescription="@null"
         app:layout_constraintBottom_toTopOf="@+id/totalAscentImageView"
         app:layout_constraintStart_toEndOf="@+id/length"
         app:layout_constraintTop_toTopOf="@+id/heightChart"
@@ -93,6 +95,7 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginTop="4dp"
+        android:contentDescription="@string/total_ascent"
         app:layout_constraintBottom_toBottomOf="@id/heightChart"
         app:layout_constraintStart_toStartOf="@+id/lengthLabel"
         app:layout_constraintTop_toBottomOf="@+id/trackTypeImageView"/>
@@ -112,6 +115,7 @@
         android:id="@+id/totalDescentImageView"
         android:layout_width="20dp"
         android:layout_height="20dp"
+        android:contentDescription="@string/total_descent"
         app:layout_constraintBottom_toBottomOf="@+id/totalAscentImageView"
         app:layout_constraintStart_toEndOf="@id/totalAscent"
         app:layout_constraintTop_toTopOf="@id/totalAscentImageView"/>
