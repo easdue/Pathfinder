@@ -118,6 +118,7 @@ public class ProgressDialog extends DialogFragment {
         setProgressAndMessage(currentProgress, currentProgressMessageResId);
 
         dialog.setCanceledOnTouchOutside(false);
+        //Not going to remove this because the dialog will return anyway on the next progress report
         this.setCancelable(properties.isCancelable);
 
         return dialog;

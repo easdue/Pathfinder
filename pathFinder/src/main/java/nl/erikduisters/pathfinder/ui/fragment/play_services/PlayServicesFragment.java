@@ -150,10 +150,12 @@ public class PlayServicesFragment
                 viewModel.onUserDoesNotWantToResolveUnavailabilityState(neverAskAgain);
             }
 
+            /*
             @Override
             public void onDialogCancelled() {
                 viewModel.onUserDoesNotWantToResolveUnavailabilityState(false);
             }
+            */
         });
     }
 

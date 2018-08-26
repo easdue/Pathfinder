@@ -448,10 +448,12 @@ public class MainActivity
                 viewModel.onUserDoesNotWantToEnableGps(neverAskAgain);
             }
 
+            /*
             @Override
             public void onDialogCancelled() {
                 viewModel.onUserDoesNotWantToEnableGps(false);
             }
+            */
         });
     }
 

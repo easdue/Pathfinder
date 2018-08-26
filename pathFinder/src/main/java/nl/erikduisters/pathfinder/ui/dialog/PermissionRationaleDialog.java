@@ -1,5 +1,6 @@
 package nl.erikduisters.pathfinder.ui.dialog;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,7 +32,7 @@ public class PermissionRationaleDialog extends PositiveNegativeButtonMessageDial
                 .withShowNeverAskAgain(false)
                 .withPositiveButtonLabelResId(R.string.yes)
                 .withNegativeButtonLabelResId(R.string.no)
-                .withCancellable(false);
+                .withCancellable(true);
 
         dialog.setArguments(builder.build());
 
@@ -56,6 +57,11 @@ public class PermissionRationaleDialog extends PositiveNegativeButtonMessageDial
 
     public void setListener(Listener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        listener.onPermissionRationaleDenied(request);
     }
 
     @Override

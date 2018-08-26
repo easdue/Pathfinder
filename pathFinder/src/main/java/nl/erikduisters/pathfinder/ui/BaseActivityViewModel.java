@@ -120,9 +120,11 @@ public abstract class BaseActivityViewModel extends ViewModel {
         baseActivityViewStateObservable.setValue(new StartActivityState(DownloadManager.ACTION_VIEW_DOWNLOADS));
     }
 
+    /*
     void onDialogCancelled() {
         baseActivityViewStateObservable.setValue(new SetOptionsMenuState(optionsMenu));
     }
+    */
 
     void onRetryingRetryableMapDownloads() {
         baseActivityViewStateObservable.setValue(new SetOptionsMenuState(optionsMenu));

@@ -171,10 +171,12 @@ public class InitStorageFragment
                 viewModel.onPositiveNegativeButtonMessageDialogDismissed(false, neverAskAgain);
             }
 
+            /*
             @Override
             public void onDialogCancelled() {
                 viewModel.onPositiveNegativeButtonMessageDialogCancelled();
             }
+            */
         });
     }
 

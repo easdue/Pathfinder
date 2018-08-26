@@ -1,6 +1,7 @@
 package nl.erikduisters.pathfinder.ui.dialog.select_storage_dialog;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -112,7 +113,8 @@ public class SelectStorageDialog extends DialogFragment implements View.OnClickL
 
         dialog.setCanceledOnTouchOutside(false);
 
-        this.setCancelable(false);
+        //TODO: Re-enable this after review because this requirement makes no sense for this dialog
+        //this.setCancelable(false);
 
         return dialog;
     }
@@ -130,6 +132,14 @@ public class SelectStorageDialog extends DialogFragment implements View.OnClickL
         }
 
         dismiss();
+    }
+
+    //TODO: remove
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+
+        onStorageSelectedListener.onStorageSelected(storageList.get(1));
     }
 
     @Override

@@ -446,10 +446,12 @@ public abstract class BaseActivity<VM extends BaseActivityViewModel>
                 viewModel.onNegativeButtonClicked(neverAskAgain);
             }
 
+            /*
             @Override
             public void onDialogCancelled() {
                 viewModel.onDialogCancelled();
             }
+            */
         });
     }
 }

@@ -31,7 +31,7 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
     public interface Listener {
         void onPositiveButtonClicked(boolean neverAskAgain);
         void onNegativeButtonClicked(boolean neverAskAgain);
-        void onDialogCancelled();
+        //void onDialogCancelled();
     }
 
     @Nullable private Listener listener;
@@ -127,7 +127,7 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
 
         dialog.setOnCancelListener(this);
         dialog.setCanceledOnTouchOutside(false);
-        this.setCancelable(cancellable);
+        //this.setCancelable(cancellable);
 
         return dialog;
     }
@@ -137,7 +137,7 @@ public class PositiveNegativeButtonMessageDialog extends DialogFragment {
         super.onCancel(dialog);
 
         if (listener != null) {
-            listener.onDialogCancelled();
+            listener.onNegativeButtonClicked(false);
         }
     }
 

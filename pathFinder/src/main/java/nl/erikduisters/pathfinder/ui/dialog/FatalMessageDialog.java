@@ -1,6 +1,7 @@
 package nl.erikduisters.pathfinder.ui.dialog;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -50,9 +51,16 @@ public class FatalMessageDialog extends DialogFragment {
 
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
-        this.setCancelable(false);					/* This is the only way to prevent the dialog from being dismissed when pressing the back button */
+        //this.setCancelable(false);
         return dialog;
 
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+
+        listener.onFatalMessageDialogDismissed();
     }
 
     public void setListener(FatalMessageDialogListener listener) {

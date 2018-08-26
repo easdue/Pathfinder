@@ -152,9 +152,11 @@ public class InitStorageFragmentViewModel extends ViewModel {
         }
     }
 
+    /*
     void onPositiveNegativeButtonMessageDialogCancelled() {
         //I never allow cancellation
     }
+    */
 
     private boolean verifyDirectoryStructure(File storage) {
         if (!initDirectoryStructure(storage)) {
