@@ -174,7 +174,7 @@
         android:layout_weight="1"
         android:gravity="center_vertical" >
 
-        <nl.onslow.cachepal.ui.widget.GpsSkyView
+        <nl.erikduisters.pathfinder.ui.widget.GpsSkyView
             android:id="@+id/gpsSkyView"
             android:layout_width="0dp"
             android:layout_height="match_parent"
