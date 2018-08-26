@@ -1,5 +1,6 @@
 package nl.erikduisters.pathfinder.ui.activity.main_activity;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -313,7 +314,11 @@ public class MainActivity
             return;
         }
 
-        startActivity(state.getIntent(this));
+        if (Build.VERSION.SDK_INT > 21) {
+            startActivity(state.getIntent(this), ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        } else {
+            startActivity(state.getIntent(this));
+        }
 
         viewModel.onActivityStarted();
     }

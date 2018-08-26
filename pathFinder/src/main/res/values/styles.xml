@@ -23,6 +23,9 @@
 
     <style name="SubAppTheme" parent="AppTheme.NoActionBar"/>
 
+    <style name="MainActivityTheme" parent="AppTheme.NoActionBar"/>
+    <style name="GpsStatusTheme" parent="SubAppTheme"/>
+
     <style name="FullScreenDialogTheme" parent="SubAppTheme">
         <!-- Use this for a white background <item name="android:windowBackground">@color/white</item> -->
     </style>
