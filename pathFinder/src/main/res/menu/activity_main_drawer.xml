@@ -27,6 +27,11 @@
             android:icon="@drawable/vector_drawable_ic_settings"
             android:title="@string/nav_settings"
             android:enabled="false"/>
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/vector_drawable_ic_alert_circle"
+            android:title="@string/about_dialog_title"
+            android:enabled="true"/>
     </group>
 
 </menu>

@@ -176,6 +176,40 @@ interface MainActivityViewState {
                     }
                 };
             }
+
+            final class ShowOkMessageDialogState implements ShowDialogViewState {
+                @NonNull final MessageWithTitle messageWithTitle;
+
+                ShowOkMessageDialogState(@NonNull MessageWithTitle messageWithTitle) {
+                    this.messageWithTitle = messageWithTitle;
+                }
+
+                @Override
+                public int describeContents() {
+                    return 0;
+                }
+
+                @Override
+                public void writeToParcel(Parcel dest, int flags) {
+                    dest.writeParcelable(this.messageWithTitle, flags);
+                }
+
+                protected ShowOkMessageDialogState(Parcel in) {
+                    this.messageWithTitle = in.readParcelable(MessageWithTitle.class.getClassLoader());
+                }
+
+                public static final Creator<ShowOkMessageDialogState> CREATOR = new Creator<ShowOkMessageDialogState>() {
+                    @Override
+                    public ShowOkMessageDialogState createFromParcel(Parcel source) {
+                        return new ShowOkMessageDialogState(source);
+                    }
+
+                    @Override
+                    public ShowOkMessageDialogState[] newArray(int size) {
+                        return new ShowOkMessageDialogState[size];
+                    }
+                };
+            }
         }
     }
 

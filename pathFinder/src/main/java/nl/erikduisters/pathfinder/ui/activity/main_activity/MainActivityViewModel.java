@@ -46,11 +46,13 @@ import nl.erikduisters.pathfinder.util.menu.MyMenu;
 import nl.erikduisters.pathfinder.util.menu.MyMenuItem;
 import timber.log.Timber;
 
+//TODO: GPLv3 notices in every file
 //TODO: Request WRITE_EXTERNAL_STORAGE permission for LeakCanary?
 //TODO: Enable/Disable navigation view menu items
 //TODO: Add a navigation options menu item allowing the user to manage external maps (eg. delete/download)
 //TODO: Allow the user to move storage from internal to external or visa versa
 //TODO: Allow the user to start and stop recording a track
+//TODO: Better about dialog
 /**
  * Created by Erik Duisters on 03-06-2018.
  */
@@ -228,6 +230,7 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
         menu.add(new MyMenuItem(R.id.nav_login_register, false, true));
         menu.add(new MyMenuItem(R.id.nav_gps_status, true, true));
         menu.add(new MyMenuItem(R.id.nav_settings, true, true));
+        menu.add(new MyMenuItem(R.id.nav_about, true, true));
 
         return menu;
     }
@@ -244,11 +247,14 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
 
     void onNavigationMenuItemSelected(MyMenuItem menuItem) {
         switch (menuItem.getId()) {
-            case R.id.nav_import:
+            case R.id.nav_import: {
                 InitializedState currentState = getCurrentInitializedState();
 
-                mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState, new InitializedState.ShowDialogViewState.ShowImportSettingsDialogState()));
+                mainActivityViewStateObservable.setValue(
+                        new InitializedState(currentState.optionsMenu, currentState.navigationViewState,
+                                new InitializedState.ShowDialogViewState.ShowImportSettingsDialogState()));
                 break;
+            }
             case R.id.nav_login_register:
                 //TODO
                 break;
@@ -260,6 +266,15 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
                 startActivityViewStateObservable
                         .setValue(new StartActivityViewState(SettingsActivity.class));
                 break;
+            case R.id.nav_about: {
+                InitializedState currentState = getCurrentInitializedState();
+
+                MessageWithTitle messageWithTitle = new MessageWithTitle(R.string.about_dialog_title, R.string.about_dialog_message);
+                mainActivityViewStateObservable.setValue(
+                        new InitializedState(currentState.optionsMenu, currentState.navigationViewState,
+                                new InitializedState.ShowDialogViewState.ShowOkMessageDialogState(messageWithTitle)));
+                break;
+            }
         }
     }
 
@@ -311,6 +326,12 @@ public class MainActivityViewModel extends BaseActivityViewModel implements Init
     }
 
     void onSelectTracksToImportDialogCancelled() {
+        InitializedState currentState = getCurrentInitializedState();
+
+        mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState));
+    }
+
+    void onOkMessageDialogDismissed() {
         InitializedState currentState = getCurrentInitializedState();
 
         mainActivityViewStateObservable.setValue(new InitializedState(currentState.optionsMenu, currentState.navigationViewState));

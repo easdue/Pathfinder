@@ -355,4 +355,21 @@
     <string name="total_ascent">Total ascent</string>
     <string name="total_descent">Total descent</string>
     <string name="expande_collapse">expand or collapse</string>
+
+    <!-- About Dialog -->
+    <string name="about_dialog_title">About</string>
+    <string name="about_dialog_message">&appname; \u00A9 2018 by Erik Duisters\n\nApp Icon and track marker made by Freepik from www.flaticon.com\n\n
+        Libraries used:<small>
+        \n\tSupport-Preference by Eugen Pechanec
+        \n\tTimber by Jake Wharton
+        \n\tButterknife by Jake Wharton
+        \n\tDagger2 by Google
+        \n\tCircleImageView by Henning Dodenhof
+        \n\tandroidsvg by Paul LeBeau
+        \n\tvtm by Mapsforge
+        \n\tOkhttp3 by Square
+        \n\tMoshi by Square
+        \n\tStetho by Facebook
+        \n\tGlide by Bump Technologies
+        \n\tLeakCanary by Square</small></string>
 </resources>

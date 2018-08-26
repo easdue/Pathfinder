@@ -41,12 +41,14 @@ import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewStat
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState.ShowDialogViewState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState.ShowDialogViewState.SelectTracksToImportDialogState;
+import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.InitializedState.ShowDialogViewState.ShowOkMessageDialogState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.RequestRuntimePermissionState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowEnableGpsSettingState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.ShowFatalErrorMessageState;
 import nl.erikduisters.pathfinder.ui.activity.main_activity.MainActivityViewState.WaitingForGpsToBeEnabledState;
 import nl.erikduisters.pathfinder.ui.dialog.FatalMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.MessageWithTitle;
+import nl.erikduisters.pathfinder.ui.dialog.OkMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.PositiveNegativeButtonMessageDialog;
 import nl.erikduisters.pathfinder.ui.dialog.ProgressDialog;
 import nl.erikduisters.pathfinder.ui.dialog.import_settings.ImportSettingsDialog;
@@ -82,6 +84,7 @@ public class MainActivity
     private static final String TAG_ASK_USER_TO_ENABLE_GPS_DIALOG = "AskUserToEnableGpsDialog";
     private static final String TAG_IMPORT_SETTINGS_DIALOG = "ImportSettingsDialog";
     private static final String TAG_SELECT_TRACKS_TO_IMPORT_DIALOG = "SelectTrackToImportDialog";
+    private static final String TAG_OK_MESSAGE_DIALOG = "OkMessageDialog";
 
     private static final String KEY_CURRENT_VIEWPAGER_POSITION = "CurrentViewpagerPosition";
     private static final String KEY_VIEW_MODEL_STATE = "ViewModelState";
@@ -208,6 +211,7 @@ public class MainActivity
             case R.id.nav_login_register:
             case R.id.nav_gps_status:
             case R.id.nav_settings:
+            case R.id.nav_about:
                 viewModel.onNavigationMenuItemSelected(navigationMenu.findItem(item.getItemId()));
                 break;
         }
@@ -334,6 +338,12 @@ public class MainActivity
             showSelectTracksToImportDialog((SelectTracksToImportDialogState) viewState, TAG_SELECT_TRACKS_TO_IMPORT_DIALOG);
         } else {
             dismissDialogFragment(TAG_SELECT_TRACKS_TO_IMPORT_DIALOG);
+        }
+
+        if (viewState instanceof ShowOkMessageDialogState) {
+            showOkMessageDialog((ShowOkMessageDialogState) viewState, TAG_OK_MESSAGE_DIALOG);
+        } else {
+            dismissDialogFragment(TAG_OK_MESSAGE_DIALOG);
         }
     }
 
@@ -532,6 +542,18 @@ public class MainActivity
                 viewModel.onSelectTracksToImportDialogCancelled();
             }
         });
+    }
+
+    private void showOkMessageDialog(ShowOkMessageDialogState state, String tag) {
+        OkMessageDialog dialog = findFragment(tag);
+
+        if (dialog == null) {
+            dialog = OkMessageDialog.newInstance(state.messageWithTitle);
+
+            show(dialog, tag);
+        }
+
+        dialog.setListener(() -> viewModel.onOkMessageDialogDismissed());
     }
 
     @Override
