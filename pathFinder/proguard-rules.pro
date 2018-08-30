@@ -54,3 +54,9 @@
     @com.squareup.moshi.* <methods>;
 }
 -keep @com.squareup.moshi.JsonQualifier interface *
+
+############################################################################################
+## vtm-mvt
+############################################################################################
+-dontwarn java.awt.*
+-dontwarn java.awt.geom.*

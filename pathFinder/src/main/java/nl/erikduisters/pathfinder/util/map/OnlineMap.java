@@ -22,8 +22,10 @@ package nl.erikduisters.pathfinder.util.map;
 import org.oscim.tiling.TileSource;
 import org.oscim.tiling.source.OkHttpEngine;
 import org.oscim.tiling.source.bitmap.BitmapTileSource;
+import org.oscim.tiling.source.mvt.NextzenMvtTileSource;
 import org.oscim.tiling.source.oscimap4.OSciMap4TileSource;
 
+import nl.erikduisters.pathfinder.BuildConfig;
 import okhttp3.OkHttpClient;
 
 /**
@@ -37,6 +39,26 @@ public enum OnlineMap implements TileSourceProvider {
                     .httpFactory(new OkHttpEngine.OkHttpFactory(builder))
                     .build();
         }
+
+        @Override
+        public boolean isBitmapTileSource() {
+            return false;
+        }
+    },
+    NEXTZEN_MVT {
+        @Override
+        public TileSource provideTileSource(OkHttpClient.Builder builder) {
+            return NextzenMvtTileSource.builder()
+                    .apiKey(BuildConfig.NEXTZEN_API_KEY)
+                    .httpFactory(new OkHttpEngine.OkHttpFactory(builder))
+                    //.locale("en")
+                    .build();
+        }
+
+        @Override
+        public boolean isBitmapTileSource() {
+            return false;
+        }
     },
     HIKEBIKE {
         @Override
@@ -47,6 +69,11 @@ public enum OnlineMap implements TileSourceProvider {
                     .zoomMax(17)
                     .httpFactory(new OkHttpEngine.OkHttpFactory(builder))
                     .build();
+        }
+
+        @Override
+        public boolean isBitmapTileSource() {
+            return true;
         }
     },
     HIKEBIKE_HILLSHADE {
@@ -59,16 +86,10 @@ public enum OnlineMap implements TileSourceProvider {
                     .httpFactory(new OkHttpEngine.OkHttpFactory(builder))
                     .build();
         }
-    }
-    /*,
-    NEXTZEN_MVT {
+
         @Override
-        public TileSource provideTileSource(OkHttpClient.Builder builder) {
-            return NextzenMvtTileSource.builder()
-                    .apiKey(BuildConfig.NEXTZEN_API_KEY)
-                    .httpFactory(new OkHttpEngine.OkHttpFactory())
-                    //.locale("en")
-                    .build();
+        public boolean isBitmapTileSource() {
+            return true;
         }
-    }*/
+    }
 }

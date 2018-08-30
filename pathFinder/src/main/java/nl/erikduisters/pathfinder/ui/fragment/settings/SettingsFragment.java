@@ -38,6 +38,7 @@ import org.oscim.theme.IRenderTheme;
 import org.oscim.theme.VtmThemes;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.inject.Inject;
@@ -233,23 +234,59 @@ public class SettingsFragment
     }
 
     private void setupRenderThemePreferences(PreferenceScreen screen) {
-        setupInternalThemePreferences(screen);
-        setupExternalThemePreferences(screen);
+        boolean enabled = !(preferenceManager.useOnlineMap() && (preferenceManager.getOnlineMap().isBitmapTileSource()));
+        setupInternalThemePreferences(screen, enabled);
+        setupExternalThemePreferences(screen, enabled);
+        setupUseInternalRenderThemePreference(screen, enabled);
     }
 
-    private void setupInternalThemePreferences(PreferenceScreen screen) {
+    private void setupInternalThemePreferences(PreferenceScreen screen, boolean enabled) {
         ListPreference listPreference = (ListPreference) screen.findPreference(getString(R.string.key_map_internal_render_theme));
 
-        if (listPreference.getEntries() == null) {
-            listPreference.setEntries(getEntries(VtmThemes.class, false, VtmThemes.MAPZEN));
-            listPreference.setEntryValues(getEntries(VtmThemes.class, true));
-            listPreference.setValue(preferenceManager.getInternalRenderTheme().name());
+        boolean nextzenMapSourceActive = preferenceManager.useOnlineMap() && preferenceManager.getOnlineMap() == OnlineMap.NEXTZEN_MVT;
+
+        if (listPreference.getEntries() == null ||
+                (nextzenMapSourceActive && listPreference.getEntries().length > 1) ||
+                (!nextzenMapSourceActive && listPreference.getEntries().length == 1)) {
+
+            ArrayList<VtmThemes> excludedThemes = new ArrayList<>();
+
+            if (nextzenMapSourceActive) {
+                for (VtmThemes vtmTheme : VtmThemes.values()) {
+                    if (vtmTheme != VtmThemes.MAPZEN) {
+                        excludedThemes.add(vtmTheme);
+                    }
+                }
+            } else {
+                excludedThemes.add(VtmThemes.MAPZEN);
+            }
+
+            VtmThemes[] excludedThemesArray = excludedThemes.toArray(new VtmThemes[excludedThemes.size()]);
+
+            listPreference.setEntries(getEntries(VtmThemes.class, false, excludedThemesArray));
+            listPreference.setEntryValues(getEntries(VtmThemes.class, true, excludedThemesArray));
+            listPreference.setValue(getInternalRenderThemeName(nextzenMapSourceActive));
         }
 
         listPreference.setSummary(listPreference.getEntry());
+        listPreference.setEnabled(enabled);
     }
 
-    private void setupExternalThemePreferences(PreferenceScreen screen) {
+    private String getInternalRenderThemeName(boolean nextzenMapSourceActive) {
+        if (nextzenMapSourceActive) {
+            return VtmThemes.MAPZEN.name();
+        }
+
+        VtmThemes currentTheme = preferenceManager.getInternalRenderTheme();
+
+        if (!nextzenMapSourceActive && currentTheme == VtmThemes.MAPZEN) {
+            return VtmThemes.DEFAULT.name();
+        } else {
+            return currentTheme.name();
+        }
+    }
+
+    private void setupExternalThemePreferences(PreferenceScreen screen, boolean enabled) {
         ListPreference listPreference = (ListPreference) screen.findPreference(getString(R.string.key_map_external_render_theme));
 
         if (listPreference.getEntries() == null) {
@@ -266,6 +303,15 @@ public class SettingsFragment
         }
 
         listPreference.setSummary(listPreference.getEntry());
+        listPreference.setEnabled(enabled);
+    }
+
+    private void setupUseInternalRenderThemePreference(PreferenceScreen screen, boolean enabled) {
+        SwitchPreference switchPreference = (SwitchPreference) screen.findPreference(preferenceManager.KEY_USE_INTERNAL_RENDER_THEME);
+
+        boolean nextzenMapSourceActive = preferenceManager.useOnlineMap() && preferenceManager.getOnlineMap() == OnlineMap.NEXTZEN_MVT;
+        switchPreference.setChecked(nextzenMapSourceActive || preferenceManager.useInternalRenderTheme());
+        switchPreference.setEnabled(!nextzenMapSourceActive && enabled);
     }
 
     private void setupScaleBarPreference(PreferenceScreen screen) {

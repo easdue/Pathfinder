@@ -28,4 +28,5 @@ import okhttp3.OkHttpClient;
  */
 public interface TileSourceProvider {
     TileSource provideTileSource(OkHttpClient.Builder okHttpClientBuilder);
+    boolean isBitmapTileSource();
 }
