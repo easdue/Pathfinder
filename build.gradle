@@ -4,6 +4,8 @@ buildscript {
     
     repositories {
         google()
+        //TODO: Added mavenCentral() because jcenter does not have vtm-http-0.10.0 and vtm-json-0.10.0 on 30-08-2018
+        mavenCentral()
         jcenter()
 
         maven {
@@ -24,6 +26,8 @@ buildscript {
 allprojects {
     repositories {
         google()
+        //TODO: Added mavenCentral() because jcenter does not have vtm-http-0.10.0 and vtm-json-0.10.0 on 30-08-2018
+        mavenCentral()
         jcenter()
     }
 }
