@@ -130,7 +130,13 @@ public class TrackListFragmentViewModel extends ViewModel implements GpsManager.
                         new NoTracksFoundState(R.string.no_tracks_found_within_radius_from_current_map_center, distance));
             }
         } else {
-            sortLocation = minimalTrackList.getCenter();
+            if (preferenceManager.mapFollowsGps()) {
+                sortLocation = minimalTrackList.getCenter();
+            } else {
+                Timber.d("MinimalTrackList is sorted on map center, resorting minimalTrackList");
+                sortLocation = gpsManager.getLastKnowLocation();
+                minimalTrackList.sortByDistance(sortLocation);
+            }
 
             MinimalTrack selectedMinimalTrack = null;
 
