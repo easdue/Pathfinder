@@ -299,6 +299,8 @@ public class MapFragment
     }
 
     private void render(MapInitializedState state) {
+        currentMapFragmentViewState = null;
+
         Layers layers = map.layers();
 
         for (int i = layers.size() - 1; i >= 1; i--) {
